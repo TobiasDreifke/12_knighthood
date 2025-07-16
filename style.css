@@ -1,0 +1,13 @@
+* {
+    margin: 0
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+canvas {
+    background-color: rgb(87, 87, 87);
+}
