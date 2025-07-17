@@ -1,8 +1,4 @@
 class World {
-    canvas;
-    ctx;
-    keyboard;
-
     heroCharacter = new Hero();
     enemies = [
         new Goblin(),
@@ -15,6 +11,11 @@ class World {
         new BackgroundObject("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png", 0, 0),
         new BackgroundObject("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png", 0, 0)
     ]
+
+    canvas;
+    ctx;
+    keyboard;
+    camera_x = -100;
     // bg_thirdLayer = new BgThirdLayer();
     // bg_secondLayer = new BgSecondLayer();
     // bg_firstLayer = new BgFirstLayer();
@@ -35,10 +36,16 @@ class World {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
+
+        this.ctx.translate(this.camera_x, 0);
+
         this.addObjectsToMap(this.backgroundObjects);
         this.addObjectsToMap(this.clouds);
         this.addToMap(this.heroCharacter)
         this.addObjectsToMap(this.enemies);
+
+        this.ctx.translate(-this.camera_x, 0);
+
 
         let self = this;
         requestAnimationFrame(function () {
@@ -54,17 +61,28 @@ class World {
 
     addToMap(MoveableObjects) {
         if (MoveableObjects.otherDirection) {
-            this.ctx.save();
-            this.ctx.translate(MoveableObjects.x + MoveableObjects.width, 0);
-            this.ctx.scale(-1, 1);
-
-            this.ctx.drawImage(MoveableObjects.img, 0, MoveableObjects.y, MoveableObjects.width, MoveableObjects.height);
-            this.ctx.restore();
-        } else {
-            this.ctx.save();
-            this.ctx.drawImage(MoveableObjects.img, MoveableObjects.x, MoveableObjects.y, MoveableObjects.width, MoveableObjects.height);
-            this.ctx.restore();
+            this.flipImage(MoveableObjects);
         }
+
+        // MoveableObjects.draw(this.ctx);
+
+        if (MoveableObjects.otherDirection === false) {
+            this.flipImageBack(MoveableObjects);
+        }
+    }
+
+    flipImage(MoveableObjects) {
+        this.ctx.save();
+        this.ctx.translate(MoveableObjects.x + MoveableObjects.width, 0);
+        this.ctx.scale(-1, 1);
+        this.ctx.drawImage(MoveableObjects.img, 0, MoveableObjects.y, MoveableObjects.width, MoveableObjects.height);
+        this.ctx.restore();
+    }
+
+    flipImageBack(MoveableObjects) {
+        this.ctx.save();
+        this.ctx.drawImage(MoveableObjects.img, MoveableObjects.x, MoveableObjects.y, MoveableObjects.width, MoveableObjects.height);
+        this.ctx.restore();
     }
 }
 
