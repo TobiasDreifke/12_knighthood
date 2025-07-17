@@ -1,0 +1,2 @@
+class Goblin extends MoveableObject {
+}
