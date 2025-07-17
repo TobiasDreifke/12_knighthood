@@ -2,8 +2,9 @@ class MoveableObject {
     x = 120;
     y = 300;
     img;
-    height = 100;
     width = 100;
+    height = 100;
+    
 
     // loadgImage("img/test.png")
     loadImage(path) {

@@ -5,7 +5,9 @@ class World {
         new Goblin(),
         new Goblin(),
     ];
+    clouds = [new Cloud()];
     canvas;
+
     ctx;
 
     constructor(canvasPara) {
@@ -30,9 +32,18 @@ class World {
             this.ctx.drawImage(enemy.img,
                 enemy.x,
                 enemy.y,
-                enemy.height,
-                enemy.width)
-        })
+                enemy.width,
+                enemy.height)
+        });
+
+         // draw all clouds
+        this.clouds.forEach(cloud => {
+            this.ctx.drawImage(cloud.img,
+                cloud.x,
+                cloud.y,
+                cloud.width,
+                cloud.height)
+        });
 
         let self = this;
         requestAnimationFrame(function () {
