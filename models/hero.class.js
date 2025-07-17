@@ -24,27 +24,25 @@ class Hero extends MoveableObject {
     }
 
     animation() {
-        // this.moveLeft()
+
         setInterval(() => {
-            let i = this.currentImage % this.IMAGES_WALK.length; // modulu (%) - let i = 0 % 6;=>  0,rest 0 // let i = 5 % 6;=>  0,rest 5 // let i = 6 % 6 ;=> 1,rest 0 // let i = 7 % 6 ;=> 1,rest 1
-            // i = 0, 1, 2, 3, 0, 1, 2, 3
-            let path = this.IMAGES_WALK[i];
-            this.img = this.imageCache[path];
-            this.currentImage++
-        }, 200)
+            if (this.world.keyboard.RIGHT) {
+                let i = this.currentImage % this.IMAGES_WALK.length; // modulu (%) - let i = 0 % 6;=>  0,rest 0 // let i = 5 % 6;=>  0,rest 5 // let i = 6 % 6 ;=> 1,rest 0 // let i = 7 % 6 ;=> 1,rest 1
+                // i = 0, 1, 2, 3, 0, 1, 2, 3
+                let path = this.IMAGES_WALK[i];
+                this.img = this.imageCache[path];
+                this.currentImage++
+            }
+        }, 200);
     }
 
-
-    moveLeft() {
-        if (this.world) {
-
-        }
-
-        setInterval(() => {
-            this.x -= 1;
-        }, 1000 / 60);
-    };
-
-
-    jump() { }
 }
+
+
+// moveLeft() {
+//     setInterval(() => {
+//         this.x -= 1;
+//     }, 1000 / 60);
+// };
+
+
