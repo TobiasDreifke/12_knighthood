@@ -5,15 +5,18 @@ class World {
         new Goblin(),
         new Goblin(),
     ];
+    canvas;
     ctx;
 
-    constructor(canvas) {
-        this.ctx = canvas.getContext("2d");
+    constructor(canvasPara) {
+        this.ctx = canvasPara.getContext("2d");
+        this.canvas = canvasPara;
         this.draw();
     }
 
     draw() {
-        // Draw hero
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        // draw heroCharacter
         this.ctx.drawImage(
             this.heroCharacter.img,
             this.heroCharacter.x,
@@ -22,16 +25,18 @@ class World {
             this.heroCharacter.width
         );
 
-        // Draw all enemies
-        for (let i = 0; i < this.enemies.length; i++) {
-            const enemy = this.enemies[i];
-            this.ctx.drawImage(
-                enemy.img,
+        // draw all enemies
+        this.enemies.forEach(enemy => {
+            this.ctx.drawImage(enemy.img,
                 enemy.x,
                 enemy.y,
                 enemy.height,
-                enemy.width
-            );
-        }
+                enemy.width)
+        })
+
+        let self = this;
+        requestAnimationFrame(function () {
+            self.draw();
+        });
     }
 }
