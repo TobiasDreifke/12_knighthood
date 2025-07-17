@@ -1,6 +1,7 @@
 class World {
     canvas;
     ctx;
+    keyboard;
 
     heroCharacter = new Hero();
     enemies = [
@@ -9,34 +10,36 @@ class World {
         new Goblin(),
     ];
     backgroundObjects = [
-        new BackgroundObject("./01_assets/5_background/layers/3_third_layer/parallax-demon-woods-far-trees.png", 0 , 0),
-        new BackgroundObject("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png", 0 , 0),
-        new BackgroundObject("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png", 0 , 0)
+        new BackgroundObject("./01_assets/5_background/layers/parallax-demon-woods-bg.png", 0, 0),
+        new BackgroundObject("./01_assets/5_background/layers/3_third_layer/parallax-demon-woods-far-trees.png", 0, 0),
+        new BackgroundObject("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png", 0, 0),
+        new BackgroundObject("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png", 0, 0)
     ]
     // bg_thirdLayer = new BgThirdLayer();
     // bg_secondLayer = new BgSecondLayer();
     // bg_firstLayer = new BgFirstLayer();
     clouds = [new Cloud()];
 
-    constructor(canvasPara) {
+    constructor(canvasPara, keyboardPara) {
         this.ctx = canvasPara.getContext("2d");
         this.canvas = canvasPara;
+        this.keyboard = keyboardPara;
         this.draw();
+        this.setWorld();
+    }
+
+    setWorld() { 
+        this.heroCharacter.world = this;
     }
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
-        // draw BackgroundLayers
         this.addObjectsToMap(this.backgroundObjects);
-        // Layer Clouds
         this.addObjectsToMap(this.clouds);
-        // draw heroCharacter
         this.addToMap(this.heroCharacter)
-        // draw enemies
         this.addObjectsToMap(this.enemies);
 
-        // refresh draw()
         let self = this;
         requestAnimationFrame(function () {
             self.draw();
