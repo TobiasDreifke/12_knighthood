@@ -8,6 +8,8 @@ class MoveableObject {
     currentImage = 0;
     speed = 0.15;
 
+    otherDirection = false;
+
     // loadgImage("img/test.png")
     loadImage(path) {
         this.img = new Image(); // this.img = document.getElementById("image") <img id="image">

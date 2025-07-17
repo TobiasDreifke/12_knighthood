@@ -28,7 +28,7 @@ class World {
         this.setWorld();
     }
 
-    setWorld() { 
+    setWorld() {
         this.heroCharacter.world = this;
     }
 
@@ -53,7 +53,18 @@ class World {
     }
 
     addToMap(MoveableObjects) {
-        this.ctx.drawImage(MoveableObjects.img, MoveableObjects.x, MoveableObjects.y, MoveableObjects.width, MoveableObjects.height);
+        if (MoveableObjects.otherDirection) {
+            this.ctx.save();
+            this.ctx.translate(MoveableObjects.x + MoveableObjects.width, 0);
+            this.ctx.scale(-1, 1);
+
+            this.ctx.drawImage(MoveableObjects.img, 0, MoveableObjects.y, MoveableObjects.width, MoveableObjects.height);
+            this.ctx.restore();
+        } else {
+            this.ctx.save();
+            this.ctx.drawImage(MoveableObjects.img, MoveableObjects.x, MoveableObjects.y, MoveableObjects.width, MoveableObjects.height);
+            this.ctx.restore();
+        }
     }
 }
 
