@@ -18,7 +18,7 @@ class Hero extends MoveableObject {
     ];
 
     constructor() {
-        super().loadImage("./01_assets/2_character_hero/1_idle/idle/adventurer-idle-00-1.3.png")
+        super().loadImage("01_assets/2_character_hero/1_idle/idle/adventurer-idle-00-1.3.png")
         this.loadImages(this.IMAGES_WALK);
         this.animation();
         console.log(world, "hallo");
@@ -40,12 +40,7 @@ class Hero extends MoveableObject {
 
         setInterval(() => {
             if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-                let i = this.currentImage % this.IMAGES_WALK.length;
-
-                // WALK ANIMATION
-                let path = this.IMAGES_WALK[i];
-                this.img = this.imageCache[path];
-                this.currentImage++
+                this.playAnimation(this.IMAGES_WALK);
             }
         }, 75);
     }
