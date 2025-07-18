@@ -18,6 +18,7 @@ class Goblin extends MoveableObject {
         this.animation();
         this.moveLeft();
         this.speed = 0.25 + Math.random() * 1;
+        this.otherDirection = true;
     }
 
     animation() {
