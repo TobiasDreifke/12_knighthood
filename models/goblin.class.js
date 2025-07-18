@@ -29,8 +29,4 @@ class Goblin extends MoveableObject {
             this.playAnimation(this.IMAGES_WALK);
         }, 1000 / 15)
     }
-
-
-
-
 }
