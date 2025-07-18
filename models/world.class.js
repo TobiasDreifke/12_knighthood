@@ -1,25 +1,16 @@
 class World {
     heroCharacter = new Hero();
-    enemies = [
-        new Goblin(),
-        new Goblin(),
-        new Goblin(),
-    ];
-    backgroundObjects = [
-        new BackgroundObject("./01_assets/5_background/layers/parallax-demon-woods-bg.png", 0, 0),
-        new BackgroundObject("./01_assets/5_background/layers/3_third_layer/parallax-demon-woods-far-trees.png", 0, 0),
-        new BackgroundObject("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png", 0, 0),
-        new BackgroundObject("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png", 0, 0)
-    ]
+
+    level = level_01
 
     canvas;
     ctx;
     keyboard;
-    camera_x = -100;
+    camera_x = 0;
     // bg_thirdLayer = new BgThirdLayer();
     // bg_secondLayer = new BgSecondLayer();
     // bg_firstLayer = new BgFirstLayer();
-    clouds = [new Cloud()];
+
 
     constructor(canvasPara, keyboardPara) {
         this.ctx = canvasPara.getContext("2d");
@@ -39,10 +30,11 @@ class World {
 
         this.ctx.translate(this.camera_x, 0);
 
-        this.addObjectsToMap(this.backgroundObjects);
-        this.addObjectsToMap(this.clouds);
+        this.addObjectsToMap(this.level.backgroundObjects);
+        this.addObjectsToMap(this.level.enemies);
         this.addToMap(this.heroCharacter)
-        this.addObjectsToMap(this.enemies);
+
+        this.addObjectsToMap(this.level.clouds);
 
         this.ctx.translate(-this.camera_x, 0);
 

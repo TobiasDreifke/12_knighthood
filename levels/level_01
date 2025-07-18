@@ -1,0 +1,37 @@
+const level_01 = new Level(
+
+    [
+        new BackgroundObject("./01_assets/5_background/layers/parallax-demon-woods-bg.png", -720, 0),
+        new BackgroundObject("./01_assets/5_background/layers/3_third_layer/parallax-demon-woods-far-trees.png", -720, 0),
+        new BackgroundObject("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png", -720, 0),
+        new BackgroundObject("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png", -720, 0),
+
+        new BackgroundObject("./01_assets/5_background/layers/parallax-demon-woods-bg.png", 0, 0),
+        new BackgroundObject("./01_assets/5_background/layers/3_third_layer/parallax-demon-woods-far-trees.png", 0, 0),
+        new BackgroundObject("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png", 0, 0),
+        new BackgroundObject("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png", 0, 0),
+
+        new BackgroundObject("./01_assets/5_background/layers/parallax-demon-woods-bg.png", 720, 0),
+        new BackgroundObject("./01_assets/5_background/layers/3_third_layer/parallax-demon-woods-far-trees.png", 720, 0),
+        new BackgroundObject("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png", 720, 0),
+        new BackgroundObject("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png", 720, 0),
+
+        new BackgroundObject("./01_assets/5_background/layers/parallax-demon-woods-bg.png", 720 * 2, 0),
+        new BackgroundObject("./01_assets/5_background/layers/3_third_layer/parallax-demon-woods-far-trees.png", 720 * 2, 0),
+        new BackgroundObject("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png", 720 * 2, 0),
+        new BackgroundObject("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png", 720 * 2, 0),
+
+        new BackgroundObject("./01_assets/5_background/layers/parallax-demon-woods-bg.png", 720 * 3, 0),
+        new BackgroundObject("./01_assets/5_background/layers/3_third_layer/parallax-demon-woods-far-trees.png", 720 * 3, 0),
+        new BackgroundObject("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png", 720 * 3, 0),
+        new BackgroundObject("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png", 720 * 3, 0),
+    ],
+
+    [
+        new Goblin(),
+        new Goblin(),
+        new Goblin(),
+    ],
+
+    [new Cloud()],
+);
