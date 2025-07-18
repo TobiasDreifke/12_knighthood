@@ -1,4 +1,14 @@
 const level_01 = new Level(
+    [
+        new Goblin(),
+        new Goblin(),
+        new Goblin(),
+        new SkeletonBoss(),
+    ],
+
+
+    [new Cloud()],
+
 
     [
         new BackgroundObject("./01_assets/5_background/layers/parallax-demon-woods-bg.png", -720, 0),
@@ -27,12 +37,6 @@ const level_01 = new Level(
         new BackgroundObject("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png", 720 * 3, 0),
     ],
 
-    [
-        new Goblin(),
-        new Goblin(),
-        new Goblin(),
-        new SkeletonBoss(),
-    ],
 
-    [new Cloud()],
+
 );

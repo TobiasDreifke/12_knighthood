@@ -33,12 +33,42 @@ class MoveableObject {
     };
 
     drawRectangle(ctx) {
-        ctx.beginPath();
-        ctx.lineWidth = "5";
-        ctx.strokeStyle = "blue";
-        ctx.rect(this.x, this.y, this.width, this.height);
-        ctx.stroke();
+        // if (this instanceof Hero && this.isColliding) {
+        //     ctx.beginPath();
+        //     ctx.lineWidth = "5";
+        //     ctx.strokeStyle = "blue";
+        //     ctx.rect(this.x, this.y, this.width, this.height);
+        //     ctx.stroke();
+        // }
+        if (this instanceof Hero) {
+            ctx.beginPath();
+            ctx.lineWidth = "5";
+            ctx.strokeStyle = "green";
+            ctx.rect(this.x, this.y, this.width, this.height);
+            ctx.stroke();
+        }
+        if (this instanceof Goblin) {
+            ctx.beginPath();
+            ctx.lineWidth = "5";
+            ctx.strokeStyle = "red";
+            ctx.rect(this.x, this.y, this.width, this.height);
+            ctx.stroke();
+        }
+        if (this instanceof SkeletonBoss) {
+            ctx.beginPath();
+            ctx.lineWidth = "5";
+            ctx.strokeStyle = "darkred";
+            ctx.rect(this.x, this.y, this.width, this.height);
+            ctx.stroke();
+        }
     };
+
+    isColliding(mo) {
+        return this.x + this.width > mo.x &&
+            this.y + this.height > mo.y &&
+            this.x < mo.x &&
+            this.y < mo.y + mo.height;
+    }
 
     moveRight() {
         this.x += this.speed;

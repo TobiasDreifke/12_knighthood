@@ -1,7 +1,6 @@
 class Hero extends MoveableObject {
     world;
     speed = 15;
-    y = 20;
 
     IMAGES_IDLE = [
         "./01_assets/2_character_hero/1_idle/idle/adventurer-idle-00.png",
