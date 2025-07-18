@@ -7,6 +7,8 @@ class MoveableObject {
     imageCache = {};
     currentImage = 0;
     speed = 0.15;
+    speedY = 0;
+    acceleration = 2.5;
 
     otherDirection = false;
 
@@ -29,7 +31,7 @@ class MoveableObject {
     moveLeft() {
         setInterval(() => {
             this.x -= this.speed;
-        }, 1000 / 60);
+        }, 1000 / 25);
     };
 
     playAnimation(img) {
@@ -39,6 +41,19 @@ class MoveableObject {
         let path = img[i];
         this.img = this.imageCache[path];
         this.currentImage++
+    }
+
+    applyGravity() {
+        setInterval(() => {
+            if (isAboveGround()) {
+                this.y -= this.speedY;
+                this.speedY -= this.acceleration;
+            }
+        }, 1000 / 25);
+    }
+
+    isAboveGround(){
+        return this.y < 180;
     }
 }
 

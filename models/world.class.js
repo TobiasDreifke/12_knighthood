@@ -11,7 +11,6 @@ class World {
     // bg_secondLayer = new BgSecondLayer();
     // bg_firstLayer = new BgFirstLayer();
 
-
     constructor(canvasPara, keyboardPara) {
         this.ctx = canvasPara.getContext("2d");
         this.canvas = canvasPara;
@@ -55,9 +54,6 @@ class World {
         if (MoveableObjects.otherDirection) {
             this.flipImage(MoveableObjects);
         }
-
-        // MoveableObjects.draw(this.ctx);
-
         if (MoveableObjects.otherDirection === false) {
             this.flipImageBack(MoveableObjects);
         }
@@ -77,6 +73,16 @@ class World {
         this.ctx.restore();
     }
 }
+
+
+
+
+
+
+
+
+
+
 
 
 // LayerThree

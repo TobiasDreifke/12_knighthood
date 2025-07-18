@@ -1,6 +1,7 @@
 class Hero extends MoveableObject {
     world;
     speed = 5;
+
     IMAGES_IDLE = [
         "./01_assets/2_character_hero/1_idle/idle/adventurer-idle-00-1.3.png",
         "./01_assets/2_character_hero/1_idle/idle/adventurer-idle-01-1.3.png",
@@ -22,6 +23,7 @@ class Hero extends MoveableObject {
         this.loadImages(this.IMAGES_WALK);
         this.animation();
         console.log(world, "hallo");
+        this.applyGravity();
     }
 
     animation() {
