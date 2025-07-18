@@ -45,13 +45,16 @@ class SkeletonBoss extends MoveableObject {
         this.x = 400;
         this.loadImages(this.IMAGES_WALK);
         this.animation();
-        this.moveLeft();
         this.speed = 0.15;
         this.otherDirection = true;
     }
 
 
     animation() {
+         setInterval(() => {
+            this.moveLeft();
+        }, 1000 / 25);
+
         setInterval(() => {
             this.playAnimation(this.IMAGES_WALK);
         }, 150)

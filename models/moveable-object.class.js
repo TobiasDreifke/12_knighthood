@@ -1,12 +1,16 @@
 class MoveableObject {
     x = 120;
     y = 300;
-    img;
+
     width = 100;
     height = 100;
+
+    img;
     imageCache = {};
     currentImage = 0;
+
     speed = 0.15;
+
     speedY = 0;
     acceleration = 2.5;
 
@@ -28,32 +32,50 @@ class MoveableObject {
         });
     };
 
+    moveRight() {
+        this.x += this.speed;
+        this.otherDirection = false;
+    }
+
     moveLeft() {
-        setInterval(() => {
-            this.x -= this.speed;
-        }, 1000 / 25);
+        this.x -= this.speed;
+        this.otherDirection = true;
     };
 
     playAnimation(img) {
-        let i = this.currentImage % this.IMAGES_WALK.length;
-
-        // WALK ANIMATION
+        let i = this.currentImage % img.length;
         let path = img[i];
         this.img = this.imageCache[path];
-        this.currentImage++
+        this.currentImage++;
+
+        // OLD AND BUGGED VERSION BECAUSE IT LOOKS FOR WALK.LENGTH
+        // let i = this.currentImage % this.IMAGES_WALK.length;
+        // // WALK ANIMATION
+        // let path = img[i];
+        // this.img = this.imageCache[path];
+        // this.currentImage++
     }
+
 
     applyGravity() {
         setInterval(() => {
-            if (isAboveGround()) {
+            if (this.isAboveGround() || this.speedY > 0) {
                 this.y -= this.speedY;
                 this.speedY -= this.acceleration;
             }
         }, 1000 / 25);
     }
 
-    isAboveGround(){
-        return this.y < 180;
+    isAboveGround() {
+        return this.y < 300;
     }
+
+    jump() {
+        this.speedY = 30;
+    }
+
+    // fall() {
+    //     applyGravity();
+    //  }
 }
 
