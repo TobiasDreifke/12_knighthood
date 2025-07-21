@@ -1,4 +1,7 @@
 class World {
+    IntervalIDs = [];
+    IntervalID = 1;
+
     heroCharacter = new Hero();
 
     level = level_01
@@ -11,6 +14,25 @@ class World {
     // bg_secondLayer = new BgSecondLayer();
     // bg_firstLayer = new BgFirstLayer();
 
+    setStopableInterval(fn, time) {
+        let id = setInterval(fn, time);
+        this.IntervalIDs.push(id);
+    }
+
+    stopGame() {
+        this.IntervalIDs.forEach(clearInterval);
+    }
+
+    // sayHello() {
+    //     console.log("hello", this.IntervalID);
+    //     this.IntervalID++
+    // }
+    // sayGoodbye() {
+    //     console.log("tschau", this.IntervalID);
+    //     this.IntervalID++
+    // }
+
+
     constructor(canvasPara, keyboardPara) {
         this.ctx = canvasPara.getContext("2d");
         this.canvas = canvasPara;
@@ -18,6 +40,9 @@ class World {
         this.draw();
         this.setWorld();
         this.checkCollisions();
+
+        // this.setStopableInterval(() => this.sayHello(), 500);
+        // this.setStopableInterval(() => this.sayGoodbye(), 500);
     }
 
     setWorld() {
@@ -25,14 +50,15 @@ class World {
     }
 
     checkCollisions() {
-
         setInterval(() => {
             this.level.enemies.forEach((enemies) => {
-                if (this.heroCharacter.isColliding(enemies)) {
+                if (this.heroCharacter.isColliding(enemies) && this.heroCharacter.health >= 0) {
+                    this.heroCharacter.hit();
                 }
             });
         }, 200);
     }
+
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         this.ctx.translate(this.camera_x, 0);
@@ -80,6 +106,15 @@ class World {
         this.ctx.drawImage(MoveableObjects.img, MoveableObjects.x, MoveableObjects.y, MoveableObjects.width, MoveableObjects.height);
         this.ctx.restore();
     }
+
+
+
+
+
+
+
+
+
 }
 
 

@@ -5,6 +5,8 @@ class MoveableObject {
     width = 100;
     height = 100;
 
+    health = 100;
+
     img;
     imageCache = {};
     currentImage = 0;
@@ -15,6 +17,7 @@ class MoveableObject {
     acceleration = 2.5;
 
     otherDirection = false;
+    lastHit = 0;
 
     // loadgImage("img/test.png")
     loadImage(path) {
@@ -85,15 +88,7 @@ class MoveableObject {
         let path = img[i];
         this.img = this.imageCache[path];
         this.currentImage++;
-
-        // OLD AND BUGGED VERSION BECAUSE IT LOOKS FOR WALK.LENGTH
-        // let i = this.currentImage % this.IMAGES_WALK.length;
-        // // WALK ANIMATION
-        // let path = img[i];
-        // this.img = this.imageCache[path];
-        // this.currentImage++
     }
-
 
     applyGravity() {
         setInterval(() => {
@@ -110,6 +105,27 @@ class MoveableObject {
 
     jump() {
         this.speedY = 30;
+    }
+
+    hit() {
+        console.log("is hit");
+
+        this.health -= 15;
+        if (this.health < 0) {
+            this.health = 0;
+        }
+
+        this.isHurt = true;
+    }
+
+    // isHurt() {
+    //     let timePassed = new Date().getTime() - this.lastHit; // Difference in ms
+    //     timePassed = timePassed / 1000 //Difference in s
+    //     return timePassed < 1;
+    // }
+
+    isDead() {
+        return this.health === 0;
     }
 
     // fall() {

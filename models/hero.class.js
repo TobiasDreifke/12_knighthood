@@ -79,7 +79,16 @@ class Hero extends MoveableObject {
         }, 1000 / 10);
 
         setInterval(() => {
-            if (this.isAboveGround()) {
+
+            if (this.isDead() == true) {
+                this.playAnimation(this.IMAGES_DEAD);
+            } else if (this.isHurt) {
+                this.playAnimation(this.IMAGES_HURT);
+                console.log("is hit");
+                this.isHurt = false;
+            }
+
+            else if (this.isAboveGround()) {
                 if (this.speedY > 0) {
                     this.playAnimation(this.IMAGES_JUMP);
                 } else if (this.speedY < 0) {
@@ -98,8 +107,6 @@ class Hero extends MoveableObject {
 
             }
         }, 1000 / 12);
-
-
     }
 }
 
