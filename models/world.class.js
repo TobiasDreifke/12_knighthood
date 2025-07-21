@@ -3,8 +3,10 @@ class World {
     IntervalID = 1;
 
     heroCharacter = new Hero();
+    statusBar = new Statusbar();
 
     level = level_01
+
 
     canvas;
     ctx;
@@ -14,23 +16,23 @@ class World {
     // bg_secondLayer = new BgSecondLayer();
     // bg_firstLayer = new BgFirstLayer();
 
-    setStopableInterval(fn, time) {
-        let id = setInterval(fn, time);
-        this.IntervalIDs.push(id);
-    }
-
-    stopGame() {
-        this.IntervalIDs.forEach(clearInterval);
-    }
-
-    // sayHello() {
-    //     console.log("hello", this.IntervalID);
-    //     this.IntervalID++
+    // setStopableInterval(fn, time) {
+    //     let id = setInterval(fn, time);
+    //     this.IntervalIDs.push(id);
     // }
-    // sayGoodbye() {
-    //     console.log("tschau", this.IntervalID);
-    //     this.IntervalID++
+
+    // stopGame() {
+    //     this.IntervalIDs.forEach(clearInterval);
     // }
+
+    // // sayHello() {
+    // //     console.log("hello", this.IntervalID);
+    // //     this.IntervalID++
+    // // }
+    // // sayGoodbye() {
+    // //     console.log("tschau", this.IntervalID);
+    // //     this.IntervalID++
+    // // }
 
 
     constructor(canvasPara, keyboardPara) {
@@ -66,7 +68,9 @@ class World {
         this.addObjectsToMap(this.level.backgroundObjects);
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.level.clouds);
-        this.addToMap(this.heroCharacter)
+
+        this.addToMap(this.statusBar);
+        this.addToMap(this.heroCharacter);
 
 
         this.ctx.translate(-this.camera_x, 0);
@@ -83,27 +87,28 @@ class World {
         });
     }
 
-    addToMap(MoveableObjects) {
-        if (MoveableObjects.otherDirection) {
-            this.flipImage(MoveableObjects);
+
+    addToMap(DrawableObject) {
+        if (DrawableObject.otherDirection === true) {
+            this.flipImage(DrawableObject);
+        } else if (DrawableObject.otherDirection === false) {
+            this.flipImageBack(DrawableObject);
+        } else {
+            this.ctx.drawImage(DrawableObject.img, DrawableObject.x, DrawableObject.y, DrawableObject.width, DrawableObject.height);
         }
-        if (MoveableObjects.otherDirection === false) {
-            this.flipImageBack(MoveableObjects);
-        }
-        MoveableObjects.drawRectangle(this.ctx);
     }
 
-    flipImage(MoveableObjects) {
+    flipImage(DrawableObject) {
         this.ctx.save();
-        this.ctx.translate(MoveableObjects.x + MoveableObjects.width, 0);
+        this.ctx.translate(DrawableObject.x + DrawableObject.width, 0);
         this.ctx.scale(-1, 1);
-        this.ctx.drawImage(MoveableObjects.img, 0, MoveableObjects.y, MoveableObjects.width, MoveableObjects.height);
+        this.ctx.drawImage(DrawableObject.img, 0, DrawableObject.y, DrawableObject.width, DrawableObject.height);
         this.ctx.restore();
     }
 
-    flipImageBack(MoveableObjects) {
+    flipImageBack(DrawableObject) {
         this.ctx.save();
-        this.ctx.drawImage(MoveableObjects.img, MoveableObjects.x, MoveableObjects.y, MoveableObjects.width, MoveableObjects.height);
+        this.ctx.drawImage(DrawableObject.img, DrawableObject.x, DrawableObject.y, DrawableObject.width, DrawableObject.height);
         this.ctx.restore();
     }
 
