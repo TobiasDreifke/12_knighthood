@@ -3,7 +3,9 @@ class World {
     IntervalID = 1;
 
     heroCharacter = new Hero();
-    statusBar = new Statusbar();
+    statusBarHealth = new StatusbarHealth();
+    statusBarEnergy = new StatusbarEnergy();
+    statusBarAmmo = new StatusbarAmmo();
 
     level = level_01
 
@@ -56,6 +58,9 @@ class World {
             this.level.enemies.forEach((enemies) => {
                 if (this.heroCharacter.isColliding(enemies) && this.heroCharacter.health >= 0) {
                     this.heroCharacter.hit();
+                    this.statusBarHealth.setPercentage(this.heroCharacter.health);
+                    this.statusBarEnergy.setPercentage(this.heroCharacter.health);
+                    this.statusBarAmmo.setPercentage(this.heroCharacter.health);
                 }
             });
         }, 200);
@@ -69,7 +74,13 @@ class World {
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.level.clouds);
 
-        this.addToMap(this.statusBar);
+        this.ctx.translate(-this.camera_x, 0); // back
+        // ------------- Space for fixed objects ----------------
+        this.addToMap(this.statusBarHealth);
+        this.addToMap(this.statusBarEnergy);
+        this.addToMap(this.statusBarAmmo);
+        this.ctx.translate(this.camera_x, 0); //forward
+
         this.addToMap(this.heroCharacter);
 
 

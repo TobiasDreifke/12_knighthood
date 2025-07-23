@@ -10,6 +10,8 @@ class MoveableObject extends DrawableObject {
     otherDirection = false;
     lastHit = 0;
 
+    damageOnCollision = 5;
+
     // drawRectangle(ctx) {
     //     if (this instanceof Hero) {
     //         ctx.beginPath();
@@ -78,7 +80,7 @@ class MoveableObject extends DrawableObject {
     hit() {
 
         console.log("is hit");
-        this.health -= 15;
+        this.health -= this.damageOnCollision;
         if (this.health < 0) {
             this.health = 0;
             console.log("is dead");

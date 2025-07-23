@@ -1,6 +1,5 @@
-class Statusbar extends DrawableObject {
-    width = 200;
-    height = 90;
+class StatusbarAmmo extends DrawableObject {
+
 
     percentage = 100;
 
@@ -14,11 +13,15 @@ class Statusbar extends DrawableObject {
     ]
     constructor() {
         super();
-        this.x = 100;
+        this.x = 50;
         this.y = 100;
+        this.width = 200;
+        this.height = 60;
 
-        this.loadImages(this.IMAGES); 
-        this.setPercentage(100);       
+        
+        this.loadImages(this.IMAGES);
+        this.setPercentage(100);
+        // this.isHurt();
 
         console.log("loaded statusbar img:", this.IMAGES);
     }
@@ -45,5 +48,4 @@ class Statusbar extends DrawableObject {
             return 0;
         }
     }
-
 }

@@ -82,6 +82,7 @@ class Hero extends MoveableObject {
 
             if (this.isDead() == true) {
                 this.playAnimation(this.IMAGES_DEAD);
+                
             } else if (this.isHurt) {
                 this.playAnimation(this.IMAGES_HURT);
                 console.log("is hit");
