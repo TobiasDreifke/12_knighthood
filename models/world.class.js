@@ -45,6 +45,7 @@ class World {
         this.setWorld();
         this.checkCollisions();
 
+
         // this.setStopableInterval(() => this.sayHello(), 500);
         // this.setStopableInterval(() => this.sayGoodbye(), 500);
     }
@@ -100,6 +101,9 @@ class World {
 
 
     addToMap(DrawableObject) {
+        DrawableObject.drawRectangle(this.ctx); // Object Image Box
+        DrawableObject.drawCollisionBox(this.ctx); // Object Collision Box
+
         if (DrawableObject.otherDirection === true) {
             this.flipImage(DrawableObject);
         } else if (DrawableObject.otherDirection === false) {

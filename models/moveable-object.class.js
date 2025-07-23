@@ -12,35 +12,21 @@ class MoveableObject extends DrawableObject {
 
     damageOnCollision = 5;
 
-    // drawRectangle(ctx) {
-    //     if (this instanceof Hero) {
-    //         ctx.beginPath();
-    //         ctx.lineWidth = "5";
-    //         ctx.strokeStyle = "green";
-    //         ctx.rect(this.x, this.y, this.width, this.height);
-    //         ctx.stroke();
-    //     }
-    //     if (this instanceof Goblin) {
-    //         ctx.beginPath();
-    //         ctx.lineWidth = "5";
-    //         ctx.strokeStyle = "red";
-    //         ctx.rect(this.x, this.y, this.width, this.height);
-    //         ctx.stroke();
-    //     }
-    //     if (this instanceof SkeletonBoss) {
-    //         ctx.beginPath();
-    //         ctx.lineWidth = "5";
-    //         ctx.strokeStyle = "darkred";
-    //         ctx.rect(this.x, this.y, this.width, this.height);
-    //         ctx.stroke();
-    //     }
-    // };
-
     isColliding(mo) {
-        return this.x + this.width > mo.x &&
-            this.y + this.height > mo.y &&
-            this.x < mo.x &&
-            this.y < mo.y + mo.height;
+        const thisLeft = this.x + this.offsetLeft;
+        const thisTop = this.y + this.offsetTop;
+        const thisRight = this.x + this.width - this.offsetRight;
+        const thisBottom = this.y + this.height - this.offsetBottom;
+
+        const otherLeft = mo.x + mo.offsetLeft;
+        const otherTop = mo.y + mo.offsetTop;
+        const otherRight = mo.x + mo.width - mo.offsetRight;
+        const otherBottom = mo.y + mo.height - mo.offsetBottom;
+
+        return thisRight > otherLeft &&
+            thisBottom > otherTop &&
+            thisLeft < otherRight &&
+            thisTop < otherBottom;
     }
 
     moveRight() {
@@ -79,21 +65,15 @@ class MoveableObject extends DrawableObject {
 
     hit() {
 
-        console.log("is hit");
+        // console.log("is hit");
         this.health -= this.damageOnCollision;
         if (this.health < 0) {
             this.health = 0;
-            console.log("is dead");
+            // console.log("is dead");
         }
 
         this.isHurt = true;
     }
-
-    // isHurt() {
-    //     let timePassed = new Date().getTime() - this.lastHit; // Difference in ms
-    //     timePassed = timePassed / 1000 //Difference in s
-    //     return timePassed < 1;
-    // }
 
     isDead() {
         return this.health === 0;

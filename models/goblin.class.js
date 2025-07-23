@@ -1,4 +1,8 @@
 class Goblin extends MoveableObject {
+    offsetLeft = 35;
+    offsetRight = 35;
+    offsetTop = 40;
+    offsetBottom = 5;
 
     IMAGES_WALK = [
         "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_01.png",

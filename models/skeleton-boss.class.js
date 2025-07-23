@@ -3,6 +3,11 @@ class SkeletonBoss extends MoveableObject {
     height = 250;
     y = 155;
 
+    offsetLeft = 35;
+    offsetRight = 35;
+    offsetTop = 50;
+    offsetBottom = 5;
+
     IMAGES_WALK = [
         "./01_assets/4_enemie_boss/1_walk/skeleton_walk_01.png",
         "./01_assets/4_enemie_boss/1_walk/skeleton_walk_02.png",
@@ -51,7 +56,7 @@ class SkeletonBoss extends MoveableObject {
 
 
     animation() {
-         setInterval(() => {
+        setInterval(() => {
             this.moveLeft();
         }, 1000 / 25);
 

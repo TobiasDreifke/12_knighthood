@@ -2,6 +2,11 @@ class Hero extends MoveableObject {
     world;
     speed = 15;
 
+    offsetLeft = 30;
+    offsetRight = 30;
+    offsetTop = 15;
+    offsetBottom = 5;
+
     IMAGES_IDLE = [
         "./01_assets/2_character_hero/1_idle/idle/adventurer-idle-00.png",
         "./01_assets/2_character_hero/1_idle/idle/adventurer-idle-01.png",
@@ -75,6 +80,9 @@ class Hero extends MoveableObject {
                 this.jump();
             }
 
+            if (this.world.keyboard.JUMP && !this.isAboveGround()) {
+                this.jump();
+            }
             this.world.camera_x = -this.x + 100;
         }, 1000 / 10);
 
@@ -82,7 +90,7 @@ class Hero extends MoveableObject {
 
             if (this.isDead() == true) {
                 this.playAnimation(this.IMAGES_DEAD);
-                
+
             } else if (this.isHurt) {
                 this.playAnimation(this.IMAGES_HURT);
                 console.log("is hit");

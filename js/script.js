@@ -12,42 +12,31 @@ function init() {
 
 
 window.addEventListener("keydown", (event) => {
+    const key = event.key.toLowerCase();
 
-    if (event.keyCode == 39 || event.keycode == 68) {
-        keyboard.RIGHT = true;
-    }
-    if (event.keyCode == 37 || event.keycode == 65) {
-        keyboard.LEFT = true;
-    }
-    if (event.keyCode == 38 || event.keycode == 87) {
-        keyboard.UP = true;
-    }
-    if (event.keyCode == 37 || event.keycode == 40) {
-        keyboard.DOWN = true;
-    }
-    if (event.keyCode == 32) {
+    if (key === "arrowright" || key === "d") keyboard.RIGHT = true;
+    if (key === "arrowleft" || key === "a") keyboard.LEFT = true;
+    if (key === "arrowup" || key === "w") keyboard.UP = true;
+    if (key === "arrowdown" || key === "s") keyboard.DOWN = true;
+    if (event.code === "Space") {
+        event.preventDefault(); // important!
         keyboard.JUMP = true;
     }
 });
 
+
+
 window.addEventListener("keyup", (event) => {
-    if (event.keyCode == 39 || event.keycode == 68) {
-        keyboard.RIGHT = false;
-    }
-    if (event.keyCode == 37 || event.keycode == 65) {
-        keyboard.LEFT = false;
-    }
-    if (event.keyCode == 38 || event.keycode == 87) {
-        keyboard.UP = false;
-    }
-    if (event.keyCode == 37 || event.keycode == 40) {
-        keyboard.DOWN = false;
-    }
-    if (event.keyCode == 32) {
+    const key = event.key.toLowerCase();
+
+    if (key === "arrowright" || key === "d") keyboard.RIGHT = false;
+    if (key === "arrowleft" || key === "a") keyboard.LEFT = false;
+    if (key === "arrowup" || key === "w") keyboard.UP = false;
+    if (key === "arrowdown" || key === "s") keyboard.DOWN = false;
+    if (event.code === "Space") {
         keyboard.JUMP = false;
     }
 });
-
 
 
 // --------------- START -----------
