@@ -4,6 +4,9 @@ class Goblin extends MoveableObject {
     offsetTop = 40;
     offsetBottom = 5;
 
+    collidingObject = true;
+    debugColor = "green";
+
     IMAGES_WALK = [
         "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_01.png",
         "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_02.png",

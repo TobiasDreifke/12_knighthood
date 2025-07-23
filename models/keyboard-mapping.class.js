@@ -5,6 +5,7 @@ class KeyboardMapping {
     UP = false;
     DOWN = false;
     speed = 3;
+    THROWHOLY = false;
     
     // constructor() {
     //     this.moveRight();

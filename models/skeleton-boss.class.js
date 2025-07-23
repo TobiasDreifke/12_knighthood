@@ -8,6 +8,9 @@ class SkeletonBoss extends MoveableObject {
     offsetTop = 50;
     offsetBottom = 5;
 
+    collidingObject = true;
+    debugColor = "green";
+    
     IMAGES_WALK = [
         "./01_assets/4_enemie_boss/1_walk/skeleton_walk_01.png",
         "./01_assets/4_enemie_boss/1_walk/skeleton_walk_02.png",

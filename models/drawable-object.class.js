@@ -31,52 +31,31 @@ class DrawableObject {
     };
 
     drawRectangle(ctx) {
-        if (this instanceof Hero) {
-            ctx.beginPath();
-            ctx.lineWidth = "5";
-            ctx.strokeStyle = "green";
-            ctx.rect(this.x, this.y, this.width, this.height);
-            ctx.stroke();
-        }
-        if (this instanceof Goblin) {
-            ctx.beginPath();
-            ctx.lineWidth = "5";
-            ctx.strokeStyle = "red";
-            ctx.rect(this.x, this.y, this.width, this.height);
-            ctx.stroke();
-        }
-        if (this instanceof SkeletonBoss) {
-            ctx.beginPath();
-            ctx.lineWidth = "5";
-            ctx.strokeStyle = "darkred";
-            ctx.rect(this.x, this.y, this.width, this.height);
-            ctx.stroke();
-        }
-    };
+        if (!this.debugColor) return;  // skip if no color set
+
+        ctx.beginPath();
+        ctx.lineWidth = "5";
+        ctx.strokeStyle = this.debugColor;
+        ctx.rect(this.x, this.y, this.width, this.height);
+        ctx.stroke();
+    }
 
 
     drawCollisionBox(ctx) {
-        if (this instanceof Hero || this instanceof Goblin || this instanceof SkeletonBoss) {
-            const x = this.x + this.offsetLeft;
-            const y = this.y + this.offsetTop;
-            const width = this.width - this.offsetLeft - this.offsetRight;
-            const height = this.height - this.offsetTop - this.offsetBottom;
+        if (!this.collidingObject) return; // skip if no collision box
 
-            ctx.beginPath();
-            ctx.lineWidth = "2";
+        const x = this.x + (this.offsetLeft || 0);
+        const y = this.y + (this.offsetTop || 0);
+        const width = this.width - (this.offsetLeft || 0) - (this.offsetRight || 0);
+        const height = this.height - (this.offsetTop || 0) - (this.offsetBottom || 0);
 
-            if (this instanceof Hero) {
-                ctx.strokeStyle = "red";
-            } else if (this instanceof Goblin) {
-                ctx.strokeStyle = "green";
-            } else if (this instanceof SkeletonBoss) {
-                ctx.strokeStyle = "darkgreen";
-            }
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = this.collisionColor || "yellow"; // fallback color
 
-            ctx.rect(x, y, width, height);
-            ctx.stroke();
-        }
-    };
+        ctx.rect(x, y, width, height);
+        ctx.stroke();
+    }
 
 
 

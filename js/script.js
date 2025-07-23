@@ -19,9 +19,12 @@ window.addEventListener("keydown", (event) => {
     if (key === "arrowup" || key === "w") keyboard.UP = true;
     if (key === "arrowdown" || key === "s") keyboard.DOWN = true;
     if (event.code === "Space") {
-        event.preventDefault(); // important!
+        event.preventDefault(); // important to stop scrolling sideways
         keyboard.JUMP = true;
     }
+
+    if (key === "e") keyboard.THROWHOLY = true;
+
 });
 
 
@@ -36,6 +39,9 @@ window.addEventListener("keyup", (event) => {
     if (event.code === "Space") {
         keyboard.JUMP = false;
     }
+
+    if (key === "e") keyboard.THROWHOLY = false;
+
 });
 
 

@@ -6,6 +6,7 @@ class World {
     statusBarHealth = new StatusbarHealth();
     statusBarEnergy = new StatusbarEnergy();
     statusBarAmmo = new StatusbarAmmo();
+    throwableHoly = [new ThrowHoly()];
 
     level = level_01
 
@@ -74,6 +75,7 @@ class World {
         this.addObjectsToMap(this.level.backgroundObjects);
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.level.clouds);
+        this.addObjectsToMap(this.throwableHoly);
 
         this.ctx.translate(-this.camera_x, 0); // back
         // ------------- Space for fixed objects ----------------
