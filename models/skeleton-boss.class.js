@@ -10,7 +10,7 @@ class SkeletonBoss extends MoveableObject {
 
     collidingObject = true;
     debugColor = "green";
-    
+
     IMAGES_WALK = [
         "./01_assets/4_enemie_boss/1_walk/skeleton_walk_01.png",
         "./01_assets/4_enemie_boss/1_walk/skeleton_walk_02.png",
@@ -55,6 +55,7 @@ class SkeletonBoss extends MoveableObject {
         this.animation();
         this.speed = 0.15;
         this.otherDirection = true;
+
     }
 
 

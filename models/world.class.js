@@ -6,7 +6,7 @@ class World {
     statusBarHealth = new StatusbarHealth();
     statusBarEnergy = new StatusbarEnergy();
     statusBarAmmo = new StatusbarAmmo();
-    throwableHoly = [new ThrowHoly()];
+    throwableHoly = [];
 
     level = level_01
 
@@ -44,28 +44,38 @@ class World {
         this.keyboard = keyboardPara;
         this.draw();
         this.setWorld();
-        this.checkCollisions();
-
-
-        // this.setStopableInterval(() => this.sayHello(), 500);
-        // this.setStopableInterval(() => this.sayGoodbye(), 500);
+        this.run();
     }
 
     setWorld() {
         this.heroCharacter.world = this;
     }
 
-    checkCollisions() {
+    run() {
+
+        // --------- CHECK COLLISION ------------
         setInterval(() => {
-            this.level.enemies.forEach((enemies) => {
-                if (this.heroCharacter.isColliding(enemies) && this.heroCharacter.health >= 0) {
-                    this.heroCharacter.hit();
-                    this.statusBarHealth.setPercentage(this.heroCharacter.health);
-                    this.statusBarEnergy.setPercentage(this.heroCharacter.health);
-                    this.statusBarAmmo.setPercentage(this.heroCharacter.health);
-                }
-            });
+            this.checkCollisions();
+            this.checkInventory();
         }, 200);
+    }
+
+    checkInventory() {
+        if (this.keyboard.THROWHOLY) {
+            let holy = new ThrowHoly(this.heroCharacter.x, this.heroCharacter.y);
+            this.throwableHoly.push(holy)
+        }
+    }
+
+    checkCollisions() {
+        this.level.enemies.forEach((enemies) => {
+            if (this.heroCharacter.isColliding(enemies) && this.heroCharacter.health >= 0) {
+                this.heroCharacter.hit();
+                this.statusBarHealth.setPercentage(this.heroCharacter.health);
+                this.statusBarEnergy.setPercentage(this.heroCharacter.health);
+                this.statusBarAmmo.setPercentage(this.heroCharacter.health);
+            }
+        });
     }
 
     draw() {

@@ -1,6 +1,5 @@
 class ThrowHoly extends MoveableObject {
-    x = 250;
-    y = 325;
+
     width = 50;
     height = 50;
 
@@ -17,17 +16,29 @@ class ThrowHoly extends MoveableObject {
         "./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_2.png",
     ];
 
-    constructor() {
+    constructor(x, y) {
         super().loadImage("./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_1.png");
         console.log("created a holy");
+        this.x = x;
+        this.y = y;
         this.loadImages(this.IMAGES_IDLE);
         this.animation();
+        this.throwHoly();
+        
     };
 
-    // throwHoly() {
-    //     // super();
+    throwHoly() {
 
-    // };
+        // if (this) {
+            
+        // }
+        
+        this.speedY = 15;
+        this.applyGravity();
+        setInterval(() => {
+            this.x += 10;
+        }, 25)
+    };
 
     animation() {
         setInterval(() => {

@@ -88,9 +88,9 @@ class Hero extends MoveableObject {
                 this.jump();
             }
 
-            if (this.world.keyboard.THROWHOLY) {
-                this.throwHoly();
-            }
+            // if (this.world.keyboard.THROWHOLY) {
+            //     this.throwHoly();
+            // }
 
             this.world.camera_x = -this.x + 100;
         }, 1000 / 12);

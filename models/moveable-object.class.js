@@ -56,7 +56,11 @@ class MoveableObject extends DrawableObject {
     }
 
     isAboveGround() {
-        return this.y < 300;
+        if (this instanceof ThrowHoly) {
+            return true;
+        } else {
+            return this.y < 300;
+        }
     }
 
     jump() {
