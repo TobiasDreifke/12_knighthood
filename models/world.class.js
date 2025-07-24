@@ -62,7 +62,7 @@ class World {
 
     checkInventory() {
         if (this.keyboard.THROWHOLY) {
-            let holy = new ThrowHoly(this.heroCharacter.x +50, this.heroCharacter.y );
+            let holy = new ThrowHoly(this.heroCharacter.x, this.heroCharacter.y);
             this.throwableHoly.push(holy)
         }
     }

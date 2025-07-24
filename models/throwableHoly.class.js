@@ -11,48 +11,39 @@ class ThrowHoly extends MoveableObject {
     collidingObject = true;
     debugColor = "green";
 
-
-    IMAGES_THROWN = [
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_1.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_2.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_3.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_4.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_5.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_6.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_7.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_8.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_9.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_10.png",
+    IMAGES_IDLE = [
+        "./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_1.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_2.png",
     ];
-    
-    // IMAGES_IDLE = [
-    //     "./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_1.png",
-    //     "./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_2.png",
-    // ];
 
     constructor(x, y) {
-        super().loadImage("./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_1.png");
+        super().loadImage("./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_1.png");
         console.log("created a holy");
         this.x = x;
         this.y = y;
-        this.loadImages(this.IMAGES_THROWN);
+        this.loadImages(this.IMAGES_IDLE);
         this.animation();
         this.throwHoly();
-
+        
     };
 
     throwHoly() {
-        this.speedY = 5;
+
+        // if (this) {
+            
+        // }
+        
+        this.speedY = 15;
         this.applyGravity();
         setInterval(() => {
-            this.x += 25;
+            this.x += 10;
         }, 25)
     };
 
     animation() {
         setInterval(() => {
-            this.playAnimation(this.IMAGES_THROWN);
-        }, 25)
+            this.playAnimation(this.IMAGES_IDLE);
+        }, 250)
     }
 
 }
