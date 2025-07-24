@@ -6,6 +6,7 @@ class KeyboardMapping {
     DOWN = false;
     speed = 3;
     THROWHOLY = false;
+     THROWDARK = false;
     
     // constructor() {
     //     this.moveRight();
