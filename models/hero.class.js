@@ -76,16 +76,33 @@ class Hero extends MoveableObject {
 
     }
 
+    onAnimationFrame(images, frameIndex) {
+        const animationName = this.getAnimationName(images);
+        // console.log("onAnimationFrame called:", animationName, frameIndex);
+        AudioHub.syncSound(animationName, frameIndex);
+    }
+
+    getAnimationName(images) {
+        for (let key in this) {
+            if (this[key] === images && key.startsWith('IMAGES_')) {
+                // console.log("Found animationName:", key);
+                return key;
+            }
+        }
+        console.log("Animation name not found");
+        return null;
+    }
+
     animation() {
         setInterval(() => {
             // this.walking_sound.pause();
             if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
                 this.moveRight();
-                // this.walking_sound.play();
             }
 
             if (this.world.keyboard.LEFT && this.x > 0) {
                 this.moveLeft();
+
             }
 
             if (this.world.keyboard.UP && !this.isAboveGround()) {
@@ -111,30 +128,22 @@ class Hero extends MoveableObject {
                 setTimeout(() => {
                     clearInterval(this.animationInterval);
                 }, this.IMAGES_DEAD.length * (1000 / 12));
-
             } else if (this.isHurt) {
                 this.playAnimation(this.IMAGES_HURT);
                 console.log("is hit");
                 this.isHurt = false;
-            }
-
-            else if (this.isAboveGround()) {
+            } else if (this.isAboveGround()) {
                 if (this.speedY > 0) {
                     this.playAnimation(this.IMAGES_JUMP);
                 } else if (this.speedY < 0) {
                     this.playAnimation(this.IMAGES_FALL);
                 }
-
             } else {
-
-                if (this.world.keyboard.RIGHT === false) {
+                if (!this.world.keyboard.RIGHT && !this.world.keyboard.LEFT) {
                     this.playAnimation(this.IMAGES_IDLE);
-                }
-
-                if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+                } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
                     this.playAnimation(this.IMAGES_WALK);
                 }
-
             }
         }, 1000 / 10);
     }

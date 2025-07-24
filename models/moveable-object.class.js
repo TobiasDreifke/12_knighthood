@@ -44,6 +44,13 @@ class MoveableObject extends DrawableObject {
         let path = img[i];
         this.img = this.imageCache[path];
         this.currentImage++;
+
+            // console.log("playAnimation frame:", i, "animation array length:", img.length);
+
+
+        if (this.onAnimationFrame) {
+            this.onAnimationFrame(img, i);
+        }
     }
 
     applyGravity() {

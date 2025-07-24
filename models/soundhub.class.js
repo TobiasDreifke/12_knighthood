@@ -1,20 +1,17 @@
 class AudioHub {
     // Audiodateien für Piano, Guitar, DRUMS
-    static PIANO = new Audio('./assets/sounds/piano.mp3');
-    static GUITAR = new Audio('./assets/sounds/guitar.mp3');
-    static DRUMS = new Audio('./assets/sounds/drums.mp3');
+    static WALK_HERO = new Audio('./01_assets/00_audio/walking/Hero/indoor-footsteps-6385 (mp3cut.net).mp3');
 
     // Array, das alle definierten Audio-Dateien enthält
-    static allSounds = [AudioHub.PIANO, AudioHub.GUITAR, AudioHub.DRUMS];
+    static allSounds = [AudioHub.WALK_HERO,];
 
 
     // Spielt eine einzelne Audiodatei ab
-    static playOne(sound, instrumentId) {  // instrumentId nur wichtig für die Visualisierung
-        sound.volume = 0.2;  // Setzt die Lautstärke auf 0.2 = 20% / 1 = 100%
-        sound.currentTime = 0;  // Startet ab einer bestimmten stelle (0=Anfang/ 5 = 5 sec.)
-        sound.play();  // Spielt das übergebene Sound-Objekt ab
-        const instrumentImg = document.getElementById(instrumentId);  // nur wichtig für die Visualisierung
-        instrumentImg.classList.add('active');  // nur wichtig für die Visualisierung
+    static playOne(sound) {
+        const audio = sound.cloneNode();
+        audio.volume = 1;
+        audio.currentTime = 0;
+        audio.play().catch(e => console.warn("Playback failed:", e));
     }
 
 
@@ -46,4 +43,65 @@ class AudioHub {
             sound.volume = volumeValue;  // Setzt die Lautstärke für jedes Audio wie im Slider angegeben
         });
     }
+
+
+    // ----------------------- METHODS -----------------------
+
+    static animationSoundSync = [
+        {
+            animation: 'IMAGES_WALK', // name of the animation array
+            frames: [2, 5],           // frame indexes that should trigger the sound
+            sound: AudioHub.WALK_HERO
+        },
+        // You could add jump, attack, enemy, etc.
+    ];
+
+    static syncSound(animationName, frameIndex) {
+        for (const rule of this.animationSoundSync) {
+            if (rule.animation === animationName && rule.frames.includes(frameIndex)) {
+                console.log(`Playing sound for ${animationName} frame ${frameIndex}`);
+                this.playOne(rule.sound);
+            }
+        }
+    }
+
+    // ----------------------- METHODS -----------------------
+
+
+    // static playWalkingSound() {
+    //     let sound = AudioHub.WALK_HERO;
+    //     if (sound.readyState === 4) {
+    //         this.playOne(sound);
+    //     }
+    // }
+
+
+    // ------------------------ FOR LOOP ---------------------
+
+    // class AudioError {
+    // static LONG = new Audio('./assets/sounds/binary.mp3');
+
+    // Spielt eine einzelne Audiodatei ab, - wenn sie bereit ist - 
+    static playTwo(sound) {
+        setInterval(() => {  // Wiederholt die Überprüfung alle 200ms
+            if (sound.readyState == 3) {  // Überprüft, ob die Audiodatei vollständig geladen ist, wenn man die if abfrage rausnehmen würde, würde es bei start & drücken auf den pause Knopf einen Fehler werfen. (am besten low-tier throttling nutzen!)
+                console.log("Sound ready");
+                sound.volume = 0.5;  // Setzt die Lautstärke auf 50%
+                sound.play();  // Spielt das übergebene Sound-Objekt ab
+            } else {
+                console.log("Sound not ready");
+            }
+        }, 200);
+    }
+
+
+    // Pausiert das Abspielen einer einzelnen Audiodatei
+    static pauseTwo(sound) {
+        sound.pause();  // Pausiert das übergebene Audio
+    }
 }
+
+
+
+
+
