@@ -50,7 +50,7 @@ class SkeletonBoss extends MoveableObject {
 
     constructor() {
         super().loadImage(this.IMAGES_WALK[0])
-        this.x = 400;
+        this.x = 1000;
         this.loadImages(this.IMAGES_WALK);
         this.animation();
         this.speed = 0.15;

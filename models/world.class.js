@@ -6,7 +6,11 @@ class World {
     statusBarHealth = new StatusbarHealth();
     statusBarEnergy = new StatusbarEnergy();
     statusBarAmmo = new StatusbarAmmo();
+
     throwableHoly = [];
+    // throwableDark = new ThrowableDark();
+   
+
 
     level = level_01
 
@@ -56,15 +60,19 @@ class World {
         // --------- CHECK COLLISION ------------
         setInterval(() => {
             this.checkCollisions();
-            this.checkInventory();
+            this.throwHoly();
         }, 200);
     }
 
-    checkInventory() {
+    throwHoly() {
         if (this.keyboard.THROWHOLY) {
             let holy = new ThrowHoly(this.heroCharacter.x + 75, this.heroCharacter.y);
             this.throwableHoly.push(holy)
         }
+    }
+
+    checkInventory(){
+
     }
 
     checkCollisions() {
@@ -86,6 +94,8 @@ class World {
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.level.clouds);
         this.addObjectsToMap(this.throwableHoly);
+        this.addObjectsToMap(this.level.throwable);
+
 
         this.ctx.translate(-this.camera_x, 0); // back
         // ------------- Space for fixed objects ----------------

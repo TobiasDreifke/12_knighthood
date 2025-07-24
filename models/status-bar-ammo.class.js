@@ -4,12 +4,12 @@ class StatusbarAmmo extends DrawableObject {
     percentage = 100;
 
     IMAGES = [
-        "./01_assets/7_statusbars/1_statusbar/1_statusbar_coin/blue/0.png",
-        "./01_assets/7_statusbars/1_statusbar/1_statusbar_coin/blue/20.png",
-        "./01_assets/7_statusbars/1_statusbar/1_statusbar_coin/blue/40.png",
-        "./01_assets/7_statusbars/1_statusbar/1_statusbar_coin/blue/60.png",
-        "./01_assets/7_statusbars/1_statusbar/1_statusbar_coin/blue/80.png",
-        "./01_assets/7_statusbars/1_statusbar/1_statusbar_coin/blue/100.png",
+        "./01_assets/7_statusbars/1_statusbar/3_statusbar_bottle/green/0.png",
+        "./01_assets/7_statusbars/1_statusbar/3_statusbar_bottle/green/20.png",
+        "./01_assets/7_statusbars/1_statusbar/3_statusbar_bottle/green/40.png",
+        "./01_assets/7_statusbars/1_statusbar/3_statusbar_bottle/green/60.png",
+        "./01_assets/7_statusbars/1_statusbar/3_statusbar_bottle/green/80.png",
+        "./01_assets/7_statusbars/1_statusbar/3_statusbar_bottle/green/100.png",
     ]
     constructor() {
         super();
@@ -25,7 +25,6 @@ class StatusbarAmmo extends DrawableObject {
 
         console.log("loaded statusbar img:", this.IMAGES);
     }
-
 
     setPercentage(percentage) {
         this.percentage = percentage; // => 0 ... 5
