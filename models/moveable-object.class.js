@@ -14,6 +14,8 @@ class MoveableObject extends DrawableObject {
 
     damageOnCollision = 5;
 
+  
+
     isColliding(mo) {
         const thisLeft = this.x + this.offsetLeft;
         const thisTop = this.y + this.offsetTop;
@@ -90,7 +92,6 @@ class MoveableObject extends DrawableObject {
     }
 
     hit() {
-
         // console.log("is hit");
         this.health -= this.damageOnCollision;
         if (this.health < 0) {

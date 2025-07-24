@@ -9,7 +9,7 @@ class World {
 
     throwableHoly = [];
     // throwableDark = new ThrowableDark();
-   
+
 
 
     level = level_01
@@ -49,6 +49,8 @@ class World {
         this.draw();
         this.setWorld();
         this.run();
+        console.log(this.level);
+
     }
 
     setWorld() {
@@ -71,13 +73,31 @@ class World {
         }
     }
 
-    checkInventory(){
+    throwDark() {
+        if (this.keyboard.THROWHOLY) {
+            let holy = new ThrowDark(this.heroCharacter.x + 75, this.heroCharacter.y);
+            this.throwableHoly.push(holy)
+        }
+    }
+
+    checkInventory() {
 
     }
 
     checkCollisions() {
         this.level.enemies.forEach((enemies) => {
             if (this.heroCharacter.isColliding(enemies) && this.heroCharacter.health >= 0) {
+                this.heroCharacter.hit();
+                this.statusBarHealth.setPercentage(this.heroCharacter.health);
+                this.statusBarEnergy.setPercentage(this.heroCharacter.health);
+                this.statusBarAmmo.setPercentage(this.heroCharacter.health);
+            }
+        });
+
+        this.level.throwable.forEach((throwable) => {
+            if (this.heroCharacter.isColliding(throwable)) {
+                console.log("try to pick up");
+
                 this.heroCharacter.hit();
                 this.statusBarHealth.setPercentage(this.heroCharacter.health);
                 this.statusBarEnergy.setPercentage(this.heroCharacter.health);
