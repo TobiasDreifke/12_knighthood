@@ -3,6 +3,8 @@ class MoveableObject extends DrawableObject {
     health = 100;
 
     speed = 0.15;
+    slideSpeed = this.speed + 10;
+
 
     speedY = 0;
     acceleration = 2.5;
@@ -34,10 +36,26 @@ class MoveableObject extends DrawableObject {
         this.otherDirection = false;
     }
 
+    slideRight() {
+        this.x += this.slideSpeed;
+        this.otherDirection = false;
+        // console.log("SLIDIIIIIIIING");
+    }
+
     moveLeft() {
         this.x -= this.speed;
         this.otherDirection = true;
     };
+
+    slideLeft() {
+        this.x -= this.slideSpeed;
+        this.otherDirection = true;
+        // console.log("SLIDIIIIIIIING");
+    }
+
+    crouch() {
+        this.x += 0;
+    }
 
     playAnimation(img) {
         let i = this.currentImage % img.length;
@@ -45,10 +63,7 @@ class MoveableObject extends DrawableObject {
         this.img = this.imageCache[path];
         this.currentImage++;
 
-            // console.log("playAnimation frame:", i, "animation array length:", img.length);
-
-
-        if (this.onAnimationFrame) {
+        if (this.onAnimationFrame) { // for SoundSynching
             this.onAnimationFrame(img, i);
         }
     }
@@ -89,5 +104,8 @@ class MoveableObject extends DrawableObject {
     isDead() {
         return this.health === 0;
     }
+
+
+
 }
 

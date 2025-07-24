@@ -47,19 +47,18 @@ class AudioHub {
 
     // ----------------------- METHODS -----------------------
 
-    static animationSoundSync = [
+    static animationSoundSync = [ // for SoundSynching
         {
             animation: 'IMAGES_WALK', // name of the animation array
             frames: [2, 5],           // frame indexes that should trigger the sound
             sound: AudioHub.WALK_HERO
         },
-        // You could add jump, attack, enemy, etc.
     ];
 
-    static syncSound(animationName, frameIndex) {
+    static syncSound(animationName, frameIndex) { // for SoundSynching
         for (const rule of this.animationSoundSync) {
             if (rule.animation === animationName && rule.frames.includes(frameIndex)) {
-                console.log(`Playing sound for ${animationName} frame ${frameIndex}`);
+                // console.log(`Playing sound for ${animationName} frame ${frameIndex}`);
                 this.playOne(rule.sound);
             }
         }

@@ -19,12 +19,12 @@ class Hero extends MoveableObject {
     ];
 
     IMAGES_WALK = [
-        "./01_assets/2_character_hero/2_walk/run3/adventurer-run3-00.png",
-        "./01_assets/2_character_hero/2_walk/run3/adventurer-run3-01.png",
-        "./01_assets/2_character_hero/2_walk/run3/adventurer-run3-02.png",
-        "./01_assets/2_character_hero/2_walk/run3/adventurer-run3-03.png",
-        "./01_assets/2_character_hero/2_walk/run3/adventurer-run3-04.png",
-        "./01_assets/2_character_hero/2_walk/run3/adventurer-run3-05.png",
+        "./01_assets/2_character_hero/2_walk/adventurer-run-00-1.3.png",
+        "./01_assets/2_character_hero/2_walk/adventurer-run-01-1.3.png",
+        "./01_assets/2_character_hero/2_walk/adventurer-run-02-1.3.png",
+        "./01_assets/2_character_hero/2_walk/adventurer-run-03-1.3.png",
+        "./01_assets/2_character_hero/2_walk/adventurer-run-04-1.3.png",
+        "./01_assets/2_character_hero/2_walk/adventurer-run-05-1.3.png",
     ];
 
     IMAGES_JUMP = [
@@ -57,6 +57,16 @@ class Hero extends MoveableObject {
         "./01_assets/2_character_hero/6_cast/adventurer-cast-02.png",
         "./01_assets/2_character_hero/6_cast/adventurer-cast-03.png",
     ];
+    IMAGES_SLIDE = [
+        "./01_assets/2_character_hero/9_slide/adventurer-slide-00.png",
+        "./01_assets/2_character_hero/9_slide/adventurer-slide-01.png",
+    ];
+    IMAGES_CROUCH = [
+        "./01_assets/2_character_hero/14_crouch/adventurer-crouch-00.png",
+        "./01_assets/2_character_hero/14_crouch/adventurer-crouch-01.png",
+        "./01_assets/2_character_hero/14_crouch/adventurer-crouch-02.png",
+        "./01_assets/2_character_hero/14_crouch/adventurer-crouch-03.png",
+    ];
 
     constructor() {
         super().loadImage("./01_assets/2_character_hero/7_fall/adventurer-fall-00.png")
@@ -73,16 +83,17 @@ class Hero extends MoveableObject {
         this.loadImages(this.IMAGES_DEAD);
         this.loadImages(this.IMAGES_FALL);
         this.loadImages(this.IMAGES_CAST);
-
+        this.loadImages(this.IMAGES_SLIDE);
+        this.loadImages(this.IMAGES_CROUCH)
     }
 
-    onAnimationFrame(images, frameIndex) {
+    onAnimationFrame(images, frameIndex) { // for SoundSynching
         const animationName = this.getAnimationName(images);
         // console.log("onAnimationFrame called:", animationName, frameIndex);
         AudioHub.syncSound(animationName, frameIndex);
     }
 
-    getAnimationName(images) {
+    getAnimationName(images) { // for SoundSynching
         for (let key in this) {
             if (this[key] === images && key.startsWith('IMAGES_')) {
                 // console.log("Found animationName:", key);
@@ -95,7 +106,6 @@ class Hero extends MoveableObject {
 
     animation() {
         setInterval(() => {
-            // this.walking_sound.pause();
             if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
                 this.moveRight();
             }
@@ -105,39 +115,59 @@ class Hero extends MoveableObject {
 
             }
 
-            if (this.world.keyboard.UP && !this.isAboveGround()) {
-                this.jump();
-            }
-
-            if (this.world.keyboard.JUMP && !this.isAboveGround()) {
+            if (this.world.keyboard.UP && !this.isAboveGround() || this.world.keyboard.JUMP && !this.isAboveGround()) {
                 this.jump();
             }
 
             if (this.world.keyboard.THROWHOLY) {
-                // this.throwHoly();
                 this.playAnimation(this.IMAGES_CAST);
+            }
 
+            if (this.world.keyboard.RIGHT && this.world.keyboard.DOWN) {
+                this.slideRight();
+            }
+
+            if (this.world.keyboard.LEFT && this.world.keyboard.DOWN) {
+                this.slideLeft();
             }
 
             this.world.camera_x = -this.x + 100;
         }, 1000 / 12);
 
         this.animationInterval = setInterval(() => {
+
+            // --------- DEAD
             if (this.isDead()) {
                 this.playAnimation(this.IMAGES_DEAD);
                 setTimeout(() => {
                     clearInterval(this.animationInterval);
                 }, this.IMAGES_DEAD.length * (1000 / 12));
+
+                // --------- HURT
             } else if (this.isHurt) {
                 this.playAnimation(this.IMAGES_HURT);
-                console.log("is hit");
+                // console.log("is hit");
                 this.isHurt = false;
+
+                // --------- SLIDE
+            } else if (this.world.keyboard.LEFT && this.world.keyboard.DOWN || this.world.keyboard.RIGHT && this.world.keyboard.DOWN) {
+                this.playAnimation(this.IMAGES_SLIDE);
+
+                // --------- CROUCH
+            } else if (this.world.keyboard.DOWN) {
+                this.crouch();
+                this.playAnimation(this.IMAGES_CROUCH);
+                // console.log("crouching");
+
+                // --------- JUMP AND FALL
             } else if (this.isAboveGround()) {
                 if (this.speedY > 0) {
                     this.playAnimation(this.IMAGES_JUMP);
                 } else if (this.speedY < 0) {
                     this.playAnimation(this.IMAGES_FALL);
                 }
+
+                // --------- IDLE AND WALK
             } else {
                 if (!this.world.keyboard.RIGHT && !this.world.keyboard.LEFT) {
                     this.playAnimation(this.IMAGES_IDLE);
@@ -145,7 +175,8 @@ class Hero extends MoveableObject {
                     this.playAnimation(this.IMAGES_WALK);
                 }
             }
-        }, 1000 / 10);
+
+        }, 1000 / 12);
     }
 }
 
