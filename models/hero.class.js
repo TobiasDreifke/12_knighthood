@@ -51,6 +51,12 @@ class Hero extends MoveableObject {
         "./01_assets/2_character_hero/7_fall/adventurer-fall-00.png",
         "./01_assets/2_character_hero/7_fall/adventurer-fall-01.png",
     ];
+    IMAGES_CAST = [
+        "./01_assets/2_character_hero/6_cast/adventurer-cast-00.png",
+        "./01_assets/2_character_hero/6_cast/adventurer-cast-01.png",
+        "./01_assets/2_character_hero/6_cast/adventurer-cast-02.png",
+        "./01_assets/2_character_hero/6_cast/adventurer-cast-03.png",
+    ];
 
     constructor() {
         super().loadImage("./01_assets/2_character_hero/7_fall/adventurer-fall-00.png")
@@ -66,6 +72,8 @@ class Hero extends MoveableObject {
         this.loadImages(this.IMAGES_HURT);
         this.loadImages(this.IMAGES_DEAD);
         this.loadImages(this.IMAGES_FALL);
+        this.loadImages(this.IMAGES_CAST);
+
     }
 
     animation() {
@@ -88,9 +96,11 @@ class Hero extends MoveableObject {
                 this.jump();
             }
 
-            // if (this.world.keyboard.THROWHOLY) {
-            //     this.throwHoly();
-            // }
+            if (this.world.keyboard.THROWHOLY) {
+                // this.throwHoly();
+                this.playAnimation(this.IMAGES_CAST);
+
+            }
 
             this.world.camera_x = -this.x + 100;
         }, 1000 / 12);
@@ -100,7 +110,7 @@ class Hero extends MoveableObject {
                 this.playAnimation(this.IMAGES_DEAD);
                 setTimeout(() => {
                     clearInterval(this.animationInterval);
-                }, this.IMAGES_DEAD.length * (1000 / 12)); 
+                }, this.IMAGES_DEAD.length * (1000 / 12));
 
             } else if (this.isHurt) {
                 this.playAnimation(this.IMAGES_HURT);
