@@ -90,18 +90,14 @@ class World {
                 this.heroCharacter.hit();
                 this.statusBarHealth.setPercentage(this.heroCharacter.health);
                 this.statusBarEnergy.setPercentage(this.heroCharacter.health);
-                this.statusBarAmmo.setPercentage(this.heroCharacter.health);
             }
         });
 
         this.level.throwable.forEach((throwable) => {
             if (this.heroCharacter.isColliding(throwable)) {
-                console.log("try to pick up");
-
-                this.heroCharacter.hit();
-                this.statusBarHealth.setPercentage(this.heroCharacter.health);
-                this.statusBarEnergy.setPercentage(this.heroCharacter.health);
-                this.statusBarAmmo.setPercentage(this.heroCharacter.health);
+                // console.log("try to pick up");
+                this.statusBarAmmo.collect();
+                this.statusBarAmmo.setPercentage(this.statusBarAmmo.percentage);
             }
         });
     }

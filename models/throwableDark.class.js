@@ -19,7 +19,9 @@ class ThrowableDark extends MoveableObject {
         super();
         this.loadImage("./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_01.png");
         console.log("created a dark");
-        this.x = 200 + Math.random() * 500;
+        // this.x = 200 + Math.random() * 500;
+        
+        this.x = 150;
         this.y = 325;
         this.loadImages(this.IMAGES_IDLE);
         this.animation();
