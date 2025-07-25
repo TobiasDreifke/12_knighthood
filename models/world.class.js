@@ -5,7 +5,7 @@ class World {
     heroCharacter = new Hero();
     statusBarHealth = new StatusbarHealth();
     statusBarEnergy = new StatusbarEnergy();
-    statusBarAmmo = new StatusbarAmmo();
+    statusBarAmmo = new StatusbarAmmo(this.level);
 
     throwableHoly = [];
     // throwableDark = new ThrowableDark();
@@ -43,18 +43,20 @@ class World {
 
 
     constructor(canvasPara, keyboardPara) {
+
         this.ctx = canvasPara.getContext("2d");
         this.canvas = canvasPara;
         this.keyboard = keyboardPara;
         this.draw();
         this.setWorld();
         this.run();
-        console.log(this.level);
+        console.log(this.level.throwables);
 
     }
 
     setWorld() {
         this.heroCharacter.world = this;
+        this.statusBarAmmo.world = this;
     }
 
     run() {
@@ -63,6 +65,7 @@ class World {
         setInterval(() => {
             this.checkCollisions();
             this.throwHoly();
+            //  this.throwDark();
         }, 200);
     }
 
@@ -75,7 +78,7 @@ class World {
 
     throwDark() {
         if (this.keyboard.THROWHOLY) {
-            let holy = new ThrowDark(this.heroCharacter.x + 75, this.heroCharacter.y);
+            let holy = new ThrowableDark(this.heroCharacter.x + 75, this.heroCharacter.y);
             this.throwableHoly.push(holy)
         }
     }
@@ -93,13 +96,17 @@ class World {
             }
         });
 
-        this.level.throwable.forEach((throwable) => {
-            if (this.heroCharacter.isColliding(throwable)) {
+        this.level.throwables.forEach((throwables) => {
+            if (this.heroCharacter.isColliding(throwables)) {
                 // console.log("try to pick up");
                 this.statusBarAmmo.collect();
                 this.statusBarAmmo.setPercentage(this.statusBarAmmo.percentage);
             }
         });
+        
+        this.level.throwables = this.level.throwables.filter(
+            (t) => !this.heroCharacter.isColliding(t)
+        );
     }
 
     draw() {
@@ -110,7 +117,7 @@ class World {
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.level.clouds);
         this.addObjectsToMap(this.throwableHoly);
-        this.addObjectsToMap(this.level.throwable);
+        this.addObjectsToMap(this.level.throwables);
 
 
         this.ctx.translate(-this.camera_x, 0); // back

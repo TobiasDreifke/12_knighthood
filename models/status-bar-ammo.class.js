@@ -1,7 +1,8 @@
 class StatusbarAmmo extends DrawableObject {
-    testAmount = 1;
+    world;
+    testAmount = 10;
     Ammo = 0;
-    percentage = 30;
+    percentage = 0;
 
     IMAGES = [
         "./01_assets/7_statusbars/1_statusbar/3_statusbar_bottle/green/0.png",
@@ -13,6 +14,8 @@ class StatusbarAmmo extends DrawableObject {
     ]
     constructor() {
         super();
+
+
         this.x = 50;
         this.y = 100;
         this.width = 200;
@@ -22,9 +25,10 @@ class StatusbarAmmo extends DrawableObject {
         this.loadImages(this.IMAGES);
         this.setPercentage(30);
         // this.isHurt();
+        // console.log("loaded statusbar img:", this.IMAGES);
+        // this.collect();
+        // console.log("statusbar this level" + this.world.level.throwables);
 
-        console.log("loaded statusbar img:", this.IMAGES);
-        this.collect();
     }
 
     setPercentage(percentage) {
@@ -48,29 +52,34 @@ class StatusbarAmmo extends DrawableObject {
             return 0;
         }
     }
-
-
     collect() {
+        if (!this.world) {
+            console.warn("StatusbarAmmo: world not set yet");
+            return;
+        }
 
+        if (!this.world.level) {
+            console.warn("StatusbarAmmo: level not set yet");
+            return;
+        }
+
+        console.log("Collecting ammo from level with", this.world.level.throwables.length, "throwables");
 
         if (this.percentage < 100) {
             this.percentage += this.testAmount;
             console.log("Current Ammo: " + this.percentage);
-
             if (this.percentage > 100) {
                 this.percentage = 100;
-
             }
-
             if (this.percentage === 100) {
                 console.log("full ammo");
             }
         }
-
         if (this.percentage < 0) {
             this.percentage = 0;
             console.log("out of ammo");
         }
     }
+
 }
 

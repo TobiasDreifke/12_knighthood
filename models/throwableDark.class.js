@@ -21,7 +21,7 @@ class ThrowableDark extends MoveableObject {
         console.log("created a dark");
         // this.x = 200 + Math.random() * 500;
         
-        this.x = 150;
+        this.x = 200;
         this.y = 325;
         this.loadImages(this.IMAGES_IDLE);
         this.animation();

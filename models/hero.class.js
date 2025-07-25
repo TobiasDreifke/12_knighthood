@@ -73,6 +73,7 @@ class Hero extends MoveableObject {
         this.loadAllImages();
         this.animation();
         this.applyGravity();
+        // this.inventory = new Inventory();
     }
 
     loadAllImages() {
@@ -104,6 +105,7 @@ class Hero extends MoveableObject {
         return null;
     }
 
+    
     animation() {
         setInterval(() => {
             if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
@@ -120,6 +122,10 @@ class Hero extends MoveableObject {
             }
 
             if (this.world.keyboard.THROWHOLY) {
+                this.playAnimation(this.IMAGES_CAST);
+            }
+
+            if (this.world.keyboard.THROWDARK) {
                 this.playAnimation(this.IMAGES_CAST);
             }
 
