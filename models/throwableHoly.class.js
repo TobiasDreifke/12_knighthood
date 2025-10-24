@@ -9,7 +9,7 @@ class ThrowHoly extends MoveableObject {
     offsetBottom = 15;
 
     collidingObject = true;
-    debugColor = "green";
+    debugColor = "blue";
 
     IMAGES_IDLE = [
         "./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_1.png",
@@ -30,29 +30,34 @@ class ThrowHoly extends MoveableObject {
     ];
 
 
-    constructor(x, y) {
+    constructor(x, y, isThrown = false) {
         super().loadImage("./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_1.png");
-        console.log("created a holy");
+        // console.log("created a holy");
         this.x = x;
         this.y = y;
+        this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_THROW);
         this.animation();
-        this.throwHoly();
+        if (isThrown) {
+            this.throwHoly();
+        }
+
 
     };
 
-    throwHoly() {
-
-        // if (this) {
-
-        // }
-
-        this.speedY = 2;
+    throwHoly(facingLeft) {
+        this.speedY = 15; 
         this.applyGravity();
-        setInterval(() => {
-            this.x += 15;
-        }, 25)
+
+        const throwPower = 15;
+        this.speedX = facingLeft ? -throwPower : throwPower;
+
+        this.throwInterval = setInterval(() => {
+            this.x += this.speedX;
+        }, 25);
     };
+
+  
 
     animation() {
         setInterval(() => {

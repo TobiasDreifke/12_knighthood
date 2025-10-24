@@ -9,8 +9,9 @@ class World {
 
     throwableHoly = [];
     // throwableDark = new ThrowableDark();
-
-
+    throwableDark = [];
+    darkAmmo = [];
+    holyAmmo = [];
 
     level = level_01
 
@@ -52,6 +53,8 @@ class World {
         this.run();
         console.log(this.level.throwables);
 
+
+
     }
 
     setWorld() {
@@ -65,21 +68,56 @@ class World {
         setInterval(() => {
             this.checkCollisions();
             this.throwHoly();
+            this.throwDark();
             //  this.throwDark();
         }, 200);
     }
 
     throwHoly() {
-        if (this.keyboard.THROWHOLY) {
-            let holy = new ThrowHoly(this.heroCharacter.x + 75, this.heroCharacter.y);
-            this.throwableHoly.push(holy)
+        if (this.keyboard.THROWHOLY && this.holyAmmo.length > 0) {
+            console.log("Throwing holy bottle, ammo left:", this.holyAmmo.length);
+
+            let holy = this.holyAmmo.pop();
+
+            const facingLeft = this.heroCharacter.otherDirection;
+
+            holy.x = this.heroCharacter.x + (facingLeft ? -50 : 75);
+            holy.y = this.heroCharacter.y + 20;
+            holy.isThrown = true;
+
+            holy.throwHoly(facingLeft);
+
+            this.throwableHoly.push(holy);
+
+            this.statusBarAmmo.percentage -= 10;
+            if (this.statusBarAmmo.percentage < 0) this.statusBarAmmo.percentage = 0;
+            this.statusBarAmmo.setPercentage(this.statusBarAmmo.percentage);
+        } else if (this.keyboard.THROWHOLY) {
+            console.log("No holy ammo left!");
         }
     }
 
     throwDark() {
-        if (this.keyboard.THROWHOLY) {
-            let holy = new ThrowableDark(this.heroCharacter.x + 75, this.heroCharacter.y);
-            this.throwableHoly.push(holy)
+        if (this.keyboard.THROWDARK && this.darkAmmo.length > 0) {
+            console.log("Throwing dark bottle, ammo left:", this.darkAmmo.length);
+
+            let dark = this.darkAmmo.pop();
+
+            const facingLeft = this.heroCharacter.otherDirection;
+
+            dark.x = this.heroCharacter.x + (facingLeft ? -50 : 75);
+            dark.y = this.heroCharacter.y + 20;
+            dark.isThrown = true;
+
+            dark.throwDark(facingLeft);
+
+            this.throwableDark.push(dark);
+
+            this.statusBarAmmo.percentage -= 10;
+            if (this.statusBarAmmo.percentage < 0) this.statusBarAmmo.percentage = 0;
+            this.statusBarAmmo.setPercentage(this.statusBarAmmo.percentage);
+        } else if (this.keyboard.THROWDARK) {
+            console.log("No dark ammo left!");
         }
     }
 
@@ -96,14 +134,22 @@ class World {
             }
         });
 
-        this.level.throwables.forEach((throwables) => {
-            if (this.heroCharacter.isColliding(throwables)) {
-                // console.log("try to pick up");
+        this.level.throwables.forEach((throwable) => {
+            if (this.heroCharacter.isColliding(throwable)) {
+                if (throwable instanceof ThrowDark) {
+                    this.darkAmmo.push(throwable);
+                    console.log("Dark ammo collected:", this.darkAmmo.length);
+                }
+
+                if (throwable instanceof ThrowHoly) {
+                    this.holyAmmo.push(throwable);
+                    console.log("Holy ammo collected:", this.holyAmmo.length);
+                }
+
                 this.statusBarAmmo.collect();
-                this.statusBarAmmo.setPercentage(this.statusBarAmmo.percentage);
             }
         });
-        
+
         this.level.throwables = this.level.throwables.filter(
             (t) => !this.heroCharacter.isColliding(t)
         );
@@ -116,8 +162,10 @@ class World {
         this.addObjectsToMap(this.level.backgroundObjects);
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.level.clouds);
-        this.addObjectsToMap(this.throwableHoly);
         this.addObjectsToMap(this.level.throwables);
+        // this.addObjectsToMap(this.level.throwables);
+        this.addObjectsToMap(this.throwableHoly);
+        this.addObjectsToMap(this.throwableDark);
 
 
         this.ctx.translate(-this.camera_x, 0); // back
