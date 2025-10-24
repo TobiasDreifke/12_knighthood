@@ -7,7 +7,8 @@ const level_01 = new Level(
     ],
 
 
-    [new Cloud()],
+    [new Cloud(),
+    ],
 
 
     [
@@ -38,9 +39,11 @@ const level_01 = new Level(
     ],
 
  [
-    new ThrowableDark(),
-        new ThrowableDark(),
-
+        new ThrowDark(500, 350), 
+        new ThrowDark(800, 350),
+        new ThrowDark(400, 350), 
+        new ThrowDark(300, 350),
+        new ThrowHoly(200, 350),
  ],
 
 );

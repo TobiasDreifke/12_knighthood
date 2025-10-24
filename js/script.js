@@ -23,8 +23,9 @@ window.addEventListener("keydown", (event) => {
         keyboard.JUMP = true;
     }
 
-    if (key === "e") keyboard.THROWHOLY = true;
-    if (key === "q") keyboard.THROWDARK = true;
+   
+    if (key === "q") keyboard.THROWHOLY = true;
+    if (key === "e") keyboard.THROWDARK = true;
 
 });
 
@@ -41,8 +42,8 @@ window.addEventListener("keyup", (event) => {
         keyboard.JUMP = false;
     }
 
-    if (key === "e") keyboard.THROWHOLY = false;
-    if (key === "q") keyboard.THROWDARK = false;
+    if (key === "q") keyboard.THROWHOLY = false;
+    if (key === "e") keyboard.THROWDARK = false;
 
 
 });
