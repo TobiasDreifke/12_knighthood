@@ -23,7 +23,7 @@ class StatusbarAmmo extends DrawableObject {
 
 
         this.loadImages(this.IMAGES);
-        this.setPercentage(30);
+        this.setPercentage(0);
         // this.isHurt();
         // console.log("loaded statusbar img:", this.IMAGES);
         // this.collect();
@@ -52,32 +52,57 @@ class StatusbarAmmo extends DrawableObject {
             return 0;
         }
     }
+
+    // collect() {
+    //     if (!this.world) {
+    //         console.warn("StatusbarAmmo: world not set yet");
+    //         return;
+    //     }
+
+    //     if (!this.world.level) {
+    //         console.warn("StatusbarAmmo: level not set yet");
+    //         return;
+    //     }
+
+    //     // console.log("Collecting ammo from level with", this.world.level.throwables, "throwables");
+
+    //     if (this.percentage < 100) {
+    //         this.percentage += this.testAmount;
+    //         console.log("Current Ammo: " + this.percentage);
+    //         if (this.percentage > 100) {
+    //             this.percentage = 100;
+    //         }
+    //         if (this.percentage === 100) {
+    //             console.log("full ammo");
+    //         }
+    //     }
+    //     if (this.percentage < 0) {
+    //         this.percentage = 0;
+    //         console.log("out of ammo");
+    //     }
+    // }
+
     collect() {
-        if (!this.world) {
-            console.warn("StatusbarAmmo: world not set yet");
+        if (!this.world || !this.world.level) {
+            console.warn("StatusbarAmmo: world or level not set yet");
             return;
         }
-
-        if (!this.world.level) {
-            console.warn("StatusbarAmmo: level not set yet");
-            return;
-        }
-
-        console.log("Collecting ammo from level with", this.world.level.throwables.length, "throwables");
 
         if (this.percentage < 100) {
             this.percentage += this.testAmount;
+
+            if (this.percentage > 100) this.percentage = 100;
+
             console.log("Current Ammo: " + this.percentage);
-            if (this.percentage > 100) {
-                this.percentage = 100;
-            }
-            if (this.percentage === 100) {
-                console.log("full ammo");
-            }
+
+     
+            this.setPercentage(this.percentage);  
         }
-        if (this.percentage < 0) {
+
+        if (this.percentage <= 0) {
             this.percentage = 0;
-            console.log("out of ammo");
+            this.setPercentage(this.percentage);
+            console.log("Out of ammo");
         }
     }
 

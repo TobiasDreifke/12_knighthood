@@ -6,20 +6,5 @@ class KeyboardMapping {
     DOWN = false;
     speed = 3;
     THROWHOLY = false;
-     THROWDARK = false;
-    
-    // constructor() {
-    //     this.moveRight();
-    // }
-
-    // moveRight() {
-    //     console.log("move right");
-
-    //     if (this.RIGHT === true) {
-    //         setInterval(() => {
-    //             this.x += this.speed;
-    //         }, 1000 / 60);
-    //     }
-    // }
-
+    THROWDARK = false;
 }

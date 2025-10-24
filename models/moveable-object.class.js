@@ -14,7 +14,7 @@ class MoveableObject extends DrawableObject {
 
     damageOnCollision = 5;
 
-  
+
 
     isColliding(mo) {
         const thisLeft = this.x + this.offsetLeft;
@@ -81,6 +81,8 @@ class MoveableObject extends DrawableObject {
 
     isAboveGround() {
         if (this instanceof ThrowHoly) {
+            return true;
+        } if (this instanceof ThrowDark) {
             return true;
         } else {
             return this.y < 300;
