@@ -106,7 +106,8 @@ class MoveableObject extends DrawableObject {
 	}ddd
 
 	hit() {
-		console.log("is hit");
+		console.log(`[${this.constructor.name}] is hit`);
+		// console.log("is hit");
 		this.health -= this.damageOnCollision;
 		if (this.health < 0) {
 			this.health = 0;
