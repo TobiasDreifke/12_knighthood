@@ -1,69 +1,101 @@
 class ThrowHoly extends MoveableObject {
+	width = 50;
+	height = 50;
+	offsetLeft = 15;
+	offsetRight = 15;
+	offsetTop = 15;
+	offsetBottom = 15;
+	collidingObject = true;
+	debugColor = "blue";
 
-    width = 50;
-    height = 50;
+	IMAGES_IDLE = [
+		"./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_1.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_2.png",
+	];
 
-    offsetLeft = 15;
-    offsetRight = 15;
-    offsetTop = 15;
-    offsetBottom = 15;
-
-    collidingObject = true;
-    debugColor = "blue";
-
-    IMAGES_IDLE = [
-        "./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_1.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_2.png",
-    ];
-
-    IMAGES_THROW = [
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_1.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_2.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_3.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_4.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_5.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_6.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_7.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_8.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_9.png",
-        "./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_10.png",
-    ];
+	IMAGES_THROW = [
+		"./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_1.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_2.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_3.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_4.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_5.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_6.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_7.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_8.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_9.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_10.png",
+	];
 
 
-    constructor(x, y, isThrown = false) {
-        super().loadImage("./01_assets/6_salsa_bottle/bottle_rotation/attack_02/holy_attack_1.png");
-        // console.log("created a holy");
-        this.x = x;
-        this.y = y;
-        this.loadImages(this.IMAGES_IDLE);
-        this.loadImages(this.IMAGES_THROW);
-        this.animation();
-        if (isThrown) {
-            this.throwHoly();
-        }
+	constructor(x, y, isThrown = false) {
+		super();
+		this.x = x;
+		this.y = y;
+		this.isThrown = isThrown;
+		this.isAnimating = false;
 
+		// Only load throw images immediately
+		this.loadImages(this.IMAGES_THROW);
 
-    };
+		if (isThrown) {
+			this.loadImage(this.IMAGES_THROW[0]); // display correct first frame
+			this.throwHoly();
+		} else {
+			this.loadImages(this.IMAGES_IDLE);
+			this.loadImage(this.IMAGES_IDLE[0]);
+			this.startIdleAnimation();
+		}
+	}
 
-    throwHoly(facingLeft) {
-        this.speedY = 15; 
-        this.applyGravity();
+	startIdleAnimation() {
+	if (this.isThrown) return;
+	if (this.isAnimating) return;
+	this.isAnimating = true;
+	this.stopAnimation();
+	this.animationInterval = setInterval(() => {
+		if (!this.isThrown) {
+			this.playAnimation(this.IMAGES_IDLE);
+		}
+	}, 1000 / 3);
+	}
 
-        const throwPower = 15;
-        this.speedX = facingLeft ? -throwPower : throwPower;
+	startThrowAnimation() {
+		this.stopAnimation();
+		this.isAnimating = true;
+		this.animationInterval = setInterval(() => {
+			this.playAnimation(this.IMAGES_THROW);
+		}, 1000 / 12);
+	}
 
-        this.throwInterval = setInterval(() => {
-            this.x += this.speedX;
-        }, 25);
-    };
+	stopAnimation() {
+		if (this.animationInterval) {
+			clearInterval(this.animationInterval);
+			this.animationInterval = null;
+		}
+		this.isAnimating = false;
+	}
 
-  
+	throwHoly(facingLeft) {
+		this.stopAnimation();
+		this.isThrown = true;
+		this.currentImage = 0;
 
-    animation() {
-        setInterval(() => {
-            this.playAnimation(this.IMAGES_THROW);
-        }, 250)
-    }
+		// Force the correct throw frame
+		this.img = this.imageCache[this.IMAGES_THROW[0]];
+		console.log("Initial image path (after force):", this.img?.src);
+
+		this.startThrowAnimation();
+
+		this.speedY = 15;
+		this.applyGravity();
+
+		const throwPower = 10;
+		this.speedX = facingLeft ? -throwPower : throwPower;
+
+		this.throwInterval = setInterval(() => {
+			this.x += this.speedX;
+		}, 25);
+}
 
 }
 
