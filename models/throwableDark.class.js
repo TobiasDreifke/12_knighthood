@@ -35,11 +35,10 @@ class ThrowDark extends MoveableObject {
 		this.isThrown = isThrown;
 		this.isAnimating = false;
 
-		// Only load throw images immediately
 		this.loadImages(this.IMAGES_THROW);
 
 		if (isThrown) {
-			this.loadImage(this.IMAGES_THROW[0]); // display correct first frame
+			this.loadImage(this.IMAGES_THROW[0]); 
 			this.throwDark();
 		} else {
 			this.loadImages(this.IMAGES_IDLE);
@@ -81,9 +80,7 @@ class ThrowDark extends MoveableObject {
 		this.isThrown = true;
 		this.currentImage = 0;
 
-		// Force the correct throw frame
 		this.img = this.imageCache[this.IMAGES_THROW[0]];
-		console.log("Initial image path (after force):", this.img?.src);
 
 		this.startThrowAnimation();
 
