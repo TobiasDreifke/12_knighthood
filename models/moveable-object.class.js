@@ -1,112 +1,124 @@
 class MoveableObject extends DrawableObject {
 
-    health = 100;
+	health = 100;
 
-    speed = 0.15;
-    slideSpeed = this.speed + 10;
-
-
-    speedY = 0;
-    acceleration = 2.5;
-
-    otherDirection = false;
-    lastHit = 0;
-
-    damageOnCollision = 5;
+	speed = 0.15;
+	slideSpeed = this.speed + 10;
 
 
+	speedY = 0;
+	acceleration = 2.5;
 
-    isColliding(mo) {
-        const thisLeft = this.x + this.offsetLeft;
-        const thisTop = this.y + this.offsetTop;
-        const thisRight = this.x + this.width - this.offsetRight;
-        const thisBottom = this.y + this.height - this.offsetBottom;
+	otherDirection = false;
+	lastHit = 0;
 
-        const otherLeft = mo.x + mo.offsetLeft;
-        const otherTop = mo.y + mo.offsetTop;
-        const otherRight = mo.x + mo.width - mo.offsetRight;
-        const otherBottom = mo.y + mo.height - mo.offsetBottom;
+	damageOnCollision = 5;
 
-        return thisRight > otherLeft &&
-            thisBottom > otherTop &&
-            thisLeft < otherRight &&
-            thisTop < otherBottom;
-    }
 
-    moveRight() {
-        this.x += this.speed;
-        this.otherDirection = false;
-    }
 
-    slideRight() {
-        this.x += this.slideSpeed;
-        this.otherDirection = false;
-        // console.log("SLIDIIIIIIIING");
-    }
+	isColliding(mo) {
+		const thisLeft = this.x + this.offsetLeft;
+		const thisTop = this.y + this.offsetTop;
+		const thisRight = this.x + this.width - this.offsetRight;
+		const thisBottom = this.y + this.height - this.offsetBottom;
 
-    moveLeft() {
-        this.x -= this.speed;
-        this.otherDirection = true;
-    };
+		const otherLeft = mo.x + mo.offsetLeft;
+		const otherTop = mo.y + mo.offsetTop;
+		const otherRight = mo.x + mo.width - mo.offsetRight;
+		const otherBottom = mo.y + mo.height - mo.offsetBottom;
 
-    slideLeft() {
-        this.x -= this.slideSpeed;
-        this.otherDirection = true;
-        // console.log("SLIDIIIIIIIING");
-    }
+		return thisRight > otherLeft &&
+			thisBottom > otherTop &&
+			thisLeft < otherRight &&
+			thisTop < otherBottom;
+	}
 
-    crouch() {
-        this.x += 0;
-    }
+	moveRight() {
+		this.x += this.speed;
+		this.otherDirection = false;
+	}
 
-    playAnimation(img) {
-        let i = this.currentImage % img.length;
-        let path = img[i];
-        this.img = this.imageCache[path];
-        this.currentImage++;
+	slideRight() {
+		this.x += this.slideSpeed;
+		this.otherDirection = false;
+		// console.log("SLIDIIIIIIIING");
+	}
 
-        if (this.onAnimationFrame) { // for SoundSynching
-            this.onAnimationFrame(img, i);
-        }
-    }
+	moveLeft() {
+		this.x -= this.speed;
+		this.otherDirection = true;
+	};
 
-    applyGravity() {
-        setInterval(() => {
-            if (this.isAboveGround() || this.speedY > 0) {
-                this.y -= this.speedY;
-                this.speedY -= this.acceleration;
-            }
-        }, 1000 / 25);
-    }
+	slideLeft() {
+		this.x -= this.slideSpeed;
+		this.otherDirection = true;
+		// console.log("SLIDIIIIIIIING");
+	}
 
-    isAboveGround() {
-        if (this instanceof ThrowHoly) {
-            return true;
-        } if (this instanceof ThrowDark) {
-            return true;
-        } else {
-            return this.y < 300;
-        }
-    }
+	crouch() {
+		this.x += 0;
+	}
 
-    jump() {
-        this.speedY = 30;
-    }
+	playAnimation(img) {
 
-    hit() {
-        // console.log("is hit");
-        this.health -= this.damageOnCollision;
-        if (this.health < 0) {
-            this.health = 0;
-            // console.log("is dead");
-        }
+		let i = this.currentImage % img.length;
+		let path = img[i];
+		this.img = this.imageCache[path];
+		this.currentImage++;
 
-        this.isHurt = true;
-    }
+	if (this.onAnimationFrame) { // for SoundSynching
+		this.onAnimationFrame(img, i);
+		}
 
-    isDead() {
-        return this.health === 0;
-    }
+	// ------------ for Bugfixing trow animation ---------
+
+	// if (img === this.IMAGES_IDLE) { 
+	// console.log(`[${this.constructor.name}] playing IDLE frame`, path);
+	// } else if (img === this.IMAGES_THROW) {
+	// console.log(`[${this.constructor.name}] playing THROW frame`, path);
+	// } if (this.constructor.name === "ThrowDark" && img === this.IMAGES_IDLE) {
+		// console.warn("[ThrowDark] !!! IDLE detected !!!");
+// }
+
+	}
+
+	applyGravity() {
+		setInterval(() => {
+			if (this.isAboveGround() || this.speedY > 0) {
+				this.y -= this.speedY;
+				this.speedY -= this.acceleration;
+			}
+		}, 1000 / 25);
+	}
+
+	isAboveGround() {
+		if (this instanceof ThrowHoly) {
+			return true;
+		} if (this instanceof ThrowDark) {
+			return true;
+		} else {
+			return this.y < 300;
+		}
+	}
+
+	jump() {
+		this.speedY = 30;
+	}ddd
+
+	hit() {
+		console.log("is hit");
+		this.health -= this.damageOnCollision;
+		if (this.health < 0) {
+			this.health = 0;
+			// console.log("is dead");
+		}
+
+		this.isHurt = true;
+	}
+
+	isDead() {
+		return this.health === 0;
+	}
 
 
 
