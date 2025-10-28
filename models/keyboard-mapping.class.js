@@ -7,4 +7,5 @@ class KeyboardMapping {
     speed = 3;
     THROWHOLY = false;
     THROWDARK = false;
+    ATTACK = false;
 }
