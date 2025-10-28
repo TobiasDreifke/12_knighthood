@@ -84,10 +84,10 @@ class ThrowDark extends MoveableObject {
 
 		this.startThrowAnimation();
 
-		this.speedY = 15;
+		// this.speedY = -555;
 		this.applyGravity();
 
-		const throwPower = 10;
+		const throwPower = 2;
 		this.speedX = facingLeft ? -throwPower : throwPower;
 
 		this.throwInterval = setInterval(() => {

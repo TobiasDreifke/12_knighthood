@@ -84,10 +84,10 @@ class ThrowHoly extends MoveableObject {
 
 		this.startThrowAnimation();
 
-		this.speedY = 15;
+		// this.speedY = 15;
 		this.applyGravity();
 
-		const throwPower = 10;
+		const throwPower = 5;
 		this.speedX = facingLeft ? -throwPower : throwPower;
 
 		this.throwInterval = setInterval(() => {
