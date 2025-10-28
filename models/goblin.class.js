@@ -6,6 +6,21 @@ class Goblin extends MoveableObject {
 
     collidingObject = true;
     debugColor = "green";
+    health = 10;
+
+    IMAGES_HURT = [
+        "./01_assets/3_enemies_mobs/goblin/3_hurt/goblin_hurt_01.png",
+        "./01_assets/3_enemies_mobs/goblin/3_hurt/goblin_hurt_02.png",
+        "./01_assets/3_enemies_mobs/goblin/3_hurt/goblin_hurt_03.png",
+        "./01_assets/3_enemies_mobs/goblin/3_hurt/goblin_hurt_04.png",
+    ]
+
+    IMAGES_DEAD = [
+        "./01_assets/3_enemies_mobs/goblin/2_dead/goblin_death_01.png",
+        "./01_assets/3_enemies_mobs/goblin/2_dead/goblin_death_02.png",
+        "./01_assets/3_enemies_mobs/goblin/2_dead/goblin_death_03.png",
+        "./01_assets/3_enemies_mobs/goblin/2_dead/goblin_death_04.png"
+    ]
 
     IMAGES_WALK = [
         "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_01.png",
@@ -18,22 +33,53 @@ class Goblin extends MoveableObject {
         "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_08.png"
     ];
 
-    constructor() {
+    constructor(isHurt = false, isDead = false) {
         super().loadImage("./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_01.png")
         this.x = 400 + Math.random() * 1000;
         this.loadImages(this.IMAGES_WALK);
+        this.loadImages(this.IMAGES_DEAD);
+        this.loadImages(this.IMAGES_HURT);
         this.animation();
         this.speed = 0.25 + Math.random() * 1;
         this.otherDirection = true;
+        this.isHurt = isHurt;
+        this.isDead = isDead;
+    }
+
+    isDeadFunc() {
+        if (this.isDead = true) {
+            // this.offsetLeft = 0;
+            // this.offsetRight = 0;
+            // this.offsetTop = 0;
+            // this.offsetBottom = 0;
+            this.collidingObject = false;
+            console.log("not colliding anymore" + this.collidingObject);
+
+        }
     }
 
     animation() {
-        setInterval(() => {
-            this.moveLeft();
-        }, 1000 / 25);
+        this.animationInterval = setInterval(() => {
 
-        setInterval(() => {
-            this.playAnimation(this.IMAGES_WALK);
-        }, 1000 / 15)
+            // --------- DEAD
+            if (this.isDead) {
+                this.isDeadFunc();
+                this.playAnimation(this.IMAGES_DEAD);
+                setTimeout(() => {
+                    clearInterval(this.animationInterval);
+                }, this.IMAGES_DEAD.length * (1000 / 25));
+
+                // --------- HURT
+            } else if (this.isHurt) {
+                this.playAnimation(this.IMAGES_HURT);
+                // console.log("is hit");
+                this.isHurt = false;
+
+            } else {
+                this.moveLeft();
+                this.playAnimation(this.IMAGES_WALK);
+            }
+        }, 1000 / 20);
     }
+
 }
