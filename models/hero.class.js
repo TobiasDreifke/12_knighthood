@@ -68,11 +68,12 @@ class Hero extends MoveableObject {
         "./01_assets/2_character_hero/14_crouch/adventurer-crouch-03.png",
     ];
 
-    constructor() {
+    constructor(isDead = false) {
         super().loadImage("./01_assets/2_character_hero/7_fall/adventurer-fall-00.png")
         this.loadAllImages();
         this.animation();
         this.applyGravity();
+         this.isDead = isDead;
         // this.inventory = new Inventory();
     }
 
@@ -143,11 +144,11 @@ class Hero extends MoveableObject {
         this.animationInterval = setInterval(() => {
 
             // --------- DEAD
-            if (this.isDead()) {
+            if (this.isDead) {
                 this.playAnimation(this.IMAGES_DEAD);
                 setTimeout(() => {
                     clearInterval(this.animationInterval);
-                }, this.IMAGES_DEAD.length * (1000 / 12));
+                }, this.IMAGES_DEAD.length * (1000 / 14));
 
                 // --------- HURT
             } else if (this.isHurt) {
