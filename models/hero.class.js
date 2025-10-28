@@ -10,6 +10,9 @@ class Hero extends MoveableObject {
     collidingObject = true;
     debugColor = "green";
 
+    hasSword = false;
+    isDrawingSword = false;
+
 
     IMAGES_IDLE = [
         "./01_assets/2_character_hero/1_idle/idle/adventurer-idle-00.png",
@@ -18,7 +21,23 @@ class Hero extends MoveableObject {
         "./01_assets/2_character_hero/1_idle/idle/adventurer-idle-03.png",
     ];
 
+    IMAGES_IDLE_SWORD = [
+        "./01_assets/2_character_hero/18_idle_sword/adventurer-idle-2-00.png",
+        "./01_assets/2_character_hero/18_idle_sword/adventurer-idle-2-01.png",
+        "./01_assets/2_character_hero/18_idle_sword/adventurer-idle-2-02.png",
+        "./01_assets/2_character_hero/18_idle_sword/adventurer-idle-2-03.png",
+    ]
+
     IMAGES_WALK = [
+        "./01_assets/2_character_hero/19_walk_no_sword/adventurer-run2-00.png",
+        "./01_assets/2_character_hero/19_walk_no_sword/adventurer-run2-01.png",
+        "./01_assets/2_character_hero/19_walk_no_sword/adventurer-run2-02.png",
+        "./01_assets/2_character_hero/19_walk_no_sword/adventurer-run2-03.png",
+        "./01_assets/2_character_hero/19_walk_no_sword/adventurer-run2-04.png",
+        "./01_assets/2_character_hero/19_walk_no_sword/adventurer-run2-05.png",
+    ];
+
+    IMAGES_WALK_SWORD = [
         "./01_assets/2_character_hero/2_walk/adventurer-run-00-1.3.png",
         "./01_assets/2_character_hero/2_walk/adventurer-run-01-1.3.png",
         "./01_assets/2_character_hero/2_walk/adventurer-run-02-1.3.png",
@@ -103,6 +122,21 @@ class Hero extends MoveableObject {
         "./01_assets/2_character_hero/16_attack_sword/adventurer-attack1-04.png",
     ];
 
+    IMAGES_SHITE_SWORD = [
+        "./01_assets/2_character_hero/13_sword_shite/adventurer-swrd-shte-00.png",
+        "./01_assets/2_character_hero/13_sword_shite/adventurer-swrd-shte-01.png",
+        "./01_assets/2_character_hero/13_sword_shite/adventurer-swrd-shte-02.png",
+        "./01_assets/2_character_hero/13_sword_shite/adventurer-swrd-shte-03.png",
+
+    ];
+
+    IMAGES_DRAW_SWORD = [
+        "./01_assets/2_character_hero/12_sword_draw/adventurer-swrd-drw-00.png",
+        "./01_assets/2_character_hero/12_sword_draw/adventurer-swrd-drw-01.png",
+        "./01_assets/2_character_hero/12_sword_draw/adventurer-swrd-drw-02.png",
+        "./01_assets/2_character_hero/12_sword_draw/adventurer-swrd-drw-03.png",
+    ];
+
     constructor(isDead = false) {
         super().loadImage("./01_assets/2_character_hero/7_fall/adventurer-fall-00.png")
         this.loadAllImages();
@@ -118,7 +152,29 @@ class Hero extends MoveableObject {
                 }
             });
         }
+
+        // this.world.checkInventory();
     }
+
+    startDrawSwordAnimation() {
+        if (!this.hasSword || this.isDrawingSword) return;
+
+        this.isDrawingSword = true;
+        let frameDuration = 1000 / 12;
+        let currentFrame = 0;
+
+        const drawInterval = setInterval(() => {
+            if (currentFrame < this.IMAGES_DRAW_SWORD.length) {
+                const path = this.IMAGES_DRAW_SWORD[currentFrame];
+                this.img = this.imageCache[path];
+                currentFrame++;
+            } else {
+                this.isDrawingSword = false;
+                clearInterval(drawInterval);
+            }
+        }, frameDuration);
+    }
+
 
     loadAllImages() {
         this.loadImages(this.IMAGES_IDLE);
@@ -132,7 +188,11 @@ class Hero extends MoveableObject {
         this.loadImages(this.IMAGES_ATTACK);
         this.loadImages(this.IMAGES_ATTACK_SWORD);
         this.loadImages(this.IMAGES_DEAD_SWORD);
-        this.loadImages(this.IMAGES_CROUCH)
+        this.loadImages(this.IMAGES_CROUCH);
+        this.loadImages(this.IMAGES_DRAW_SWORD);
+        this.loadImages(this.IMAGES_IDLE_SWORD);
+        this.loadImages(this.IMAGES_SHITE_SWORD);
+        this.loadImages(this.IMAGES_WALK_SWORD);
     }
 
     onAnimationFrame(images, frameIndex) { // for SoundSynching
@@ -154,32 +214,49 @@ class Hero extends MoveableObject {
 
     startAttack() {
         this.isAttacking = true;
-        this.hitboxWidth = 20; // how far punch reaches
+
         this.hitboxOffsetTop = 40;
         this.hitboxOffsetBottom = 20;
-
+        if (this.hasSword) {
+            this.hitboxWidth = 40;
+        } else { this.hitboxWidth = 20; };
         setTimeout(() => this.isAttacking = false, 400); // sword active 400ms
     }
 
     animation() {
         setInterval(() => {
-            // --- 1. Movement input ---
-            if (this.world.keyboard.RIGHT) this.moveRight();
-            if (this.world.keyboard.LEFT) this.moveLeft();
+
+            // -------------------------
+            // 1️⃣ Skip everything if drawing sword
+            // -------------------------
+            if (this.isDrawingSword) return;
+
+            // -------------------------
+            // 2️⃣ Movement input
+            // -------------------------
+            if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) this.moveRight();
+            if (this.world.keyboard.LEFT && this.x > 0) this.moveLeft();
             if ((this.world.keyboard.UP || this.world.keyboard.JUMP) && !this.isAboveGround()) this.jump();
             if (this.world.keyboard.RIGHT && this.world.keyboard.DOWN) this.slideRight();
             if (this.world.keyboard.LEFT && this.world.keyboard.DOWN) this.slideLeft();
 
-            // --- 2. Animation priorities ---
+            // -------------------------
+            // 3️⃣ Animation priorities
+            // -------------------------
             if (this.isDead) {
-                this.playAnimationWithSpeed(this.IMAGES_DEAD_SWORD, 14);
+                // Dead animation depends on sword
+                if (this.hasSword) this.playAnimationWithSpeed(this.IMAGES_DEAD_SWORD, 14);
+                else this.playAnimationWithSpeed(this.IMAGES_DEAD, 14);
 
             } else if (this.isHurt) {
                 this.playAnimationWithSpeed(this.IMAGES_HURT, 16);
                 this.isHurt = false;
 
             } else if (this.world.keyboard.ATTACK) {
-                this.playAnimationWithSpeed(this.IMAGES_ATTACK, 20);
+                // Attack animation depends on sword
+                if (this.hasSword) this.playAnimationWithSpeed(this.IMAGES_ATTACK_SWORD, 20);
+                else this.playAnimationWithSpeed(this.IMAGES_ATTACK, 20);
+
                 this.startAttack();
 
             } else if (this.world.keyboard.THROWHOLY || this.world.keyboard.THROWDARK) {
@@ -197,17 +274,27 @@ class Hero extends MoveableObject {
                 else if (this.speedY < 0) this.playAnimationWithSpeed(this.IMAGES_FALL, 14);
 
             } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-                this.playAnimationWithSpeed(this.IMAGES_WALK, 16);
+                if (this.hasSword) this.playAnimationWithSpeed(this.IMAGES_WALK_SWORD, 16);
+                else this.playAnimationWithSpeed(this.IMAGES_WALK, 16);
 
             } else {
-                this.playAnimationWithSpeed(this.IMAGES_IDLE, 12);
+
+                if (this.hasSword) this.playAnimationWithSpeed(this.IMAGES_IDLE_SWORD, 12);
+                else this.playAnimationWithSpeed(this.IMAGES_IDLE, 12);
+
+
             }
 
-            // --- 3. Camera follows character ---
+            // -------------------------
+            // 4️⃣ Camera follows hero
+            // -------------------------
             this.world.camera_x = -this.x + 100;
 
         }, 1000 / 25);
     }
+
+
+
 
 }
 
