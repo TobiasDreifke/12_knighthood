@@ -38,7 +38,7 @@ class Hero extends MoveableObject {
         "./01_assets/2_character_hero/4_hurt/adventurer-hurt-01-1.3.png",
         "./01_assets/2_character_hero/4_hurt/adventurer-hurt-02-1.3.png",
     ];
-    IMAGES_DEAD = [
+    IMAGES_DEAD_SWORD = [
         "./01_assets/2_character_hero/5_dead/adventurer-die-00-1.3.png",
         "./01_assets/2_character_hero/5_dead/adventurer-die-01-1.3.png",
         "./01_assets/2_character_hero/5_dead/adventurer-die-02-1.3.png",
@@ -47,6 +47,17 @@ class Hero extends MoveableObject {
         "./01_assets/2_character_hero/5_dead/adventurer-die-05-1.3.png",
         "./01_assets/2_character_hero/5_dead/adventurer-die-06-1.3.png",
     ];
+
+    IMAGES_DEAD = [
+        "./01_assets/2_character_hero/17_dead_no_Sword/adventurer-knock-dwn-00.png",
+        "./01_assets/2_character_hero/17_dead_no_Sword/adventurer-knock-dwn-01.png",
+        "./01_assets/2_character_hero/17_dead_no_Sword/adventurer-knock-dwn-02.png",
+        "./01_assets/2_character_hero/17_dead_no_Sword/adventurer-knock-dwn-03.png",
+        "./01_assets/2_character_hero/17_dead_no_Sword/adventurer-knock-dwn-04.png",
+        "./01_assets/2_character_hero/17_dead_no_Sword/adventurer-knock-dwn-05.png",
+        "./01_assets/2_character_hero/17_dead_no_Sword/adventurer-knock-dwn-06.png",
+    ];
+
     IMAGES_FALL = [
         "./01_assets/2_character_hero/7_fall/adventurer-fall-00.png",
         "./01_assets/2_character_hero/7_fall/adventurer-fall-01.png",
@@ -68,13 +79,45 @@ class Hero extends MoveableObject {
         "./01_assets/2_character_hero/14_crouch/adventurer-crouch-03.png",
     ];
 
+    IMAGES_ATTACK = [
+        "./01_assets/2_character_hero/15_punch/adventurer-punch-00.png",
+        "./01_assets/2_character_hero/15_punch/adventurer-punch-01.png",
+        "./01_assets/2_character_hero/15_punch/adventurer-punch-02.png",
+        "./01_assets/2_character_hero/15_punch/adventurer-punch-03.png",
+        "./01_assets/2_character_hero/15_punch/adventurer-punch-04.png",
+        "./01_assets/2_character_hero/15_punch/adventurer-punch-05.png",
+        "./01_assets/2_character_hero/15_punch/adventurer-punch-06.png",
+        "./01_assets/2_character_hero/15_punch/adventurer-punch-07.png",
+        "./01_assets/2_character_hero/15_punch/adventurer-punch-08.png",
+        "./01_assets/2_character_hero/15_punch/adventurer-punch-09.png",
+        "./01_assets/2_character_hero/15_punch/adventurer-punch-10.png",
+        "./01_assets/2_character_hero/15_punch/adventurer-punch-11.png",
+        "./01_assets/2_character_hero/15_punch/adventurer-punch-12.png",
+    ];
+
+    IMAGES_ATTACK_SWORD = [
+        "./01_assets/2_character_hero/16_attack_sword/adventurer-attack1-00.png",
+        "./01_assets/2_character_hero/16_attack_sword/adventurer-attack1-01.png",
+        "./01_assets/2_character_hero/16_attack_sword/adventurer-attack1-02.png",
+        "./01_assets/2_character_hero/16_attack_sword/adventurer-attack1-03.png",
+        "./01_assets/2_character_hero/16_attack_sword/adventurer-attack1-04.png",
+    ];
+
     constructor(isDead = false) {
         super().loadImage("./01_assets/2_character_hero/7_fall/adventurer-fall-00.png")
         this.loadAllImages();
         this.animation();
         this.applyGravity();
-         this.isDead = isDead;
+        this.isDead = isDead;
         // this.inventory = new Inventory();
+
+        if (this.isAttacking) {
+            this.level.enemies.forEach(enemy => {
+                if (this.heroCharacter.isHitting(enemy)) {
+                    enemy.hit();
+                }
+            });
+        }
     }
 
     loadAllImages() {
@@ -86,6 +129,9 @@ class Hero extends MoveableObject {
         this.loadImages(this.IMAGES_FALL);
         this.loadImages(this.IMAGES_CAST);
         this.loadImages(this.IMAGES_SLIDE);
+        this.loadImages(this.IMAGES_ATTACK);
+        this.loadImages(this.IMAGES_ATTACK_SWORD);
+        this.loadImages(this.IMAGES_DEAD_SWORD);
         this.loadImages(this.IMAGES_CROUCH)
     }
 
@@ -106,85 +152,63 @@ class Hero extends MoveableObject {
         return null;
     }
 
-    
+    startAttack() {
+        this.isAttacking = true;
+        this.hitboxWidth = 20; // how far punch reaches
+        this.hitboxOffsetTop = 40;
+        this.hitboxOffsetBottom = 20;
+
+        setTimeout(() => this.isAttacking = false, 400); // sword active 400ms
+    }
+
     animation() {
         setInterval(() => {
-            if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
-                this.moveRight();
-            }
+            // --- 1. Movement input ---
+            if (this.world.keyboard.RIGHT) this.moveRight();
+            if (this.world.keyboard.LEFT) this.moveLeft();
+            if ((this.world.keyboard.UP || this.world.keyboard.JUMP) && !this.isAboveGround()) this.jump();
+            if (this.world.keyboard.RIGHT && this.world.keyboard.DOWN) this.slideRight();
+            if (this.world.keyboard.LEFT && this.world.keyboard.DOWN) this.slideLeft();
 
-            if (this.world.keyboard.LEFT && this.x > 0) {
-                this.moveLeft();
-
-            }
-
-            if (this.world.keyboard.UP && !this.isAboveGround() || this.world.keyboard.JUMP && !this.isAboveGround()) {
-                this.jump();
-            }
-
-            if (this.world.keyboard.THROWHOLY) {
-                this.playAnimation(this.IMAGES_CAST);
-            }
-
-            if (this.world.keyboard.THROWDARK) {
-                this.playAnimation(this.IMAGES_CAST);
-            }
-
-            if (this.world.keyboard.RIGHT && this.world.keyboard.DOWN) {
-                this.slideRight();
-            }
-
-            if (this.world.keyboard.LEFT && this.world.keyboard.DOWN) {
-                this.slideLeft();
-            }
-
-            this.world.camera_x = -this.x + 100;
-        }, 1000 / 12);
-
-        this.animationInterval = setInterval(() => {
-
-            // --------- DEAD
+            // --- 2. Animation priorities ---
             if (this.isDead) {
-                this.playAnimation(this.IMAGES_DEAD);
-                setTimeout(() => {
-                    clearInterval(this.animationInterval);
-                }, this.IMAGES_DEAD.length * (1000 / 14));
+                this.playAnimationWithSpeed(this.IMAGES_DEAD_SWORD, 14);
 
-                // --------- HURT
             } else if (this.isHurt) {
-                this.playAnimation(this.IMAGES_HURT);
-                // console.log("is hit");
+                this.playAnimationWithSpeed(this.IMAGES_HURT, 16);
                 this.isHurt = false;
 
-                // --------- SLIDE
-            } else if (this.world.keyboard.LEFT && this.world.keyboard.DOWN || this.world.keyboard.RIGHT && this.world.keyboard.DOWN) {
-                this.playAnimation(this.IMAGES_SLIDE);
+            } else if (this.world.keyboard.ATTACK) {
+                this.playAnimationWithSpeed(this.IMAGES_ATTACK, 20);
+                this.startAttack();
 
-                // --------- CROUCH
+            } else if (this.world.keyboard.THROWHOLY || this.world.keyboard.THROWDARK) {
+                this.playAnimationWithSpeed(this.IMAGES_CAST, 14);
+
+            } else if ((this.world.keyboard.RIGHT && this.world.keyboard.DOWN) || (this.world.keyboard.LEFT && this.world.keyboard.DOWN)) {
+                this.playAnimationWithSpeed(this.IMAGES_SLIDE, 18);
+
             } else if (this.world.keyboard.DOWN) {
                 this.crouch();
-                this.playAnimation(this.IMAGES_CROUCH);
-                // console.log("crouching");
+                this.playAnimationWithSpeed(this.IMAGES_CROUCH, 12);
 
-                // --------- JUMP AND FALL
             } else if (this.isAboveGround()) {
-                if (this.speedY > 0) {
-                    this.playAnimation(this.IMAGES_JUMP);
-                } else if (this.speedY < 0) {
-                    this.playAnimation(this.IMAGES_FALL);
-                }
+                if (this.speedY > 0) this.playAnimationWithSpeed(this.IMAGES_JUMP, 14);
+                else if (this.speedY < 0) this.playAnimationWithSpeed(this.IMAGES_FALL, 14);
 
-                // --------- IDLE AND WALK
+            } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+                this.playAnimationWithSpeed(this.IMAGES_WALK, 16);
+
             } else {
-                if (!this.world.keyboard.RIGHT && !this.world.keyboard.LEFT) {
-                    this.playAnimation(this.IMAGES_IDLE);
-                } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-                    this.playAnimation(this.IMAGES_WALK);
-                }
+                this.playAnimationWithSpeed(this.IMAGES_IDLE, 12);
             }
 
-        }, 1000 / 12);
+            // --- 3. Camera follows character ---
+            this.world.camera_x = -this.x + 100;
+
+        }, 1000 / 25);
     }
+
 }
 
 
