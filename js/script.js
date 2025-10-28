@@ -18,12 +18,14 @@ window.addEventListener("keydown", (event) => {
     if (key === "arrowleft" || key === "a") keyboard.LEFT = true;
     if (key === "arrowup" || key === "w") keyboard.UP = true;
     if (key === "arrowdown" || key === "s") keyboard.DOWN = true;
+
+
     if (event.code === "Space") {
         event.preventDefault(); // important to stop scrolling sideways
         keyboard.JUMP = true;
     }
 
-   
+    if (key === "f") keyboard.ATTACK = true
     if (key === "q") keyboard.THROWHOLY = true;
     if (key === "e") keyboard.THROWDARK = true;
 
@@ -42,6 +44,7 @@ window.addEventListener("keyup", (event) => {
         keyboard.JUMP = false;
     }
 
+    if (key === "f") keyboard.ATTACK = false
     if (key === "q") keyboard.THROWHOLY = false;
     if (key === "e") keyboard.THROWDARK = false;
 

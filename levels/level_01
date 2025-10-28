@@ -42,8 +42,12 @@ const level_01 = new Level(
         new ThrowDark(500, 350), 
         new ThrowDark(800, 350),
         new ThrowDark(400, 350), 
-        new ThrowDark(300, 350),
-        new ThrowHoly(200, 350),
+        new ThrowHoly(300, 350),
+ ],
+
+[
+        
+        new Sword(200, 350),
  ],
 
 );

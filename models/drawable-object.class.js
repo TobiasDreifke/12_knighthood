@@ -2,10 +2,17 @@ class DrawableObject {
     x = 120;
     y = 300;
 
+    // ----- HURTBOX -------    
     offsetLeft = 0;
     offsetRight = 0;
     offsetTop = 0;
     offsetBottom = 0;
+
+    // ----- HITBOX -------
+    hitboxOffsetLeft = 0;
+    hitboxOffsetRight = 0;
+    hitboxOffsetTop = 0;
+    hitboxOffsetBottom = 0;
 
 
     img;
@@ -55,6 +62,45 @@ class DrawableObject {
         ctx.rect(x, y, width, height);
         ctx.stroke();
     }
+
+    drawHitbox(ctx) {
+        if (!this.isAttacking) return;
+
+        const hb = this.getHitbox();
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "red";
+        ctx.rect(hb.left, hb.top, hb.right - hb.left, hb.bottom - hb.top);
+        ctx.stroke();
+    }
+
+    getHurtbox() {
+        return {
+            left: this.x + this.offsetLeft,
+            top: this.y + this.offsetTop,
+            right: this.x + this.width - this.offsetRight,
+            bottom: this.y + this.height - this.offsetBottom,
+        };
+    }
+
+    getHitbox() {
+        const left = this.otherDirection
+            ? this.x - this.hitboxWidth   
+            : this.x + this.width;        
+
+        const right = this.otherDirection
+            ? this.x                         
+            : this.x + this.width + this.hitboxWidth;  
+
+        return {
+            left: left,
+            top: this.y + this.hitboxOffsetTop,
+            right: right,
+            bottom: this.y + this.height - this.hitboxOffsetBottom,
+        };
+    }
+
+
 
 
 
