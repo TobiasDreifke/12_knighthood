@@ -5,32 +5,38 @@ class MoveableObject extends DrawableObject {
 	speed = 0.15;
 	slideSpeed = this.speed + 10;
 
-
+	groundY = 300;
 	speedY = 0;
 	acceleration = 2.5;
 
 	otherDirection = false;
 	lastHit = 0;
 
-	damageOnCollision = 5;
-
-
+	damageOnCollision = 10;
 
 	isColliding(mo) {
-		const thisLeft = this.x + this.offsetLeft;
-		const thisTop = this.y + this.offsetTop;
-		const thisRight = this.x + this.width - this.offsetRight;
-		const thisBottom = this.y + this.height - this.offsetBottom;
 
-		const otherLeft = mo.x + mo.offsetLeft;
-		const otherTop = mo.y + mo.offsetTop;
-		const otherRight = mo.x + mo.width - mo.offsetRight;
-		const otherBottom = mo.y + mo.height - mo.offsetBottom;
+		if (this.isDead || mo.isDead) {
+			return false;
+		}
 
-		return thisRight > otherLeft &&
-			thisBottom > otherTop &&
-			thisLeft < otherRight &&
-			thisTop < otherBottom;
+		else {
+			const thisLeft = this.x + this.offsetLeft;
+			const thisTop = this.y + this.offsetTop;
+			const thisRight = this.x + this.width - this.offsetRight;
+			const thisBottom = this.y + this.height - this.offsetBottom;
+
+			const otherLeft = mo.x + mo.offsetLeft;
+			const otherTop = mo.y + mo.offsetTop;
+			const otherRight = mo.x + mo.width - mo.offsetRight;
+			const otherBottom = mo.y + mo.height - mo.offsetBottom;
+
+			return thisRight > otherLeft &&
+				thisBottom > otherTop &&
+				thisLeft < otherRight &&
+				thisTop < otherBottom;
+		}
+
 	}
 
 	moveRight() {
@@ -66,62 +72,57 @@ class MoveableObject extends DrawableObject {
 		this.img = this.imageCache[path];
 		this.currentImage++;
 
-	if (this.onAnimationFrame) { // for SoundSynching
-		this.onAnimationFrame(img, i);
+		if (this.onAnimationFrame) { // for SoundSynching
+			this.onAnimationFrame(img, i);
 		}
 
-	// ------------ for Bugfixing trow animation ---------
+		// ------------ for Bugfixing throw animation ---------
 
-	// if (img === this.IMAGES_IDLE) { 
-	// console.log(`[${this.constructor.name}] playing IDLE frame`, path);
-	// } else if (img === this.IMAGES_THROW) {
-	// console.log(`[${this.constructor.name}] playing THROW frame`, path);
-	// } if (this.constructor.name === "ThrowDark" && img === this.IMAGES_IDLE) {
+		// if (img === this.IMAGES_IDLE) { 
+		// console.log(`[${this.constructor.name}] playing IDLE frame`, path);
+		// } else if (img === this.IMAGES_THROW) {
+		// console.log(`[${this.constructor.name}] playing THROW frame`, path);
+		// } if (this.constructor.name === "ThrowDark" && img === this.IMAGES_IDLE) {
 		// console.warn("[ThrowDark] !!! IDLE detected !!!");
-// }
+		// }
 
 	}
 
 	applyGravity() {
 		setInterval(() => {
-			if (this.isAboveGround() || this.speedY > 0) {
+			if (this.y < this.groundY || this.speedY > 0) {
 				this.y -= this.speedY;
 				this.speedY -= this.acceleration;
+				if (this.y > this.groundY) this.y = this.groundY;
 			}
 		}, 1000 / 25);
 	}
 
 	isAboveGround() {
-		if (this instanceof ThrowHoly) {
-			return true;
-		} if (this instanceof ThrowDark) {
-			return true;
-		} else {
-			return this.y < 300;
-		}
+		if (this instanceof ThrowHoly || this instanceof ThrowDark) return true;
+		return this.y < this.groundY;
 	}
 
 	jump() {
 		this.speedY = 30;
-	}ddd
+	} ddd
 
 	hit() {
+		if (this.isDead) return; 
 		console.log(`[${this.constructor.name}] is hit`);
-		// console.log("is hit");
 		this.health -= this.damageOnCollision;
-		if (this.health < 0) {
+
+		if (this.health <= 0) {
 			this.health = 0;
-			// console.log("is dead");
+			this.isDead = true;
+			console.log(`[${this.constructor.name}] is dead`);
+		} else {
+			this.isHurt = true;
 		}
-
-		this.isHurt = true;
 	}
 
-	isDead() {
-		return this.health === 0;
-	}
-
-
-
+	// isDead() {
+	// 	return this.health === 0;
+	// }
 }
 
