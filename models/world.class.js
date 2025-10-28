@@ -8,7 +8,6 @@ class World {
 	statusBarAmmo = new StatusbarAmmo(this.level);
 
 	throwableHoly = [];
-	// throwableDark = new ThrowableDark();
 	throwableDark = [];
 	darkAmmo = [];
 	holyAmmo = [];
@@ -44,7 +43,6 @@ class World {
 
 
 	constructor(canvasPara, keyboardPara) {
-
 		this.ctx = canvasPara.getContext("2d");
 		this.canvas = canvasPara;
 		this.keyboard = keyboardPara;
@@ -52,9 +50,6 @@ class World {
 		this.setWorld();
 		this.run();
 		console.log(this.level.throwables);
-
-
-
 	}
 
 	setWorld() {
@@ -63,7 +58,6 @@ class World {
 	}
 
 	run() {
-
 		// --------- CHECK COLLISION ------------
 		setInterval(() => {
 			this.checkCollisions();
@@ -129,35 +123,43 @@ class World {
 		this.level.enemies.forEach((enemy) => {
 			if (this.heroCharacter.isColliding(enemy) && this.heroCharacter.health >= 0) {
 				this.heroCharacter.hit();
-					enemy.hit();
+				enemy.hit();
 				this.statusBarHealth.setPercentage(this.heroCharacter.health);
 				this.statusBarEnergy.setPercentage(this.heroCharacter.health);
 			}
 
 
-	});
+		});
 
+		this.throwableDark.forEach((projectile) => {
+			this.level.enemies.forEach(enemy => {
+				if (projectile.isColliding(enemy)) {
+					enemy.hit();
+					console.log(`[${enemy.constructor.name}] hit by dark bottle!`);
 
+				}
+			});
+		});
 
-	this.level.throwables.forEach((throwable) => {
-		if (this.heroCharacter.isColliding(throwable)) {
-			if (throwable instanceof ThrowDark) {
-				this.darkAmmo.push(throwable);
-				console.log("Dark ammo collected:", this.darkAmmo.length);
+		this.level.throwables.forEach((throwable) => {
+			if (this.heroCharacter.isColliding(throwable)) {
+				if (throwable instanceof ThrowDark) {
+					this.darkAmmo.push(throwable);
+					console.log("Dark ammo collected:", this.darkAmmo.length);
+				}
+
+				if (throwable instanceof ThrowHoly) {
+					this.holyAmmo.push(throwable);
+					console.log("Holy ammo collected:", this.holyAmmo.length);
+				}
+
+				this.statusBarAmmo.collect();
 			}
+		});
 
-			if (throwable instanceof ThrowHoly) {
-				this.holyAmmo.push(throwable);
-				console.log("Holy ammo collected:", this.holyAmmo.length);
-			}
-
-			this.statusBarAmmo.collect();
-		}
-	});
-
-	this.level.throwables = this.level.throwables.filter(
-		(t) => !this.heroCharacter.isColliding(t)
-	);
+		this.level.throwables = this.level.throwables.filter(
+			(t) => !this.heroCharacter.isColliding(t)
+		);
 	}
 
 	draw() {
