@@ -14,30 +14,48 @@ class MoveableObject extends DrawableObject {
 
 	damageOnCollision = 10;
 
+
 	isColliding(mo) {
+		if (this.isDead || mo.isDead) return false;
 
-		if (this.isDead || mo.isDead) {
-			return false;
-		}
+		const a = this.getHurtbox(); // this object's hurtbox
+		const b = mo.getHurtbox();   // other object's hurtbox
 
-		else {
-			const thisLeft = this.x + this.offsetLeft;
-			const thisTop = this.y + this.offsetTop;
-			const thisRight = this.x + this.width - this.offsetRight;
-			const thisBottom = this.y + this.height - this.offsetBottom;
-
-			const otherLeft = mo.x + mo.offsetLeft;
-			const otherTop = mo.y + mo.offsetTop;
-			const otherRight = mo.x + mo.width - mo.offsetRight;
-			const otherBottom = mo.y + mo.height - mo.offsetBottom;
-
-			return thisRight > otherLeft &&
-				thisBottom > otherTop &&
-				thisLeft < otherRight &&
-				thisTop < otherBottom;
-		}
-
+		return a.right > b.left &&
+			a.bottom > b.top &&
+			a.left < b.right &&
+			a.top < b.bottom;
 	}
+
+	isHitting(mo) {
+		if (this.isDead || mo.isDead) return false;
+
+		const a = this.getHitbox();  // this object's hitbox
+		const b = mo.getHurtbox();   // enemy’s hurtbox
+
+		return a.right > b.left &&
+			a.bottom > b.top &&
+			a.left < b.right &&
+			a.top < b.bottom;
+	}
+
+	playAnimationWithSpeed(images, targetFps) {
+		const now = Date.now();
+
+		if (!this.lastFrameTime) this.lastFrameTime = 0;
+		if (!this.frameIndex) this.frameIndex = 0;
+
+		const frameDuration = 1000 / targetFps;
+
+		if (now - this.lastFrameTime > frameDuration) {
+			this.lastFrameTime = now;
+
+			const path = images[this.frameIndex % images.length];
+			this.img = this.imageCache[path];
+			this.frameIndex++;
+		}
+	}
+
 
 	moveRight() {
 		this.x += this.speed;
@@ -75,17 +93,6 @@ class MoveableObject extends DrawableObject {
 		if (this.onAnimationFrame) { // for SoundSynching
 			this.onAnimationFrame(img, i);
 		}
-
-		// ------------ for Bugfixing throw animation ---------
-
-		// if (img === this.IMAGES_IDLE) { 
-		// console.log(`[${this.constructor.name}] playing IDLE frame`, path);
-		// } else if (img === this.IMAGES_THROW) {
-		// console.log(`[${this.constructor.name}] playing THROW frame`, path);
-		// } if (this.constructor.name === "ThrowDark" && img === this.IMAGES_IDLE) {
-		// console.warn("[ThrowDark] !!! IDLE detected !!!");
-		// }
-
 	}
 
 	applyGravity() {
@@ -108,7 +115,7 @@ class MoveableObject extends DrawableObject {
 	} ddd
 
 	hit() {
-		if (this.isDead) return; 
+		if (this.isDead) return;
 		console.log(`[${this.constructor.name}] is hit`);
 		this.health -= this.damageOnCollision;
 
