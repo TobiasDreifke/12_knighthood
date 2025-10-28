@@ -3,7 +3,7 @@ class SkeletonBoss extends MoveableObject {
     height = 250;
     y = 155;
 
-    offsetLeft = 35;
+    offsetLeft = 25;
     offsetRight = 35;
     offsetTop = 50;
     offsetBottom = 5;
@@ -48,43 +48,78 @@ class SkeletonBoss extends MoveableObject {
     ];
 
 
-    constructor(isHurt = false, isDead = false) {
-        super().loadImage(this.IMAGES_WALK[0])
+    constructor(player, isHurt = false, isDead = false) {
+        super().loadImage(this.IMAGES_WALK[0]);
         this.x = 1000;
         this.loadImages(this.IMAGES_WALK);
-        
+        this.loadImages(this.IMAGES_ATTACK);
         this.loadImages(this.IMAGES_DEAD);
         this.loadImages(this.IMAGES_HURT);
-        this.animation();
+
+        this.player = player;
         this.speed = 0.15;
         this.otherDirection = true;
         this.isHurt = isHurt;
         this.isDead = isDead;
+
+        if (this.player) this.animation();;
     }
 
+    isPlayerInRange(range = 50) {
+        if (!this.player) return false;
+        return Math.abs(this.player.x - this.x) < range;
+    }
 
     animation() {
+   
         this.animationInterval = setInterval(() => {
 
-            // --------- DEAD
             if (this.isDead) {
-                this.playAnimation(this.IMAGES_DEAD);
-                setTimeout(() => {
-                    clearInterval(this.animationInterval);
-                }, this.IMAGES_DEAD.length * (1000 / 25));
-
-                // --------- HURT
-            } else if (this.isHurt) {
-                this.playAnimation(this.IMAGES_HURT);
-                // console.log("is hit");
-                this.isHurt = false;
-
-            } else {
-                this.moveLeft();
-                this.playAnimation(this.IMAGES_WALK);
+                this.playAnimationWithSpeed(this.IMAGES_DEAD, 6); // 6 FPS
+                return;
             }
-        }, 1000 / 20);
+
+            if (this.isHurt) {
+                this.playAnimationWithSpeed(this.IMAGES_HURT, 8); // 8 FPS
+                this.isHurt = false;
+                return;
+            }
+
+            if (this.isPlayerInRange(45)) {
+                this.playAnimationWithSpeed(this.IMAGES_ATTACK, 5); // ⚔️ slow attack
+                this.attackPlayer();
+                
+            } else {
+                if (this.player && this.player.x < this.x) {
+                    this.otherDirection = true;
+                    this.moveLeft();
+                } else if (this.player && this.player.x > this.x) {
+                    this.otherDirection = false;
+                    this.moveRight();
+                }
+                this.playAnimationWithSpeed(this.IMAGES_WALK, 8); // slower walk
+            }
+
+        }, 1000 / 25);
     }
+
+
+
+    attackPlayer() {
+        if (this.lastAttackTime && Date.now() - this.lastAttackTime < 4000) {
+            return;
+        }
+        this.lastAttackTime = Date.now();
+
+        // Basic collision/damage check
+        if (this.isColliding(this.player)) {
+            this.player.hit(); // assuming your player has a hit() method
+        }
+    }
+
+
+
+
     // setInterval(() => {
     //     this.moveLeft();
     // }, 1000 / 25);

@@ -19,27 +19,9 @@ class World {
 	ctx;
 	keyboard;
 	camera_x = 0;
-	// bg_thirdLayer = new BgThirdLayer();
-	// bg_secondLayer = new BgSecondLayer();
-	// bg_firstLayer = new BgFirstLayer();
 
-	// setStopableInterval(fn, time) {
-	// let id = setInterval(fn, time);
-	// this.IntervalIDs.push(id);
-	// }
 
-	// stopGame() {
-	// this.IntervalIDs.forEach(clearInterval);
-	// }
 
-	// // sayHello() {
-	// // console.log("hello", this.IntervalID);
-	// // this.IntervalID++
-	// // }
-	// // sayGoodbye() {
-	// // console.log("tschau", this.IntervalID);
-	// // this.IntervalID++
-	// // }
 
 
 	constructor(canvasPara, keyboardPara) {
@@ -49,12 +31,20 @@ class World {
 		this.draw();
 		this.setWorld();
 		this.run();
-		console.log(this.level.throwables);
+		// console.log(this.level.throwables);
+		console.log(this.level.pickables);
 	}
 
 	setWorld() {
 		this.heroCharacter.world = this;
 		this.statusBarAmmo.world = this;
+
+		this.level.enemies.forEach(enemy => {
+			if (enemy instanceof SkeletonBoss) {
+				enemy.player = this.heroCharacter;
+				enemy.animation();
+			}
+		});
 	}
 
 	run() {
@@ -63,7 +53,6 @@ class World {
 			this.checkCollisions();
 			this.throwHoly();
 			this.throwDark();
-			// this.throwDark();
 		}, 200);
 	}
 
@@ -110,10 +99,16 @@ class World {
 			this.statusBarAmmo.percentage -= 10;
 			if (this.statusBarAmmo.percentage < 0) this.statusBarAmmo.percentage = 0;
 			this.statusBarAmmo.setPercentage(this.statusBarAmmo.percentage);
+
+
 		} else if (this.keyboard.THROWDARK) {
 			console.log("No dark ammo left!");
 		}
+
+
 	}
+
+
 
 	checkInventory() {
 
@@ -121,26 +116,43 @@ class World {
 
 	checkCollisions() {
 		this.level.enemies.forEach((enemy) => {
-			if (this.heroCharacter.isColliding(enemy) && this.heroCharacter.health >= 0) {
-				this.heroCharacter.hit();
+
+			// player attack → enemy gets hit
+			if (this.heroCharacter.isAttacking && this.heroCharacter.isHitting(enemy)) {
 				enemy.hit();
+				console.log(`[${enemy.constructor.name}] hit by hero attack!`);
+			}
+
+			// enemy → player collision → player gets hit
+			if (this.heroCharacter.isColliding(enemy)) {
+				this.heroCharacter.hit();
 				this.statusBarHealth.setPercentage(this.heroCharacter.health);
 				this.statusBarEnergy.setPercentage(this.heroCharacter.health);
 			}
-
-
 		});
 
-		this.throwableDark.forEach((projectile) => {
+		this.throwableHoly.forEach((projectile) => {
 			this.level.enemies.forEach(enemy => {
-				if (projectile.isColliding(enemy)) {
+				if (projectile.isColliding(enemy) && !enemy.isDead) {
 					enemy.hit();
-					console.log(`[${enemy.constructor.name}] hit by dark bottle!`);
-
+					console.log(`[${enemy.constructor.name}] hit by HolyThrow!`);
 				}
 			});
 		});
 
+
+		this.throwableDark.forEach((projectile) => {
+			this.level.enemies.forEach(enemy => {
+				if (projectile.isColliding(enemy) && !enemy.isDead) {
+					enemy.hit();
+					console.log(`[${enemy.constructor.name}] hit by DarkThrow!`);
+				}
+			});
+		});
+
+
+
+		// --- PICKUP COLLISION (for ammo, etc.) ---
 		this.level.throwables.forEach((throwable) => {
 			if (this.heroCharacter.isColliding(throwable)) {
 				if (throwable instanceof ThrowDark) {
@@ -157,10 +169,12 @@ class World {
 			}
 		});
 
+		// remove collected items
 		this.level.throwables = this.level.throwables.filter(
 			(t) => !this.heroCharacter.isColliding(t)
 		);
 	}
+
 
 	draw() {
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
@@ -170,6 +184,8 @@ class World {
 		this.addObjectsToMap(this.level.enemies);
 		this.addObjectsToMap(this.level.clouds);
 		this.addObjectsToMap(this.level.throwables);
+		this.addObjectsToMap(this.level.pickables);
+
 		// this.addObjectsToMap(this.level.throwables);
 		this.addObjectsToMap(this.throwableHoly);
 		this.addObjectsToMap(this.throwableDark);
@@ -202,8 +218,8 @@ class World {
 
 	addToMap(DrawableObject) {
 		DrawableObject.drawRectangle(this.ctx); // Object Image Box
-		DrawableObject.drawCollisionBox(this.ctx); // Object Collision Box
-
+		DrawableObject.drawCollisionBox(this.ctx); // Object HurtBox
+		DrawableObject.drawHitbox(this.ctx); // Object HitBox 
 		if (DrawableObject.otherDirection === true) {
 			this.flipImage(DrawableObject);
 		} else if (DrawableObject.otherDirection === false) {
@@ -236,7 +252,27 @@ class World {
 
 
 
+// bg_thirdLayer = new BgThirdLayer();
+// bg_secondLayer = new BgSecondLayer();
+// bg_firstLayer = new BgFirstLayer();
 
+// setStopableInterval(fn, time) {
+// let id = setInterval(fn, time);
+// this.IntervalIDs.push(id);
+// }
+
+// stopGame() {
+// this.IntervalIDs.forEach(clearInterval);
+// }
+
+// // sayHello() {
+// // console.log("hello", this.IntervalID);
+// // this.IntervalID++
+// // }
+// // sayGoodbye() {
+// // console.log("tschau", this.IntervalID);
+// // this.IntervalID++
+// // }
 
 
 // LayerThree
