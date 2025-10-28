@@ -48,25 +48,50 @@ class SkeletonBoss extends MoveableObject {
     ];
 
 
-    constructor() {
+    constructor(isHurt = false, isDead = false) {
         super().loadImage(this.IMAGES_WALK[0])
         this.x = 1000;
         this.loadImages(this.IMAGES_WALK);
+        
+        this.loadImages(this.IMAGES_DEAD);
+        this.loadImages(this.IMAGES_HURT);
         this.animation();
         this.speed = 0.15;
         this.otherDirection = true;
-
+        this.isHurt = isHurt;
+        this.isDead = isDead;
     }
 
 
     animation() {
-        setInterval(() => {
-            this.moveLeft();
-        }, 1000 / 25);
+        this.animationInterval = setInterval(() => {
 
-        setInterval(() => {
-            this.playAnimation(this.IMAGES_WALK);
-        }, 150)
+            // --------- DEAD
+            if (this.isDead) {
+                this.playAnimation(this.IMAGES_DEAD);
+                setTimeout(() => {
+                    clearInterval(this.animationInterval);
+                }, this.IMAGES_DEAD.length * (1000 / 25));
+
+                // --------- HURT
+            } else if (this.isHurt) {
+                this.playAnimation(this.IMAGES_HURT);
+                // console.log("is hit");
+                this.isHurt = false;
+
+            } else {
+                this.moveLeft();
+                this.playAnimation(this.IMAGES_WALK);
+            }
+        }, 1000 / 20);
     }
+    // setInterval(() => {
+    //     this.moveLeft();
+    // }, 1000 / 25);
+
+    // setInterval(() => {
+    //     this.playAnimation(this.IMAGES_WALK);
+    // }, 150)
+    // }
 
 }
