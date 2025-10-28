@@ -11,6 +11,7 @@ class World {
 	throwableDark = [];
 	darkAmmo = [];
 	holyAmmo = [];
+	heroinventory = [];
 
 	level = level_01
 
@@ -111,19 +112,21 @@ class World {
 
 
 	checkInventory() {
+		CurrentInventory = this.heroinventory;
+		console.log("current inventory list" + CurrentInventory);
 
 	}
 
 	checkCollisions() {
 		this.level.enemies.forEach((enemy) => {
 
-			// player attack → enemy gets hit
+			// player attack -> enemy gets hit
 			if (this.heroCharacter.isAttacking && this.heroCharacter.isHitting(enemy)) {
 				enemy.hit();
 				console.log(`[${enemy.constructor.name}] hit by hero attack!`);
 			}
 
-			// enemy → player collision → player gets hit
+			// enemy -> player collision -> player gets hit
 			if (this.heroCharacter.isColliding(enemy)) {
 				this.heroCharacter.hit();
 				this.statusBarHealth.setPercentage(this.heroCharacter.health);
@@ -169,6 +172,18 @@ class World {
 			}
 		});
 
+		this.level.pickables.forEach((pickable) => {
+			if (this.heroCharacter.isColliding(pickable)) {
+				if (pickable instanceof Sword) {
+					this.heroinventory.push(pickable);
+					console.log("Sword collected:", this.heroinventory.length);
+					this.heroCharacter.hasSword = true;
+					this.heroCharacter.startDrawSwordAnimation();
+					this.level.pickables = this.level.pickables.filter(p => p !== pickable);
+				}
+			}
+		});
+
 		// remove collected items
 		this.level.throwables = this.level.throwables.filter(
 			(t) => !this.heroCharacter.isColliding(t)
@@ -177,37 +192,34 @@ class World {
 
 
 	draw() {
-		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.ctx.translate(this.camera_x, 0);
 
+
 		this.addObjectsToMap(this.level.backgroundObjects);
+
+		// then draw other stuff
 		this.addObjectsToMap(this.level.enemies);
 		this.addObjectsToMap(this.level.clouds);
 		this.addObjectsToMap(this.level.throwables);
 		this.addObjectsToMap(this.level.pickables);
-
-		// this.addObjectsToMap(this.level.throwables);
 		this.addObjectsToMap(this.throwableHoly);
 		this.addObjectsToMap(this.throwableDark);
 
+		this.ctx.translate(-this.camera_x, 0);
 
-		this.ctx.translate(-this.camera_x, 0); // back
-		// ------------- Space for fixed objects ----------------
+		// UI elements
 		this.addToMap(this.statusBarHealth);
 		this.addToMap(this.statusBarEnergy);
 		this.addToMap(this.statusBarAmmo);
-		this.ctx.translate(this.camera_x, 0); //forward
 
+		this.ctx.translate(this.camera_x, 0);
 		this.addToMap(this.heroCharacter);
-
-
 		this.ctx.translate(-this.camera_x, 0);
 
-		let self = this;
-		requestAnimationFrame(function () {
-			self.draw();
-		});
+		requestAnimationFrame(() => this.draw());
 	}
+
 
 	addObjectsToMap(objects) {
 		objects.forEach(o => {
