@@ -46,25 +46,13 @@ class Goblin extends MoveableObject {
         this.isDead = isDead;
     }
 
-    isDeadFunc() {
-        if (this.isDead = true) {
-            // this.offsetLeft = 0;
-            // this.offsetRight = 0;
-            // this.offsetTop = 0;
-            // this.offsetBottom = 0;
-            this.collidingObject = false;
-            console.log("not colliding anymore" + this.collidingObject);
-
-        }
-    }
-
     animation() {
         this.animationInterval = setInterval(() => {
 
             // --------- DEAD
             if (this.isDead) {
-                this.isDeadFunc();
                 this.playAnimation(this.IMAGES_DEAD);
+                this.collidingObject = false;
                 setTimeout(() => {
                     clearInterval(this.animationInterval);
                 }, this.IMAGES_DEAD.length * (1000 / 25));
