@@ -11,3 +11,55 @@ body {
 canvas {
     background-color: rgb(87, 87, 87);
 }
+
+#start-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 720px;
+    height: 480px;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    opacity: 1;
+    transition: opacity 1s ease;
+    /* fade transition */
+}
+
+
+#start-screen button {
+    padding: 20px 40px;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+#end-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 720px;
+    height: 480px;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    /* hidden initially */
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+#end-screen h2 {
+    color: white;
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+#end-screen button {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    cursor: pointer;
+}

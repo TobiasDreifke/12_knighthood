@@ -8,8 +8,27 @@ function init() {
     world = new World(canvas, keyboard);
 
     console.log("my char is", world.heroCharacter);
+    setupStartButton();
+
+    const restartButton = document.getElementById("restart-button");
+    restartButton.addEventListener("click", () => {
+        location.reload(); 
+    });
 }
 
+function setupStartButton() {
+    const startScreen = document.getElementById("start-screen");
+    const startButton = document.getElementById("start-button");
+
+    startButton.addEventListener("click", () => {
+        startScreen.style.opacity = 0;
+
+        setTimeout(() => {
+            startScreen.style.display = "none";
+            world.start();
+        }, 10); 
+    });
+}
 
 window.addEventListener("keydown", (event) => {
     const key = event.key.toLowerCase();
@@ -51,6 +70,4 @@ window.addEventListener("keyup", (event) => {
 
 });
 
-
-// --------------- START -----------
 
