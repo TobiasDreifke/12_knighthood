@@ -39,22 +39,34 @@ class MoveableObject extends DrawableObject {
 			a.top < b.bottom;
 	}
 
-	playAnimationWithSpeed(images, targetFps) {
+	
+	playAnimationWithSpeed(images, fps, loop = true) {
 		const now = Date.now();
-
 		if (!this.lastFrameTime) this.lastFrameTime = 0;
-		if (!this.frameIndex) this.frameIndex = 0;
+		if (this.frameIndex === undefined) this.frameIndex = 0;
 
-		const frameDuration = 1000 / targetFps;
+		const frameDuration = 1000 / fps;
 
 		if (now - this.lastFrameTime > frameDuration) {
 			this.lastFrameTime = now;
 
-			const path = images[this.frameIndex % images.length];
+			// Set frame
+			if (this.frameIndex >= images.length) {
+				if (loop) {
+					this.frameIndex = 0;
+				} else {
+					this.frameIndex = images.length - 1; // stop at last frame
+				}
+			}
+
+			const path = images[this.frameIndex];
 			this.img = this.imageCache[path];
+
 			this.frameIndex++;
 		}
 	}
+
+
 
 
 	moveRight() {
@@ -118,6 +130,7 @@ class MoveableObject extends DrawableObject {
 		if (this.isDead) return;
 		console.log(`[${this.constructor.name}] is hit`);
 		this.health -= this.damageOnCollision;
+
 
 		if (this.health <= 0) {
 			this.health = 0;
