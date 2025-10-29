@@ -84,20 +84,20 @@ class DrawableObject {
     }
 
     getHitbox() {
+        const hurtbox = this.getHurtbox();
+
         const left = this.otherDirection
-            ? this.x - this.hitboxWidth   
-            : this.x + this.width;        
+            ? hurtbox.left - this.hitboxWidth - (this.hitboxOffsetLeft || 0)
+            : hurtbox.right + (this.hitboxOffsetRight || 0);
 
         const right = this.otherDirection
-            ? this.x                         
-            : this.x + this.width + this.hitboxWidth;  
+            ? hurtbox.left - (this.hitboxOffsetLeft || 0)
+            : hurtbox.right + this.hitboxWidth + (this.hitboxOffsetRight || 0);
 
-        return {
-            left: left,
-            top: this.y + this.hitboxOffsetTop,
-            right: right,
-            bottom: this.y + this.height - this.hitboxOffsetBottom,
-        };
+        const top = hurtbox.top + (this.hitboxOffsetTop || 0);
+        const bottom = hurtbox.bottom - (this.hitboxOffsetBottom || 0);
+
+        return { left, top, right, bottom };
     }
 
 
