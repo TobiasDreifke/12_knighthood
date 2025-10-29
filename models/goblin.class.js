@@ -40,34 +40,28 @@ class Goblin extends MoveableObject {
         this.loadImages(this.IMAGES_DEAD);
         this.loadImages(this.IMAGES_HURT);
         this.animation();
-        this.speed = 0.25 + Math.random() * 1;
+        // this.speed = 0.25 + Math.random() * 1;
+                this.speed = 0.0 + Math.random() * 0;
+
         this.otherDirection = true;
         this.isHurt = isHurt;
         this.isDead = isDead;
     }
 
     animation() {
-        this.animationInterval = setInterval(() => {
-
-            // --------- DEAD
+        setInterval(() => {
             if (this.isDead) {
-                this.playAnimation(this.IMAGES_DEAD);
-                this.collidingObject = false;
-                setTimeout(() => {
-                    clearInterval(this.animationInterval);
-                }, this.IMAGES_DEAD.length * (1000 / 25));
+                if (this.isDead) this.playAnimationWithSpeed(this.IMAGES_DEAD, 14);
 
-                // --------- HURT
             } else if (this.isHurt) {
-                this.playAnimation(this.IMAGES_HURT);
-                // console.log("is hit");
+                this.playAnimationWithSpeed(this.IMAGES_HURT, 16);
                 this.isHurt = false;
 
             } else {
                 this.moveLeft();
-                this.playAnimation(this.IMAGES_WALK);
+                this.playAnimationWithSpeed(this.IMAGES_WALK, 16);
             }
-        }, 1000 / 20);
-    }
 
+        }, 1000 / 25);
+    }
 }
