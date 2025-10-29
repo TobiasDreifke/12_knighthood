@@ -2,8 +2,8 @@ class Hero extends MoveableObject {
     world;
     speed = 15;
 
-    offsetLeft = 30;
-    offsetRight = 30;
+    offsetLeft = 35;
+    offsetRight = 35;
     offsetTop = 15;
     offsetBottom = 5;
 
@@ -12,7 +12,9 @@ class Hero extends MoveableObject {
 
     hasSword = false;
     isDrawingSword = false;
-
+    attackPressed = false;
+    castPressed = false;
+    isCasting = false;
 
     IMAGES_IDLE = [
         "./01_assets/2_character_hero/1_idle/idle/adventurer-idle-00.png",
@@ -143,6 +145,7 @@ class Hero extends MoveableObject {
         this.animation();
         this.applyGravity();
         this.isDead = isDead;
+        // this.y = 0;
         // this.inventory = new Inventory();
 
         if (this.isAttacking) {
@@ -195,10 +198,16 @@ class Hero extends MoveableObject {
         this.loadImages(this.IMAGES_WALK_SWORD);
     }
 
-    onAnimationFrame(images, frameIndex) { // for SoundSynching
+    onAnimationFrame(images, frameIndex) {
         const animationName = this.getAnimationName(images);
-        // console.log("onAnimationFrame called:", animationName, frameIndex);
         AudioHub.syncSound(animationName, frameIndex);
+
+        if (animationName === 'IMAGES_ATTACK_SWORD' && frameIndex === 3 && this.isAttacking) {
+            this.dealDamageToEnemies();
+        }
+        if (animationName === 'IMAGES_ATTACK' && frameIndex === 5 && this.isAttacking) {
+            this.dealDamageToEnemies();
+        }
     }
 
     getAnimationName(images) { // for SoundSynching
@@ -244,23 +253,37 @@ class Hero extends MoveableObject {
             // 3️⃣ Animation priorities
             // -------------------------
             if (this.isDead) {
-                // Dead animation depends on sword
-                if (this.hasSword) this.playAnimationWithSpeed(this.IMAGES_DEAD_SWORD, 14);
-                else this.playAnimationWithSpeed(this.IMAGES_DEAD, 14);
+                const deadImages = this.hasSword ? this.IMAGES_DEAD_SWORD : this.IMAGES_DEAD;
+                this.playAnimationWithSpeed(deadImages, 14, false);
 
             } else if (this.isHurt) {
-                this.playAnimationWithSpeed(this.IMAGES_HURT, 16);
+                this.playAnimationWithSpeed(this.IMAGES_HURT, 16, false);
                 this.isHurt = false;
 
+            } else if (this.isAttacking) {
+                // Play attack once
+                const attackImages = this.hasSword ? this.IMAGES_ATTACK_SWORD : this.IMAGES_ATTACK;
+                const fps = 20;
+                this.playAnimationWithSpeed(attackImages, fps, false); // non-looping
+
+            } else if (this.isCasting) {
+                this.playAnimationWithSpeed(this.IMAGES_CAST, 20, false);
+
             } else if (this.world.keyboard.ATTACK) {
-                // Attack animation depends on sword
-                if (this.hasSword) this.playAnimationWithSpeed(this.IMAGES_ATTACK_SWORD, 20);
-                else this.playAnimationWithSpeed(this.IMAGES_ATTACK, 20);
+                if (!this.attackPressed) {
+                    this.attackPressed = true;
+                    this.playAttackAnimationOnce();
+                }
 
-                this.startAttack();
+            } else if (this.world.keyboard.THROWDARK) {
+                if (!this.castPressed) {
+                    this.PlayCastAnimationOnce();
+                }
 
-            } else if (this.world.keyboard.THROWHOLY || this.world.keyboard.THROWDARK) {
-                this.playAnimationWithSpeed(this.IMAGES_CAST, 14);
+            } else if (this.world.keyboard.THROWHOLY) {
+                if (!this.castPressed) {
+                    this.PlayCastAnimationOnce();
+                }
 
             } else if ((this.world.keyboard.RIGHT && this.world.keyboard.DOWN) || (this.world.keyboard.LEFT && this.world.keyboard.DOWN)) {
                 this.playAnimationWithSpeed(this.IMAGES_SLIDE, 18);
@@ -274,15 +297,12 @@ class Hero extends MoveableObject {
                 else if (this.speedY < 0) this.playAnimationWithSpeed(this.IMAGES_FALL, 14);
 
             } else if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-                if (this.hasSword) this.playAnimationWithSpeed(this.IMAGES_WALK_SWORD, 16);
-                else this.playAnimationWithSpeed(this.IMAGES_WALK, 16);
+                const walkImages = this.hasSword ? this.IMAGES_WALK_SWORD : this.IMAGES_WALK;
+                this.playAnimationWithSpeed(walkImages, 16);
 
             } else {
-
-                if (this.hasSword) this.playAnimationWithSpeed(this.IMAGES_IDLE_SWORD, 12);
-                else this.playAnimationWithSpeed(this.IMAGES_IDLE, 12);
-
-
+                const idleImages = this.hasSword ? this.IMAGES_IDLE_SWORD : this.IMAGES_IDLE;
+                this.playAnimationWithSpeed(idleImages, 12);
             }
 
             // -------------------------
@@ -291,6 +311,77 @@ class Hero extends MoveableObject {
             this.world.camera_x = -this.x + 100;
 
         }, 1000 / 25);
+    }
+
+    playAttackAnimationOnce() {
+        if (this.isAttacking) return; // avoid re-trigger
+
+        this.isAttacking = true;
+        this.frameIndex = 0; // reset animation
+        this.attackPressed = true;
+
+        // hitbox setup
+        this.hitboxOffsetTop = 40;
+        this.hitboxOffsetBottom = 20;
+        this.hitboxWidth = this.hasSword ? 40 : 20;
+
+        // schedule damage at the correct frame
+        const attackImages = this.hasSword ? this.IMAGES_ATTACK_SWORD : this.IMAGES_ATTACK;
+        const fps = 20;
+        const hitFrame = this.hasSword ? 3 : 5;
+        const frameDuration = 1000 / fps;
+
+        setTimeout(() => this.dealDamageToEnemies(), hitFrame * frameDuration);
+
+        // end attack after full animation
+        const totalDuration = attackImages.length * frameDuration;
+        setTimeout(() => {
+            this.isAttacking = false;
+            this.attackPressed = false;
+        }, totalDuration);
+    }
+
+    PlayCastAnimationOnce() {
+        if (this.isCasting || this.world.darkAmmo.length === 0 && this.world.holyAmmo.length === 0) {
+            console.log("No ammo left!");
+            return;
+        }
+
+        this.isCasting = true;
+        this.castPressed = true;
+
+        const castImages = this.IMAGES_CAST;
+        const fps = 20;
+
+        // Play cast animation visually (non-looping)
+        this.playAnimationWithSpeed(castImages, fps, false);
+
+        // end attack after full animation
+        const totalDuration = castImages.length * (1000 / fps);
+        setTimeout(() => {
+            this.isCasting = false;
+            this.castPressed = false;
+        }, totalDuration);
+    }
+
+
+
+    dealDamageToEnemies() {
+        this.world.level.enemies.forEach(enemy => {
+            const hitbox = this.getHitbox();
+            const enemyHurtbox = enemy.getHurtbox();
+
+            const isHit =
+                hitbox.right > enemyHurtbox.left &&
+                hitbox.left < enemyHurtbox.right &&
+                hitbox.bottom > enemyHurtbox.top &&
+                hitbox.top < enemyHurtbox.bottom;
+
+            if (isHit) {
+                console.log("HERO hit ENEMY!");
+                enemy.hit();
+            }
+        });
     }
 
 
