@@ -3,8 +3,8 @@ class SkeletonBoss extends MoveableObject {
     height = 250;
     y = 155;
 
-    offsetLeft = 25;
-    offsetRight = 35;
+    offsetLeft = 100;
+    offsetRight = 80;
     offsetTop = 50;
     offsetBottom = 5;
 
@@ -50,19 +50,24 @@ class SkeletonBoss extends MoveableObject {
 
     constructor(player, isHurt = false, isDead = false) {
         super().loadImage(this.IMAGES_WALK[0]);
-        this.x = 1000;
+        this.x = 300;
         this.loadImages(this.IMAGES_WALK);
         this.loadImages(this.IMAGES_ATTACK);
         this.loadImages(this.IMAGES_DEAD);
         this.loadImages(this.IMAGES_HURT);
 
         this.player = player;
-        this.speed = 0.15;
+        this.speed = 0.0;
         this.otherDirection = true;
         this.isHurt = isHurt;
         this.isDead = isDead;
 
-        if (this.player) this.animation();;
+        this.isAttacking = false;
+        this.hitboxWidth = 80;          // how far the sword/swing reaches
+        this.hitboxOffsetTop = 50;
+        this.hitboxOffsetBottom = 20;
+
+        if (this.player) this.animation();
     }
 
     isPlayerInRange(range = 50) {
@@ -71,7 +76,7 @@ class SkeletonBoss extends MoveableObject {
     }
 
     animation() {
-   
+
         this.animationInterval = setInterval(() => {
 
             if (this.isDead) {
@@ -86,47 +91,74 @@ class SkeletonBoss extends MoveableObject {
             }
 
             if (this.isPlayerInRange(45)) {
-                this.playAnimationWithSpeed(this.IMAGES_ATTACK, 5); // ⚔️ slow attack
-                this.attackPlayer();
-                
-            } else {
-                if (this.player && this.player.x < this.x) {
-                    this.otherDirection = true;
-                    this.moveLeft();
-                } else if (this.player && this.player.x > this.x) {
-                    this.otherDirection = false;
-                    this.moveRight();
+                if (!this.isAttacking) {
+                    this.isAttacking = true;
+                    this.playAttackAnimationOnce();
                 }
-                this.playAnimationWithSpeed(this.IMAGES_WALK, 8); // slower walk
+            } else {
+                this.isAttacking = false;
+                this.walkTowardPlayer();
             }
 
         }, 1000 / 25);
     }
 
+    walkTowardPlayer() {
+        if (!this.player) return;
+
+        if (this.player.x < this.x) {
+            this.otherDirection = true;
+            this.moveLeft();
+        } else {
+            this.otherDirection = false;
+            this.moveRight();
+        }
+
+        this.playAnimationWithSpeed(this.IMAGES_WALK, 8);
+    }
+
+    playAttackAnimationOnce() {
+        if (this.isAttacking) return;
+        this.isAttacking = true;
+
+        const fps = 5;
+        const frameDuration = 1000 / fps;
+        const totalDuration = this.IMAGES_ATTACK.length * frameDuration;
+
+        this.playAnimationWithSpeed(this.IMAGES_ATTACK, fps);
+
+        // Sword connects around frame 4 → ~800 ms into attack
+        const hitTime = 4 * frameDuration;
+        setTimeout(() => this.attackPlayer(), hitTime);
+
+        // Reset attack cycle after animation ends
+        setTimeout(() => this.isAttacking = false, totalDuration);
+    }
 
 
     attackPlayer() {
-        if (this.lastAttackTime && Date.now() - this.lastAttackTime < 4000) {
-            return;
-        }
-        this.lastAttackTime = Date.now();
+        console.log(`[${this.constructor.name}] attacks [HERO]`);
 
-        // Basic collision/damage check
-        if (this.isColliding(this.player)) {
-            this.player.hit(); // assuming your player has a hit() method
-        }
+        // Slight delay to align with sword swing frame
+        setTimeout(() => {
+            const hitbox = this.getHitbox();
+            const playerHurtbox = this.player.getHurtbox();
+
+            const isHit =
+                hitbox.right > playerHurtbox.left &&
+                hitbox.left < playerHurtbox.right &&
+                hitbox.bottom > playerHurtbox.top &&
+                hitbox.top < playerHurtbox.bottom;
+
+            if (isHit) {
+                console.log("Skeleton hit HERO!");
+                this.player.hit();
+            }
+        }, 400); // Adjust timing to match swing frame
     }
 
 
 
 
-    // setInterval(() => {
-    //     this.moveLeft();
-    // }, 1000 / 25);
-
-    // setInterval(() => {
-    //     this.playAnimation(this.IMAGES_WALK);
-    // }, 150)
-    // }
 
 }
