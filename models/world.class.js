@@ -29,13 +29,17 @@ class World {
 		this.ctx = canvasPara.getContext("2d");
 		this.canvas = canvasPara;
 		this.keyboard = keyboardPara;
-		this.draw();
+		// this.draw();
 		this.setWorld();
-		this.run();
+		// this.run();
 		// console.log(this.level.throwables);
 		console.log(this.level.pickables);
 	}
 
+	start() {
+		this.draw();  // start rendering loop
+		this.run();   // start intervals (collision checking, throwing, etc.)
+	}
 	setWorld() {
 		this.heroCharacter.world = this;
 		this.statusBarAmmo.world = this;
@@ -49,12 +53,17 @@ class World {
 	}
 
 	run() {
-		// --------- CHECK COLLISION ------------
-		setInterval(() => {
+		const id = setInterval(() => {
 			this.checkCollisions();
 			this.throwHoly();
 			this.throwDark();
 		}, 200);
+		this.IntervalIDs.push(id);
+	}
+
+	stopAllIntervals() {
+		this.IntervalIDs.forEach(clearInterval);
+		this.IntervalIDs = [];
 	}
 
 	throwHoly() {
@@ -77,7 +86,7 @@ class World {
 			if (this.statusBarAmmo.percentage < 0) this.statusBarAmmo.percentage = 0;
 			this.statusBarAmmo.setPercentage(this.statusBarAmmo.percentage);
 		} else if (this.keyboard.THROWHOLY) {
-			console.log("No holy ammo left!");
+			// console.log("No holy ammo left!");
 		}
 	}
 
@@ -103,7 +112,7 @@ class World {
 
 
 		} else if (this.keyboard.THROWDARK) {
-			console.log("No dark ammo left!");
+			// console.log("No dark ammo left!");
 		}
 
 
@@ -114,23 +123,34 @@ class World {
 	checkInventory() {
 		CurrentInventory = this.heroinventory;
 		console.log("current inventory list" + CurrentInventory);
-
 	}
 
 	checkCollisions() {
 		this.level.enemies.forEach((enemy) => {
 
 			// player attack -> enemy gets hit
-			if (this.heroCharacter.isAttacking && this.heroCharacter.isHitting(enemy)) {
-				enemy.hit();
-				console.log(`[${enemy.constructor.name}] hit by hero attack!`);
-			}
+			// if (this.heroCharacter.isAttacking && this.heroCharacter.isHitting(enemy)) {
+			// 	enemy.hit();
+			// 	console.log(`[${enemy.constructor.name}] hit by hero attack!`);
+			// }
+
+
 
 			// enemy -> player collision -> player gets hit
 			if (this.heroCharacter.isColliding(enemy)) {
 				this.heroCharacter.hit();
 				this.statusBarHealth.setPercentage(this.heroCharacter.health);
 				this.statusBarEnergy.setPercentage(this.heroCharacter.health);
+			}
+
+			// if (enemy.isHitting(this.heroCharacter)) {
+			// 	this.heroCharacter.hit();
+			// 	this.statusBarHealth.setPercentage(this.heroCharacter.health);
+			// 	this.statusBarEnergy.setPercentage(this.heroCharacter.health);
+			// }
+
+			if (enemy instanceof SkeletonBoss && enemy.isDead) {
+				this.showEndScreen();
 			}
 		});
 
@@ -192,6 +212,9 @@ class World {
 
 
 	draw() {
+
+		if (this.isRunning === false) return; // stops rendering when game ended
+
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.ctx.translate(this.camera_x, 0);
 
@@ -254,6 +277,18 @@ class World {
 		this.ctx.drawImage(DrawableObject.img, DrawableObject.x, DrawableObject.y, DrawableObject.width, DrawableObject.height);
 		this.ctx.restore();
 	}
+
+	showEndScreen() {
+		this.isRunning = false;          // stop draw loop
+		this.stopAllIntervals();         // stop background intervals
+
+		const endScreen = document.getElementById("end-screen");
+		endScreen.style.display = "flex";
+		setTimeout(() => {
+			endScreen.style.opacity = 1;
+		}, 50);
+	}
+
 }
 
 
