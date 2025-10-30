@@ -12,6 +12,10 @@ class World {
 	darkAmmo = [];
 	holyAmmo = [];
 	heroinventory = [];
+	lastDarkThrow = 0;
+	lastHolyThrow = 0;
+	darkCooldownMs = 1000;
+	holyCooldownMs = 500;
 
 	level = level_01
 
@@ -53,12 +57,16 @@ class World {
 	}
 
 	run() {
-		const id = setInterval(() => {
+		const collisionId = setInterval(() => {
 			this.checkCollisions();
+		}, 200);
+		this.IntervalIDs.push(collisionId);
+
+		const throwId = setInterval(() => {
 			this.throwHoly();
 			this.throwDark();
-		}, 200);
-		this.IntervalIDs.push(id);
+		}, 10);
+		this.IntervalIDs.push(throwId);
 	}
 
 	stopAllIntervals() {
@@ -67,55 +75,71 @@ class World {
 	}
 
 	throwHoly() {
-		if (this.keyboard.THROWHOLY && this.holyAmmo.length > 0) {
-			console.log("Throwing holy bottle, ammo left:", this.holyAmmo.length);
+		if (!this.keyboard.THROWHOLY) return;
 
-			let holy = this.holyAmmo.pop();
+		const now = Date.now();
+		if (now - this.lastHolyThrow < this.holyCooldownMs) return;
+		if (this.holyAmmo.length === 0) return;
 
-			const facingLeft = this.heroCharacter.otherDirection;
+		this.lastHolyThrow = now;
+		console.log("Throwing holy bottle, ammo left:", this.holyAmmo.length);
 
-			holy.x = this.heroCharacter.x + (facingLeft ? -50 : 75);
-			holy.y = this.heroCharacter.y + 20;
-			holy.isThrown = true;
+		const holy = this.holyAmmo.pop();
+		const facingLeft = this.heroCharacter.otherDirection;
 
-			holy.throwHoly(facingLeft);
+		holy.x = this.heroCharacter.x + (facingLeft ? -50 : 75);
+		holy.y = this.heroCharacter.y + 20;
+		holy.isThrown = true;
 
-			this.throwableHoly.push(holy);
+		holy.throwHoly(facingLeft);
 
-			this.statusBarAmmo.percentage -= 10;
-			if (this.statusBarAmmo.percentage < 0) this.statusBarAmmo.percentage = 0;
-			this.statusBarAmmo.setPercentage(this.statusBarAmmo.percentage);
-		} else if (this.keyboard.THROWHOLY) {
-			// console.log("No holy ammo left!");
+		this.throwableHoly.push(holy);
+
+		this.statusBarAmmo.percentage -= 10;
+		if (this.statusBarAmmo.percentage < 0) this.statusBarAmmo.percentage = 0;
+		this.statusBarAmmo.setPercentage(this.statusBarAmmo.percentage);
+
+		if (this.heroCharacter.triggerCastAnimation) {
+			this.heroCharacter.triggerCastAnimation('HOLY');
 		}
 	}
 
 	throwDark() {
-		if (this.keyboard.THROWDARK && this.darkAmmo.length > 0) {
-			console.log("Throwing dark bottle, ammo left:", this.darkAmmo.length);
+		if (!this.keyboard.THROWDARK) return;
 
-			let dark = this.darkAmmo.pop();
+		const now = Date.now();
+		if (now - this.lastDarkThrow < this.darkCooldownMs) return;
+		if (this.darkAmmo.length === 0) return;
 
-			const facingLeft = this.heroCharacter.otherDirection;
+		this.lastDarkThrow = now;
+		console.log("Throwing dark bottle, ammo left:", this.darkAmmo.length);
 
-			dark.x = this.heroCharacter.x + (facingLeft ? -50 : 75);
-			dark.y = this.heroCharacter.y + 20;
-			dark.isThrown = true;
+		const dark = this.darkAmmo.pop();
+		const facingLeft = this.heroCharacter.otherDirection;
 
-			dark.throwDark(facingLeft);
+		dark.x = this.heroCharacter.x + (facingLeft ? -50 : 75);
+		dark.y = this.heroCharacter.y + 20;
+		dark.isThrown = true;
 
-			this.throwableDark.push(dark);
+		dark.throwDark(facingLeft);
 
-			this.statusBarAmmo.percentage -= 10;
-			if (this.statusBarAmmo.percentage < 0) this.statusBarAmmo.percentage = 0;
-			this.statusBarAmmo.setPercentage(this.statusBarAmmo.percentage);
+		this.throwableDark.push(dark);
 
+		this.statusBarAmmo.percentage -= 10;
+		if (this.statusBarAmmo.percentage < 0) this.statusBarAmmo.percentage = 0;
+		this.statusBarAmmo.setPercentage(this.statusBarAmmo.percentage);
 
-		} else if (this.keyboard.THROWDARK) {
-			// console.log("No dark ammo left!");
+		if (this.heroCharacter.triggerCastAnimation) {
+			this.heroCharacter.triggerCastAnimation('DARK');
 		}
+	}
 
+	canThrowDark() {
+		return (Date.now() - this.lastDarkThrow) >= this.darkCooldownMs && this.darkAmmo.length > 0;
+	}
 
+	canThrowHoly() {
+		return (Date.now() - this.lastHolyThrow) >= this.holyCooldownMs && this.holyAmmo.length > 0;
 	}
 
 
@@ -155,23 +179,33 @@ class World {
 		});
 
 		this.throwableHoly.forEach((projectile) => {
+			if (projectile.isImpacting) return;
 			this.level.enemies.forEach(enemy => {
-				if (projectile.isColliding(enemy) && !enemy.isDead) {
+				if (enemy.isDead) return;
+				if (projectile.isColliding(enemy) && projectile.registerHit(enemy)) {
 					enemy.hit();
 					console.log(`[${enemy.constructor.name}] hit by HolyThrow!`);
 				}
 			});
 		});
 
+		this.throwableHoly = this.throwableHoly.filter(projectile => !projectile.shouldRemove);
+
 
 		this.throwableDark.forEach((projectile) => {
-			this.level.enemies.forEach(enemy => {
-				if (projectile.isColliding(enemy) && !enemy.isDead) {
+			if (projectile.hasHit) return;
+			this.level.enemies.some(enemy => {
+				if (!enemy.isDead && projectile.isColliding(enemy)) {
 					enemy.hit();
+					projectile.triggerImpact();
 					console.log(`[${enemy.constructor.name}] hit by DarkThrow!`);
+					return true;
 				}
+				return false;
 			});
 		});
+
+		this.throwableDark = this.throwableDark.filter(projectile => !projectile.shouldRemove);
 
 
 
