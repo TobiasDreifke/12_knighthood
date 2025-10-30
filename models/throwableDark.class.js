@@ -1,110 +1,169 @@
 class ThrowDark extends MoveableObject {
-	width = 50;
-	height = 50;
-	offsetLeft = 15;
-	offsetRight = 15;
-	offsetTop = 15;
-	offsetBottom = 15;
-	collidingObject = true;
-	debugColor = "red";
+    width = 50;
+    height = 50;
+    offsetLeft = 15;
+    offsetRight = 15;
+    offsetTop = 15;
+    offsetBottom = 15;
+    collidingObject = true;
+    debugColor = "red";
 
+    throwInterval = null;
+    gravityInterval = null;
+    animationInterval = null;
 
-	IMAGES_IDLE = [
-		"./01_assets/6_salsa_bottle/bottle_rotation/idle_01/dark_vfx_splash_idle_1.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/idle_01/dark_vfx_splash_idle_2.png",
-	];
+    isThrown = false;
+    isAnimating = false;
+    isImpacting = false;
+    hasHit = false;
+    shouldRemove = false;
 
-	IMAGES_THROW = [
-		"./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_1.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_2.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_3.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_4.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_5.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_6.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_7.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_8.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_9.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_10.png",
-	];
+    IMAGES_IDLE = [
+        "./01_assets/6_salsa_bottle/bottle_rotation/idle_01/dark_vfx_splash_idle_1.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/idle_01/dark_vfx_splash_idle_2.png",
+    ];
 
-	IMAGES_IMPACT = [
-		"./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_1.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_2.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_3.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_4.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_5.png",
-		"./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_6.png",
-	]
+    IMAGES_THROW = [
+        "./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_1.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_2.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_3.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_4.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_5.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_6.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_7.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_8.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_9.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_10.png",
+    ];
 
-	constructor(x, y, isThrown = false) {
+    IMAGES_IMPACT = [
+        "./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_1.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_2.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_3.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_4.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_5.png",
+        "./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_6.png",
+    ];
 
-		super();
-		this.x = x;
-		this.y = y;
-		this.isThrown = isThrown;
-		this.isAnimating = false;
+    constructor(x, y, isThrown = false) {
+        super();
+        this.x = x;
+        this.y = y;
+        this.isThrown = isThrown;
 
-		this.loadImages(this.IMAGES_THROW);
-		this.loadImages(this.IMAGES_IMPACT)
+        this.loadImages(this.IMAGES_IDLE);
+        this.loadImages(this.IMAGES_THROW);
+        this.loadImages(this.IMAGES_IMPACT);
 
-		if (isThrown) {
-			this.loadImage(this.IMAGES_THROW[0]);
-			this.throwDark();
-		} else {
-			this.loadImages(this.IMAGES_IDLE);
-			this.loadImage(this.IMAGES_IDLE[0]);
-			this.startIdleAnimation();
-		}
-	}
+        this.loadImage(this.IMAGES_IDLE[0]);
 
-	startIdleAnimation() {
-		if (this.isThrown) return;
-		if (this.isAnimating) return;
-		this.isAnimating = true;
-		this.stopAnimation();
-		this.animationInterval = setInterval(() => {
-			if (!this.isThrown) {
-				this.playAnimation(this.IMAGES_IDLE);
-			}
-		}, 1000 / 3);
-	}
+        if (isThrown) {
+            this.throwDark(false);
+        } else {
+            this.startIdleAnimation();
+        }
+    }
 
-	startThrowAnimation() {
-		this.stopAnimation();
-		this.isAnimating = true;
-		this.animationInterval = setInterval(() => {
-			this.playAnimation(this.IMAGES_THROW);
-		}, 1000 / 12);
-	}
+    startIdleAnimation() {
+        if (this.isThrown || this.isAnimating) return;
+        this.startLoopAnimation(this.IMAGES_IDLE, 6);
+    }
 
-	stopAnimation() {
-		if (this.animationInterval) {
-			clearInterval(this.animationInterval);
-			this.animationInterval = null;
-		}
-		this.isAnimating = false;
-	}
+    startLoopAnimation(images, fps) {
+        this.stopAnimation();
+        this.isAnimating = true;
+        let frame = 0;
+        this.animationInterval = setInterval(() => {
+            if (this.isImpacting) return;
+            this.img = this.imageCache[images[frame]];
+            frame = (frame + 1) % images.length;
+        }, 1000 / fps);
+    }
 
-	throwDark(facingLeft) {
-		this.stopAnimation();
-		this.isThrown = true;
-		this.currentImage = 0;
+    stopAnimation() {
+        if (this.animationInterval) {
+            clearInterval(this.animationInterval);
+            this.animationInterval = null;
+        }
+        this.isAnimating = false;
+    }
 
-		this.otherDirection = !!facingLeft;
+    throwDark(facingLeft = false) {
+        this.stopAnimation();
+        this.isThrown = true;
+        this.isImpacting = false;
+        this.hasHit = false;
+        this.shouldRemove = false;
+        this.currentImage = 0;
 
-		this.img = this.imageCache[this.IMAGES_THROW[0]];
+        this.otherDirection = !!facingLeft;
+        this.img = this.imageCache[this.IMAGES_THROW[0]];
 
-		this.startThrowAnimation();
+        this.startLoopAnimation(this.IMAGES_THROW, 18);
 
-		// this.speedY = -555;
-		this.applyGravity();
+        // launch motion
+        this.speedY = 0;
+        this.applyGravity();
 
-		const throwPower = 2;
-		this.speedX = facingLeft ? -throwPower : throwPower;
+        const throwPower = 2;
+        this.speedX = facingLeft ? -throwPower : throwPower;
 
-		this.throwInterval = setInterval(() => {
-			this.x += this.speedX;
-		}, 25);
-	}
+        if (this.throwInterval) clearInterval(this.throwInterval);
+        this.throwInterval = setInterval(() => {
+            if (this.isImpacting) return;
+            this.x += this.speedX;
+        }, 25);
+    }
 
+    applyGravity() {
+        if (this.gravityInterval) clearInterval(this.gravityInterval);
+        this.gravityInterval = setInterval(() => {
+            if (this.isImpacting) return;
+            if (this.y < this.groundY || this.speedY > 0) {
+                this.y -= this.speedY;
+                this.speedY -= this.acceleration;
+                if (this.y > this.groundY) this.y = this.groundY;
+            }
+        }, 1000 / 25);
+    }
+
+    stopMotion() {
+        if (this.throwInterval) {
+            clearInterval(this.throwInterval);
+            this.throwInterval = null;
+        }
+        if (this.gravityInterval) {
+            clearInterval(this.gravityInterval);
+            this.gravityInterval = null;
+        }
+        this.speedX = 0;
+        this.speedY = 0;
+    }
+
+    triggerImpact() {
+        if (this.isImpacting) return;
+        this.isImpacting = true;
+        this.hasHit = true;
+        this.stopMotion();
+        this.stopAnimation();
+
+        const frames = this.IMAGES_IMPACT;
+        let frame = 0;
+        const fps = 20;
+
+        const playNextFrame = () => {
+            if (frame >= frames.length) {
+                clearInterval(this.animationInterval);
+                this.animationInterval = null;
+                this.isAnimating = false;
+                this.shouldRemove = true;
+                return;
+            }
+            this.img = this.imageCache[frames[frame]];
+            frame++;
+        };
+
+        playNextFrame();
+        this.animationInterval = setInterval(playNextFrame, 1000 / fps);
+    }
 }
