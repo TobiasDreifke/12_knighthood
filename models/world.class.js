@@ -180,12 +180,12 @@ class World {
 			if (this.heroCharacter.isColliding(throwable)) {
 				if (throwable instanceof ThrowDark) {
 					this.darkAmmo.push(throwable);
-					console.log("Dark ammo collected:", this.darkAmmo.length);
+					// console.log("Dark ammo collected:", this.darkAmmo.length);
 				}
 
 				if (throwable instanceof ThrowHoly) {
 					this.holyAmmo.push(throwable);
-					console.log("Holy ammo collected:", this.holyAmmo.length);
+					// console.log("Holy ammo collected:", this.holyAmmo.length);
 				}
 
 				this.statusBarAmmo.collect();
