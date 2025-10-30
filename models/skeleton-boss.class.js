@@ -13,6 +13,7 @@ class SkeletonBoss extends MoveableObject {
 
     encounterSoundPlayed = false;
     attackTimers = [];
+    hurtTimeout = null;
 
     IMAGES_IDLE = [
         "01_assets/4_enemie_boss/2_alert/skeleton_idle_01.png",
@@ -65,11 +66,11 @@ class SkeletonBoss extends MoveableObject {
         this.isAttacking = false;
         this.attackCooldown = false;
 
-        this.hitboxWidth = 140;
+        this.hitboxWidth = 95;
         this.hitboxOffsetTop = 35;
         this.hitboxOffsetBottom = 35;
-        this.hitboxOffsetLeft = 35;
-        this.hitboxOffsetRight = 55;
+        this.hitboxOffsetLeft = 0;
+        this.hitboxOffsetRight = 0;
 
         this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_WALK);
@@ -87,6 +88,27 @@ class SkeletonBoss extends MoveableObject {
         return Math.abs(heroCenter - bossCenter);
     }
 
+    horizontalGapToPlayer() {
+        if (!this.player) return Infinity;
+        const bossBox = this.getHurtbox();
+        const playerBox = this.player.getHurtbox();
+
+        if (playerBox.right < bossBox.left) {
+            return bossBox.left - playerBox.right;
+        }
+        if (playerBox.left > bossBox.right) {
+            return playerBox.left - bossBox.right;
+        }
+        return 0;
+    }
+
+    hasVerticalOverlapWithPlayer() {
+        if (!this.player) return false;
+        const bossBox = this.getHurtbox();
+        const playerBox = this.player.getHurtbox();
+        return bossBox.bottom > playerBox.top && bossBox.top < playerBox.bottom;
+    }
+
     animation() {
         this.animationInterval = setInterval(() => {
             if (!this.player) return;
@@ -98,12 +120,19 @@ class SkeletonBoss extends MoveableObject {
 
             if (this.isHurt) {
                 this.playAnimationWithSpeed(this.IMAGES_HURT, 12, false);
-                this.isHurt = false;
-                this.stopAttackImmediately();
                 return;
             }
 
-            this.otherDirection = this.player.x < this.x;
+            const bossCenter = this.x + this.width / 2;
+            const heroCenter = this.player.x + this.player.width / 2;
+            const centerDelta = heroCenter - bossCenter;
+            const flipThreshold = 20;
+
+            if (centerDelta < -flipThreshold) {
+                this.otherDirection = true;
+            } else if (centerDelta > flipThreshold) {
+                this.otherDirection = false;
+            }
 
             if (this.isAttacking) {
                 this.playAnimationWithSpeed(this.IMAGES_ATTACK, 10, false);
@@ -118,9 +147,16 @@ class SkeletonBoss extends MoveableObject {
     }
 
     handleAttackLogic() {
-        const attackRange = 140;
-        if (this.distanceToPlayer() > attackRange) return false;
-        if (this.attackCooldown) return true;
+        const gap = this.horizontalGapToPlayer();
+        const attackHorizontalThreshold = 95;
+
+        if (gap > attackHorizontalThreshold || !this.hasVerticalOverlapWithPlayer()) {
+            return false;
+        }
+        if (this.attackCooldown) {
+            this.playIdleAnimation();
+            return true;
+        }
         this.startAttack();
         return true;
     }
@@ -163,17 +199,19 @@ class SkeletonBoss extends MoveableObject {
 
         const fps = 10;
         const frameDuration = 1000 / fps;
-        const hitFrame = 4;
+        const swingSoundFrame = 4;
+        const hitFrame = 7;
         const totalDuration = this.IMAGES_ATTACK.length * frameDuration;
-
-        AudioHub.playOne(AudioHub.SKELETON_ATTACK);
+        const remainingCooldown = Math.max(3000 - totalDuration, 0);
 
         this.attackTimers.push(
+            setTimeout(() => AudioHub.playOne(AudioHub.SKELETON_ATTACK), swingSoundFrame * frameDuration),
             setTimeout(() => this.attackPlayer(), hitFrame * frameDuration),
             setTimeout(() => {
                 this.isAttacking = false;
+                this.playIdleAnimation();
                 this.attackTimers.push(
-                    setTimeout(() => this.attackCooldown = false, 350)
+                    setTimeout(() => this.attackCooldown = false, remainingCooldown)
                 );
             }, totalDuration)
         );
@@ -192,7 +230,7 @@ class SkeletonBoss extends MoveableObject {
             hitbox.top < playerHurtbox.bottom;
 
         if (isHit) {
-            this.player.hit();
+            this.player.hit(1);
         }
     }
 
@@ -202,8 +240,9 @@ class SkeletonBoss extends MoveableObject {
         this.attackCooldown = true;
         this.frameIndex = 0;
         this.lastFrameTime = 0;
+        this.playIdleAnimation();
         this.attackTimers.push(
-            setTimeout(() => this.attackCooldown = false, 400)
+            setTimeout(() => this.attackCooldown = false, 3000)
         );
     }
 
@@ -216,8 +255,21 @@ class SkeletonBoss extends MoveableObject {
         super.hit(amount);
         if (!this.isDead) {
             this.stopAttackImmediately();
+            this.isHurt = true;
+            const hurtDuration = (this.IMAGES_HURT.length / 12) * 1000;
+            setTimeout(() => {
+                this.isHurt = false;
+            }, hurtDuration);
         } else {
             this.clearAttackTimers();
         }
+    }
+
+    scheduleHurtEnd() {
+        if (this.hurtTimeout) clearTimeout(this.hurtTimeout);
+        const hurtDuration = (this.IMAGES_HURT.length / 12) * 1000;
+        this.hurtTimeout = setTimeout(() => {
+            this.isHurt = false;
+        }, hurtDuration);
     }
 }
