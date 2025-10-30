@@ -49,8 +49,11 @@ class World {
 		this.statusBarAmmo.world = this;
 
 		this.level.enemies.forEach(enemy => {
-			if (enemy instanceof SkeletonBoss) {
+			if (enemy instanceof SkeletonBoss || enemy instanceof Goblin) {
 				enemy.player = this.heroCharacter;
+			}
+
+			if (enemy instanceof SkeletonBoss) {
 				enemy.animation();
 			}
 		});

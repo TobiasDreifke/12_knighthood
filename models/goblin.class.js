@@ -6,21 +6,24 @@ class Goblin extends MoveableObject {
 
     collidingObject = true;
     debugColor = "green";
-    health = 10;
+    health = 20;
+
+    encounterSoundPlayed = false;
+    hurtTimeout = null;
 
     IMAGES_HURT = [
         "./01_assets/3_enemies_mobs/goblin/3_hurt/goblin_hurt_01.png",
         "./01_assets/3_enemies_mobs/goblin/3_hurt/goblin_hurt_02.png",
         "./01_assets/3_enemies_mobs/goblin/3_hurt/goblin_hurt_03.png",
         "./01_assets/3_enemies_mobs/goblin/3_hurt/goblin_hurt_04.png",
-    ]
+    ];
 
     IMAGES_DEAD = [
         "./01_assets/3_enemies_mobs/goblin/2_dead/goblin_death_01.png",
         "./01_assets/3_enemies_mobs/goblin/2_dead/goblin_death_02.png",
         "./01_assets/3_enemies_mobs/goblin/2_dead/goblin_death_03.png",
         "./01_assets/3_enemies_mobs/goblin/2_dead/goblin_death_04.png"
-    ]
+    ];
 
     IMAGES_WALK = [
         "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_01.png",
@@ -33,35 +36,88 @@ class Goblin extends MoveableObject {
         "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_08.png"
     ];
 
-    constructor(isHurt = false, isDead = false) {
-        super().loadImage("./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_01.png")
+    constructor(player = null, isHurt = false, isDead = false) {
+        super().loadImage(this.IMAGES_WALK[0]);
         this.x = 400 + Math.random() * 1000;
         this.loadImages(this.IMAGES_WALK);
         this.loadImages(this.IMAGES_DEAD);
         this.loadImages(this.IMAGES_HURT);
-        this.animation();
-        // this.speed = 0.25 + Math.random() * 1;
-                this.speed = 0.0 + Math.random() * 0;
 
+        this.player = player;
+        this.speed = 0.35 + Math.random() * 0.25;
         this.otherDirection = true;
         this.isHurt = isHurt;
         this.isDead = isDead;
+
+        this.animation();
     }
 
     animation() {
-        setInterval(() => {
+        this.animationInterval = setInterval(() => {
             if (this.isDead) {
-                if (this.isDead) this.playAnimationWithSpeed(this.IMAGES_DEAD, 14);
-
-            } else if (this.isHurt) {
-                this.playAnimationWithSpeed(this.IMAGES_HURT, 16);
-                this.isHurt = false;
-
-            } else {
-                this.moveLeft();
-                this.playAnimationWithSpeed(this.IMAGES_WALK, 16);
+                this.playAnimationWithSpeed(this.IMAGES_DEAD, 12, false);
+                return;
             }
 
+            if (this.isHurt) {
+                this.playAnimationWithSpeed(this.IMAGES_HURT, 14, false);
+                return;
+            }
+
+            this.updateFacingDirection();
+            this.walkTowardPlayer();
         }, 1000 / 25);
+    }
+
+    updateFacingDirection() {
+        if (!this.player) return;
+        const goblinCenter = this.x + this.width / 2;
+        const heroCenter = this.player.x + this.player.width / 2;
+        const delta = heroCenter - goblinCenter;
+        const flipThreshold = 10;
+
+        if (delta < -flipThreshold) {
+            this.otherDirection = true;
+        } else if (delta > flipThreshold) {
+            this.otherDirection = false;
+        }
+    }
+
+    walkTowardPlayer() {
+        if (this.player) {
+            if (this.otherDirection) {
+                this.moveLeft();
+            } else {
+                this.moveRight();
+            }
+        } else {
+            this.moveLeft();
+        }
+
+        this.playAnimationWithSpeed(this.IMAGES_WALK, 12);
+    }
+
+    hit(amount = this.damageOnCollision) {
+        if (this.isDead) return;
+        super.hit(amount);
+
+        if (this.isDead) {
+            this.clearHurtTimeout();
+            return;
+        }
+
+        this.isHurt = true;
+        this.clearHurtTimeout();
+        const hurtDuration = (this.IMAGES_HURT.length / 14) * 1000;
+        this.hurtTimeout = setTimeout(() => {
+            this.isHurt = false;
+        }, hurtDuration);
+    }
+
+    clearHurtTimeout() {
+        if (this.hurtTimeout) {
+            clearTimeout(this.hurtTimeout);
+            this.hurtTimeout = null;
+        }
     }
 }
