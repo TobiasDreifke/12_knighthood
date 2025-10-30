@@ -253,15 +253,30 @@ class World {
 		this.ctx.translate(this.camera_x, 0);
 
 
-		this.addObjectsToMap(this.level.backgroundObjects);
+		this.drawBackgroundLayer(this.level.backgroundObjects);
 
-		// then draw other stuff
+		const cloudsBehind = [];
+		const cloudsFront = [];
+
+		this.level.clouds.forEach(cloud => {
+			if (cloud.y >= 370 && cloud.y <= 400) {
+				cloudsFront.push(cloud);
+			} else {
+				cloudsBehind.push(cloud);
+			}
+		});
+
+		this.addObjectsToMap(cloudsBehind);
+
+		// draw gameplay objects
 		this.addObjectsToMap(this.level.enemies);
-		this.addObjectsToMap(this.level.clouds);
+		this.addToMap(this.heroCharacter);
 		this.addObjectsToMap(this.level.throwables);
 		this.addObjectsToMap(this.level.pickables);
 		this.addObjectsToMap(this.throwableHoly);
 		this.addObjectsToMap(this.throwableDark);
+
+		this.addObjectsToMap(cloudsFront);
 
 		this.ctx.translate(-this.camera_x, 0);
 
@@ -270,13 +285,19 @@ class World {
 		this.addToMap(this.statusBarEnergy);
 		this.addToMap(this.statusBarAmmo);
 
-		this.ctx.translate(this.camera_x, 0);
-		this.addToMap(this.heroCharacter);
-		this.ctx.translate(-this.camera_x, 0);
-
 		requestAnimationFrame(() => this.draw());
 	}
 
+
+	drawBackgroundLayer(objects) {
+		objects.forEach(o => this.drawBackgroundObject(o));
+	}
+
+	drawBackgroundObject(background) {
+		const parallax = background.parallax ?? 1;
+		const drawX = background.x + (parallax - 1) * this.camera_x;
+		this.ctx.drawImage(background.img, drawX, background.y, background.width, background.height);
+	}
 
 	addObjectsToMap(objects) {
 		objects.forEach(o => {
