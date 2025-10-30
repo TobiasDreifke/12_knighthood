@@ -27,6 +27,15 @@ class ThrowDark extends MoveableObject {
 		"./01_assets/6_salsa_bottle/bottle_rotation/attack_01/dark_vfx_hit_10.png",
 	];
 
+	IMAGES_IMPACT = [
+		"./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_1.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_2.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_3.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_4.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_5.png",
+		"./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_6.png",
+	]
+
 	constructor(x, y, isThrown = false) {
 
 		super();
@@ -36,9 +45,10 @@ class ThrowDark extends MoveableObject {
 		this.isAnimating = false;
 
 		this.loadImages(this.IMAGES_THROW);
+		this.loadImages(this.IMAGES_IMPACT)
 
 		if (isThrown) {
-			this.loadImage(this.IMAGES_THROW[0]); 
+			this.loadImage(this.IMAGES_THROW[0]);
 			this.throwDark();
 		} else {
 			this.loadImages(this.IMAGES_IDLE);
@@ -80,6 +90,8 @@ class ThrowDark extends MoveableObject {
 		this.isThrown = true;
 		this.currentImage = 0;
 
+		this.otherDirection = !!facingLeft;
+
 		this.img = this.imageCache[this.IMAGES_THROW[0]];
 
 		this.startThrowAnimation();
@@ -93,6 +105,6 @@ class ThrowDark extends MoveableObject {
 		this.throwInterval = setInterval(() => {
 			this.x += this.speedX;
 		}, 25);
-}
+	}
 
 }

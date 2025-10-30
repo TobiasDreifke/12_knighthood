@@ -34,11 +34,11 @@ class ThrowHoly extends MoveableObject {
 		this.isThrown = isThrown;
 		this.isAnimating = false;
 
-		
+
 		this.loadImages(this.IMAGES_THROW);
 
 		if (isThrown) {
-			this.loadImage(this.IMAGES_THROW[0]); 
+			this.loadImage(this.IMAGES_THROW[0]);
 			this.throwHoly();
 		} else {
 			this.loadImages(this.IMAGES_IDLE);
@@ -48,15 +48,15 @@ class ThrowHoly extends MoveableObject {
 	}
 
 	startIdleAnimation() {
-	if (this.isThrown) return;
-	if (this.isAnimating) return;
-	this.isAnimating = true;
-	this.stopAnimation();
-	this.animationInterval = setInterval(() => {
-		if (!this.isThrown) {
-			this.playAnimation(this.IMAGES_IDLE);
-		}
-	}, 1000 / 3);
+		if (this.isThrown) return;
+		if (this.isAnimating) return;
+		this.isAnimating = true;
+		this.stopAnimation();
+		this.animationInterval = setInterval(() => {
+			if (!this.isThrown) {
+				this.playAnimation(this.IMAGES_IDLE);
+			}
+		}, 1000 / 3);
 	}
 
 	startThrowAnimation() {
@@ -79,6 +79,7 @@ class ThrowHoly extends MoveableObject {
 		this.stopAnimation();
 		this.isThrown = true;
 		this.currentImage = 0;
+		this.otherDirection = !!facingLeft;
 
 		this.img = this.imageCache[this.IMAGES_THROW[0]];
 
@@ -93,7 +94,7 @@ class ThrowHoly extends MoveableObject {
 		this.throwInterval = setInterval(() => {
 			this.x += this.speedX;
 		}, 25);
-}
+	}
 
 }
 
