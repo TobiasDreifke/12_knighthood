@@ -1,43 +1,3 @@
-const CLOUD_VARIANTS = [
-      { path: "./01_assets/5_background/layers/4_clouds/single_clouds/cloud_big_01_left.png", scale: 0.2 },
-    { path: "./01_assets/5_background/layers/4_clouds/single_clouds/cloud_big_01_rightpng.png", scale: 0.1 },
-    { path: "./01_assets/5_background/layers/4_clouds/single_clouds/cloud_big_02_right.png", scale: 0.15 },
-    { path: "./01_assets/5_background/layers/4_clouds/single_clouds/cloud_big_03_left.png", scale: 0.25 },
-    { path: "./01_assets/5_background/layers/4_clouds/single_clouds/cloud_medium_01_mid.png", scale: 0.2 },
-    { path: "./01_assets/5_background/layers/4_clouds/single_clouds/cloud_small_01_left.png", scale: 0.3 },
-    { path: "./01_assets/5_background/layers/4_clouds/single_clouds/cloud_small_02_left.png", scale: 0.4 },
-    { path: "./01_assets/5_background/layers/4_clouds/single_clouds/cloud_verysmall_01_left.png", scale: 0.7 },
-];
-
-function generateClouds(count = 100) {
-    const minX = -100;
-    const maxX = 720 * 4;
-    const minY = 330;
-    const maxY = 400;
-    const segment = (maxX - minX) / count;
-    const clouds = [];
-
-    for (let i = 0; i < count; i++) {
-        const variant = CLOUD_VARIANTS[Math.floor(Math.random() * CLOUD_VARIANTS.length)];
-        const baseX = minX + i * segment;
-        const jitter = (Math.random() - 0.5) * segment * 0.7;
-        const x = baseX + jitter;
-        const y = minY + Math.random() * (maxY - minY);
-        clouds.push(new Cloud(variant.path, x, y, variant.scale ?? 1));
-    }
-
-    return clouds;
-}
-
-const BACKGROUND_SEGMENTS = [-720, 0, 720, 720 * 2, 720 * 3];
-
-const BACKGROUND_OBJECTS = [
-    ...BACKGROUND_SEGMENTS.map(x => new BackgroundObject("./01_assets/5_background/layers/parallax-demon-woods-bg.png", x, null, 0)),
-    ...BACKGROUND_SEGMENTS.map(x => new BackgroundObject("./01_assets/5_background/layers/3_third_layer/parallax-demon-woods-far-trees.png", x, null, 0.2)),
-    ...BACKGROUND_SEGMENTS.map(x => new BackgroundObject("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png", x, null, 0.45)),
-    ...BACKGROUND_SEGMENTS.map(x => new BackgroundObject("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png", x, null, 0.75)),
-];
-
 const level_01 = new Level(
     [
         new Goblin(),
@@ -48,23 +8,21 @@ const level_01 = new Level(
 
     generateClouds(100),
 
+    createBackgroundObjects(),
 
-    BACKGROUND_OBJECTS,
-
- [
-        new ThrowDark(500, 350), 
+    [
+        new ThrowDark(500, 350),
         new ThrowDark(800, 350),
-        new ThrowDark(150, 350), 
-        new ThrowDark(150, 350), 
-        new ThrowDark(150, 350), 
+        new ThrowDark(150, 350),
+        new ThrowDark(150, 350),
+        new ThrowDark(150, 350),
         new ThrowHoly(150, 350),
         new ThrowHoly(150, 350),
         new ThrowHoly(150, 350),
- ],
+    ],
 
-[
-        
+    [
         new Sword(200, 350),
- ],
+    ],
 
 );
