@@ -305,16 +305,6 @@ class Hero extends MoveableObject {
             return true;
         }
 
-        if (keyboard.THROWDARK && !this.castPressed) {
-            this.PlayCastAnimationOnce('DARK');
-            return true;
-        }
-
-        if (keyboard.THROWHOLY && !this.castPressed) {
-            this.PlayCastAnimationOnce('HOLY');
-            return true;
-        }
-
         if (movementState.slidePressed) {
             this.playAnimationWithSpeed(this.IMAGES_SLIDE, 18);
             return true;
@@ -380,11 +370,13 @@ class Hero extends MoveableObject {
         }, totalDuration);
     }
 
-    PlayCastAnimationOnce(type) { // type = 'HOLY' or 'DARK'
-        if (this.isCasting ||
+    PlayCastAnimationOnce(type, force = false) { // type = 'HOLY' or 'DARK'
+        const noAmmo =
             (type === 'DARK' && this.world.darkAmmo.length === 0) ||
-            (type === 'HOLY' && this.world.holyAmmo.length === 0)) {
-            console.log("No ammo left or already casting!");
+            (type === 'HOLY' && this.world.holyAmmo.length === 0);
+
+        if (this.isCasting || (!force && noAmmo)) {
+            if (!force && noAmmo) console.log("No ammo left or already casting!");
             return;
         }
 
@@ -405,6 +397,10 @@ class Hero extends MoveableObject {
             this.castPressed = false;
             this.castType = null;
         }, totalDuration);
+    }
+
+    triggerCastAnimation(type) {
+        this.PlayCastAnimationOnce(type, true);
     }
 
     dealDamageToEnemies() {
