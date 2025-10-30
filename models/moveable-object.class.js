@@ -39,14 +39,16 @@ class MoveableObject extends DrawableObject {
 			a.top < b.bottom;
 	}
 
-	
+
 	playAnimationWithSpeed(images, fps, loop = true) {
 		const now = Date.now();
 		if (!this.lastFrameTime) this.lastFrameTime = 0;
 		if (this.frameIndex === undefined) this.frameIndex = 0;
 
 		const frameDuration = 1000 / fps;
-
+		if (this.onAnimationFrame) {
+			this.onAnimationFrame(images, this.frameIndex);
+		}
 		if (now - this.lastFrameTime > frameDuration) {
 			this.lastFrameTime = now;
 
@@ -126,11 +128,10 @@ class MoveableObject extends DrawableObject {
 		this.speedY = 30;
 	} ddd
 
-	hit() {
+	hit(amount = this.damageOnCollision) {
 		if (this.isDead) return;
-		console.log(`[${this.constructor.name}] is hit`);
-		this.health -= this.damageOnCollision;
-
+		this.health -= amount;
+		console.log(`[${this.constructor.name}] is hit with [${amount}]`);
 
 		if (this.health <= 0) {
 			this.health = 0;
