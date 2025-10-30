@@ -8,6 +8,7 @@ class Cloud extends MoveableObject {
         this.scale = scale;
 
         this.loadCloudImage(imagePath);
+        this.startFloating();
     }
 
     loadCloudImage(path) {
@@ -31,5 +32,21 @@ class Cloud extends MoveableObject {
                 this.img.onload = null;
             };
         }
+    }
+
+    startFloating() {
+        const verticalAmplitude = 1 + Math.random() * 10; // 6-16 px drift
+        const verticalSpeed = 5000 + Math.random() * 3000;
+        const horizontalAmplitude = 1 + Math.random() * 20; // 10-30 px drift
+        const horizontalSpeed = 7000 + Math.random() * 4000;
+
+        const anchorX = this.x;
+        const anchorY = this.y;
+
+        setInterval(() => {
+            const now = Date.now();
+            this.x = anchorX + Math.sin(now / horizontalSpeed) * horizontalAmplitude;
+            this.y = anchorY + Math.sin(now / verticalSpeed) * verticalAmplitude;
+        }, 1000 / 30);
     }
 }
