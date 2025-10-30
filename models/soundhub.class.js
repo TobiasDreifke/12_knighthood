@@ -10,6 +10,19 @@ class AudioHub {
     static SLIDE_HERO = new Audio('./01_assets/00_audio/jump_and_land/sliding.mp3');
     static PUNCH_HERO = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
 
+    static SKELETON_WALK = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
+    static SKELETON_IDLE = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
+    static SKELETON_ATTACK = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
+    static SKELETON_HURT = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
+    static SKELETON_DEAD = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
+    static SKELETON_LAUGHING = new Audio('./01_assets/00_audio/laughter/evil-laugh-with-reverb-423668.mp3');
+
+    static GOBLIN_WALK = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
+    static GOBLIN_IDLE = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
+    static GOBLIN_ATTACK = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
+    static GOBLIN_HURT = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
+    static GOBLIN_DEAD = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
+
 
     // Array, das alle definierten Audio-Dateien enthält
     static allSounds = [
@@ -22,6 +35,19 @@ class AudioHub {
         AudioHub.FALL_HERO,
         AudioHub.SLIDE_HERO,
         AudioHub.PUNCH_HERO,
+
+        AudioHub.SKELETON_WALK,
+        AudioHub.SKELETON_IDLE,
+        AudioHub.SKELETON_ATTACK,
+        AudioHub.SKELETON_HURT,
+        AudioHub.SKELETON_DEAD,
+        AudioHub.SKELETON_LAUGHING,
+
+        AudioHub.GOBLIN_WALK,
+        AudioHub.GOBLIN_IDLE,
+        AudioHub.GOBLIN_ATTACK,
+        AudioHub.GOBLIN_HURT,
+        AudioHub.GOBLIN_DEAD,
     ];
 
     // ----------------------- METHODS -----------------------
