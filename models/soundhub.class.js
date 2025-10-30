@@ -1,9 +1,103 @@
 class AudioHub {
     // Audiodateien für Piano, Guitar, DRUMS
     static WALK_HERO = new Audio('./01_assets/00_audio/walking/Hero/indoor-footsteps-6385 (mp3cut.net).mp3');
+    static SWORD_DRAW = new Audio('./01_assets/00_audio/sword/draw-sword1-44724.mp3');
+    static SWORD_SLICE = new Audio('./01_assets/00_audio/sword/sword-slice-393847.mp3');
+    static CAST_HOLY = new Audio('./01_assets/00_audio/cast/holy_cast.mp3');
+    static CAST_DARK = new Audio('./01_assets/00_audio/cast/dark_cast.mp3');
+    static JUMP_HERO = new Audio('./01_assets/00_audio/jump_and_land/swoosh-011-352855 (mp3cut.net).mp3');
+    static FALL_HERO = new Audio('./01_assets/00_audio/jump_and_land/walk-on-dirt-1-291981 (mp3cut.net).mp3');
+    static SLIDE_HERO = new Audio('./01_assets/00_audio/jump_and_land/sliding.mp3');
+    static PUNCH_HERO = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
+
 
     // Array, das alle definierten Audio-Dateien enthält
-    static allSounds = [AudioHub.WALK_HERO,];
+    static allSounds = [
+        AudioHub.WALK_HERO,
+        AudioHub.SWORD_DRAW,
+        AudioHub.SWORD_SLICE,
+        AudioHub.CAST_HOLY,
+        AudioHub.CAST_DARK,
+        AudioHub.JUMP_HERO,
+        AudioHub.FALL_HERO,
+        AudioHub.SLIDE_HERO,
+        AudioHub.PUNCH_HERO,
+    ];
+
+    // ----------------------- METHODS -----------------------
+
+    static animationSoundSync = [ // for SoundSynching
+
+        {
+            animation: 'IMAGES_DRAW_SWORD',
+            frames: [0],
+            sound: AudioHub.SWORD_DRAW
+        },
+
+        {
+            animation: 'IMAGES_ATTACK',
+            frames: [0, 4],
+            sound: AudioHub.PUNCH_HERO
+        },
+
+        {
+            animation: 'IMAGES_ATTACK_SWORD',
+            frames: [0],
+            sound: AudioHub.SWORD_SLICE
+        },
+
+        {
+            animation: 'IMAGES_WALK', // name of the animation array
+            frames: [2, 5],           // frame indexes that should trigger the sound
+            sound: AudioHub.WALK_HERO
+        },
+
+        {
+            animation: 'IMAGES_WALK_SWORD',
+            frames: [2, 5],
+            sound: AudioHub.WALK_HERO
+        },
+
+        {
+            animation: 'IMAGES_CAST_HOLY',
+            frames: [2],
+            sound: AudioHub.CAST_HOLY
+        },
+
+        {
+            animation: 'IMAGES_CAST_DARK',
+            frames: [2],
+            sound: AudioHub.CAST_DARK
+        },
+
+        // {
+        //     animation: 'IMAGES_JUMP',
+        //     frames: [1],
+        //     sound: AudioHub.JUMP_HERO
+        // },
+        // {
+        //     animation: 'IMAGES_FALL',
+        //     frames: [1],
+        //     sound: AudioHub.FALL_HERO
+        // },
+        // {
+        //     animation: 'IMAGES_SLIDE',
+        //     frames: [1],
+        //     sound: AudioHub.SLIDE_HERO
+        // },
+
+
+    ];
+
+    static syncSound(animationName, frameIndex) { // for SoundSynching
+        for (const rule of this.animationSoundSync) {
+            if (rule.animation === animationName && rule.frames.includes(frameIndex)) {
+                // console.log(`Playing sound for ${animationName} frame ${frameIndex}`);
+                this.playOne(rule.sound);
+            }
+        }
+    }
+
 
 
     // Spielt eine einzelne Audiodatei ab
@@ -12,6 +106,25 @@ class AudioHub {
         audio.volume = 1;
         audio.currentTime = 0;
         audio.play().catch(e => console.warn("Playback failed:", e));
+    }
+
+    /**
+     * Plays a sound once per continuous key press or state.
+     * @param {{value:boolean}} flagRef - Mutable flag stored on the caller.
+     * @param {HTMLAudioElement} sound - Source sound to clone and play.
+     * @param {boolean} isPressed - Whether the key/state is currently active.
+     * @param {boolean} [canTrigger=true] - Optional guard to block playback while true isPressed states persist.
+     */
+    static playOncePerKey(flagRef, sound, isPressed, canTrigger = true) {
+        if (!flagRef) return;
+        if (isPressed && canTrigger) {
+            if (!flagRef.value) {
+                this.playOne(sound);
+                flagRef.value = true;
+            }
+        } else if (!isPressed) {
+            flagRef.value = false;
+        }
     }
 
 
@@ -44,35 +157,6 @@ class AudioHub {
         });
     }
 
-
-    // ----------------------- METHODS -----------------------
-
-    static animationSoundSync = [ // for SoundSynching
-        {
-            animation: 'IMAGES_WALK', // name of the animation array
-            frames: [2, 5],           // frame indexes that should trigger the sound
-            sound: AudioHub.WALK_HERO
-        },
-    ];
-
-    static syncSound(animationName, frameIndex) { // for SoundSynching
-        for (const rule of this.animationSoundSync) {
-            if (rule.animation === animationName && rule.frames.includes(frameIndex)) {
-                // console.log(`Playing sound for ${animationName} frame ${frameIndex}`);
-                this.playOne(rule.sound);
-            }
-        }
-    }
-
-    // ----------------------- METHODS -----------------------
-
-
-    // static playWalkingSound() {
-    //     let sound = AudioHub.WALK_HERO;
-    //     if (sound.readyState === 4) {
-    //         this.playOne(sound);
-    //     }
-    // }
 
 
     // ------------------------ FOR LOOP ---------------------
