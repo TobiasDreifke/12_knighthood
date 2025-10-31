@@ -9,6 +9,8 @@ class AudioHub {
     static FALL_HERO = new Audio('./01_assets/00_audio/jump_and_land/walk-on-dirt-1-291981 (mp3cut.net).mp3');
     static SLIDE_HERO = new Audio('./01_assets/00_audio/jump_and_land/sliding.mp3');
     static PUNCH_HERO = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
+    static SWORD_SHEATHE = new Audio('./01_assets/00_audio/sword/sheathe_sword.mp3');
+
 
     static SKELETON_WALK = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
     static SKELETON_IDLE = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
@@ -29,6 +31,7 @@ class AudioHub {
         AudioHub.WALK_HERO,
         AudioHub.SWORD_DRAW,
         AudioHub.SWORD_SLICE,
+        AudioHub.SWORD_SHEATHE,
         AudioHub.CAST_HOLY,
         AudioHub.CAST_DARK,
         AudioHub.JUMP_HERO,
@@ -58,6 +61,11 @@ class AudioHub {
             animation: 'IMAGES_DRAW_SWORD',
             frames: [0],
             sound: AudioHub.SWORD_DRAW
+        },
+        {
+            animation: 'IMAGES_SHEATHE_SWORD',
+            frames: [0],
+            sound: AudioHub.SWORD_SHEATHE
         },
 
         {
