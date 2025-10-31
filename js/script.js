@@ -12,8 +12,13 @@ function init() {
 
     const restartButton = document.getElementById("restart-button");
     restartButton.addEventListener("click", () => {
-        location.reload(); 
+        location.reload();
     });
+
+    const gameoverRestartButton = document.getElementById("gameover-restart-button");
+    if (gameoverRestartButton) {
+        gameoverRestartButton.addEventListener("click", () => location.reload());
+    }
 }
 
 function setupStartButton() {
@@ -31,6 +36,8 @@ function setupStartButton() {
 }
 
 window.addEventListener("keydown", (event) => {
+    if (world && world.inputLocked) return;
+
     const key = event.key.toLowerCase();
 
     if (key === "arrowright" || key === "d") keyboard.RIGHT = true;
@@ -53,6 +60,8 @@ window.addEventListener("keydown", (event) => {
 
 
 window.addEventListener("keyup", (event) => {
+    if (world && world.inputLocked) return;
+
     const key = event.key.toLowerCase();
 
     if (key === "arrowright" || key === "d") keyboard.RIGHT = false;
