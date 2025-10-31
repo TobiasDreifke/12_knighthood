@@ -230,7 +230,7 @@ class SkeletonBoss extends MoveableObject {
             hitbox.top < playerHurtbox.bottom;
 
         if (isHit) {
-            this.player.hit(1);
+            this.player.hit(25);
         }
     }
 
