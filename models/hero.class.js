@@ -283,6 +283,7 @@ class Hero extends MoveableObject {
     }
 
     playPriorityAnimation(keyboard, movementState) {
+        this.resetHurtBox();
         if (this.isCelebrating) {
             this.handleCelebration();
             return true;
@@ -301,6 +302,7 @@ class Hero extends MoveableObject {
         }
 
         if (this.isAttacking) {
+            this.setCrouchHurtBox();
             const attackImages = this.hasSword ? this.IMAGES_ATTACK_SWORD : this.IMAGES_ATTACK;
             this.playAnimationWithSpeed(attackImages, 20, false);
             return true;
@@ -321,6 +323,7 @@ class Hero extends MoveableObject {
         }
 
         if (movementState.slidePressed) {
+            this.setSlideHurtBox();
             this.playAnimationWithSpeed(this.IMAGES_SLIDE, 18);
             return true;
         }
@@ -331,6 +334,7 @@ class Hero extends MoveableObject {
     playMovementAnimation(keyboard) {
         if (keyboard.DOWN) {
             this.crouch();
+            this.setCrouchHurtBox();
             this.playAnimationWithSpeed(this.IMAGES_CROUCH, 12);
             return;
         }
@@ -370,7 +374,7 @@ class Hero extends MoveableObject {
         this.attackPressed = true;
 
         // hitbox setup
-        this.hitboxOffsetTop = this.hasSword ? 0 : 30;
+        this.hitboxOffsetTop = this.hasSword ? -30 : 10;
         this.hitboxOffsetBottom = this.hasSword ? 10 : 20;
         this.hitboxWidth = this.hasSword ? 40 : 30;
 
@@ -485,5 +489,25 @@ class Hero extends MoveableObject {
                 enemy.hit(this.hasSword ? this.swordDamage : this.punchDamage);
             }
         });
+    }
+
+    setCrouchHurtBox() {
+         this.offsetLeft = 35;
+        this.offsetRight = 35;
+        this.offsetTop = 35;
+        this.offsetBottom = 5;
+    }
+    setSlideHurtBox() {
+       this.offsetLeft = 20;
+        this.offsetRight = 25;
+        this.offsetTop = 55;
+        this.offsetBottom = 5;
+    }
+
+    resetHurtBox() {
+        this.offsetLeft = 35;
+        this.offsetRight = 35;
+        this.offsetTop = 15;
+        this.offsetBottom = 5;
     }
 }
