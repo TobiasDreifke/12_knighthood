@@ -23,6 +23,8 @@ class AudioHub {
     static GOBLIN_HURT = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
     static GOBLIN_DEAD = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
 
+    static activeClones = new Set();
+
     static allSounds = [
         AudioHub.WALK_HERO,
         AudioHub.SWORD_DRAW,
@@ -70,6 +72,13 @@ class AudioHub {
         const audio = sound.cloneNode();
         audio.volume = 1;
         audio.currentTime = 0;
+        AudioHub.activeClones.add(audio);
+        audio.addEventListener('ended', () => AudioHub.activeClones.delete(audio));
+        audio.addEventListener('pause', () => {
+            if (audio.currentTime === 0 || audio.ended) {
+                AudioHub.activeClones.delete(audio);
+            }
+        });
         audio.play().catch(e => console.warn('Playback failed:', e));
     }
 
@@ -90,6 +99,11 @@ class AudioHub {
             sound.pause();
             sound.currentTime = 0;
         });
+        AudioHub.activeClones.forEach(clone => {
+            clone.pause();
+            clone.currentTime = 0;
+        });
+        AudioHub.activeClones.clear();
         const volumeSlider = document.getElementById('volume');
         if (volumeSlider) volumeSlider.value = 0.2;
         const instrumentImages = document.querySelectorAll('.sound_img');

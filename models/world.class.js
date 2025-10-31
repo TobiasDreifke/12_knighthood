@@ -81,6 +81,19 @@ class World {
 		this.IntervalIDs = [];
 	}
 
+	stopAllEnemyActivity() {
+		if (!this.level || !Array.isArray(this.level.enemies)) return;
+		this.level.enemies.forEach(enemy => {
+			if (!enemy) return;
+			if (typeof enemy.stopAllActivity === 'function') {
+				enemy.stopAllActivity();
+			} else if (enemy.animationInterval) {
+				clearInterval(enemy.animationInterval);
+				enemy.animationInterval = null;
+			}
+		});
+	}
+
 	lockInput() {
 		this.inputLocked = true;
 		if (this.keyboard) {
@@ -374,6 +387,7 @@ class World {
 		this.winSequenceStarted = true;
 		this.lockInput();
 		this.stopAllIntervals();
+		this.stopAllEnemyActivity();
 		this.isWinSequenceActive = true;
 		this.heroCharacter.setControlsLocked(true);
 		this.heroCharacter.startWinCelebration();
@@ -387,6 +401,7 @@ class World {
 		this.gameOverSequenceStarted = true;
 		this.lockInput();
 		this.stopAllIntervals();
+		this.stopAllEnemyActivity();
 		this.heroCharacter.setControlsLocked(true);
 		this.showGameOverScreen();
 		AudioHub.stopAll();

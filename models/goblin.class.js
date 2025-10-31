@@ -120,4 +120,15 @@ class Goblin extends MoveableObject {
             this.hurtTimeout = null;
         }
     }
+
+    stopAllActivity() {
+        if (this.animationInterval) {
+            clearInterval(this.animationInterval);
+            this.animationInterval = null;
+        }
+        this.clearHurtTimeout();
+        this.player = null;
+        this.frameIndex = 0;
+        this.lastFrameTime = 0;
+    }
 }

@@ -68,7 +68,7 @@ class SkeletonBoss extends MoveableObject {
 
         this.hitboxWidth = 95;
         this.hitboxOffsetTop = 35;
-        this.hitboxOffsetBottom = 35;
+        this.hitboxOffsetBottom = 65;
         this.hitboxOffsetLeft = 0;
         this.hitboxOffsetRight = 0;
 
@@ -271,5 +271,22 @@ class SkeletonBoss extends MoveableObject {
         this.hurtTimeout = setTimeout(() => {
             this.isHurt = false;
         }, hurtDuration);
+    }
+
+    stopAllActivity() {
+        if (this.animationInterval) {
+            clearInterval(this.animationInterval);
+            this.animationInterval = null;
+        }
+        this.clearAttackTimers();
+        if (this.hurtTimeout) {
+            clearTimeout(this.hurtTimeout);
+            this.hurtTimeout = null;
+        }
+        this.isAttacking = false;
+        this.attackCooldown = true;
+        this.player = null;
+        this.frameIndex = 0;
+        this.lastFrameTime = 0;
     }
 }
