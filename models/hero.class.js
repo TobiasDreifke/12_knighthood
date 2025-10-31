@@ -140,7 +140,7 @@ class Hero extends MoveableObject {
         "./01_assets/2_character_hero/16_attack_sword/adventurer-attack1-04.png",
     ];
 
-    IMAGES_SHITE_SWORD = [
+    IMAGES_SHEATHE_SWORD = [
         "./01_assets/2_character_hero/13_sword_shite/adventurer-swrd-shte-00.png",
         "./01_assets/2_character_hero/13_sword_shite/adventurer-swrd-shte-01.png",
         "./01_assets/2_character_hero/13_sword_shite/adventurer-swrd-shte-02.png",
@@ -161,6 +161,12 @@ class Hero extends MoveableObject {
         this.animation();
         this.applyGravity();
         this.isDead = isDead;
+        this.controlsLocked = false;
+        this.isCelebrating = false;
+        this.celebrationSheathFps = 2;
+        this.celebrationHoldDuration = 3000;
+        this.celebrationTotalDuration = 0;
+        this.celebrationSoundPlayed = false;
     }
 
     startDrawSwordAnimation() {
@@ -201,7 +207,7 @@ class Hero extends MoveableObject {
         this.loadImages(this.IMAGES_CROUCH);
         this.loadImages(this.IMAGES_DRAW_SWORD);
         this.loadImages(this.IMAGES_IDLE_SWORD);
-        this.loadImages(this.IMAGES_SHITE_SWORD);
+        this.loadImages(this.IMAGES_SHEATHE_SWORD);
         this.loadImages(this.IMAGES_WALK_SWORD);
     }
 
@@ -253,6 +259,10 @@ class Hero extends MoveableObject {
     }
 
     applyMovementInput(keyboard) {
+        if (this.controlsLocked || this.isCelebrating) {
+            return { slidePressed: false };
+        }
+
         const jumpPressed = keyboard.UP || keyboard.JUMP;
         const canJump = jumpPressed && !this.isAboveGround();
         AudioHub.playOncePerKey(this.jumpSoundFlag, AudioHub.JUMP_HERO, jumpPressed, canJump);
@@ -273,6 +283,11 @@ class Hero extends MoveableObject {
     }
 
     playPriorityAnimation(keyboard, movementState) {
+        if (this.isCelebrating) {
+            this.handleCelebration();
+            return true;
+        }
+
         if (this.isDead) {
             const deadImages = this.hasSword ? this.IMAGES_DEAD_SWORD : this.IMAGES_DEAD;
             this.playAnimationWithSpeed(deadImages, 14, false);
@@ -340,7 +355,12 @@ class Hero extends MoveableObject {
     }
 
     updateCameraPosition() {
-        this.world.camera_x = -this.x + 100;
+        if (this.world && this.world.isWinSequenceActive) {
+            const target = -this.x + (this.world.canvas.width / 2) - (this.width / 2);
+            this.world.camera_x += (target - this.world.camera_x) * 0.05;
+        } else {
+            this.world.camera_x = -this.x + 100;
+        }
     }
     playAttackAnimationOnce() {
         if (this.isAttacking) return; // avoid re-trigger
@@ -401,6 +421,52 @@ class Hero extends MoveableObject {
 
     triggerCastAnimation(type) {
         this.PlayCastAnimationOnce(type, true);
+    }
+
+    setControlsLocked(lock = true) {
+        this.controlsLocked = lock;
+        if (lock) {
+            this.attackPressed = false;
+        }
+    }
+
+    startWinCelebration() {
+        if (this.isCelebrating) return;
+        this.setControlsLocked(true);
+        this.isCelebrating = true;
+        this.celebrationSoundPlayed = false;
+        this.celebrationStart = Date.now();
+        this.celebrationSheathDuration = (this.IMAGES_SHEATHE_SWORD.length / this.celebrationSheathFps) * 1000;
+        this.celebrationTotalDuration = this.celebrationSheathDuration + this.celebrationHoldDuration;
+        this.frameIndex = 0;
+        this.lastFrameTime = 0;
+        this.speedY = 0;
+        this.castType = null;
+        this.isCasting = false;
+        this.hasSword = false;
+        this.collidingObject = false;
+    }
+
+    handleCelebration() {
+        if (!this.isCelebrating) return;
+        const elapsed = Date.now() - this.celebrationStart;
+        if (!this.celebrationSoundPlayed) {
+            AudioHub.playOne(AudioHub.SWORD_SHEATHE);
+            this.celebrationSoundPlayed = true;
+        }
+
+        if (elapsed < this.celebrationSheathDuration) {
+            this.playAnimationWithSpeed(this.IMAGES_SHEATHE_SWORD, this.celebrationSheathFps, false);
+        } else {
+            this.playAnimationWithSpeed(this.IMAGES_IDLE, 1);
+            if (elapsed >= this.celebrationTotalDuration) {
+                this.isCelebrating = false;
+            }
+        }
+    }
+
+    getCelebrationDuration() {
+        return this.celebrationTotalDuration;
     }
 
     dealDamageToEnemies() {
