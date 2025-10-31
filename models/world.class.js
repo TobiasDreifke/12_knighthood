@@ -377,6 +377,7 @@ class World {
 		this.isWinSequenceActive = true;
 		this.heroCharacter.setControlsLocked(true);
 		this.heroCharacter.startWinCelebration();
+		AudioHub.stopAll();
 		const celebrationDuration = (this.heroCharacter.getCelebrationDuration() || 0) + 500;
 		setTimeout(() => this.showEndScreen(), celebrationDuration);
 	}
@@ -388,6 +389,7 @@ class World {
 		this.stopAllIntervals();
 		this.heroCharacter.setControlsLocked(true);
 		this.showGameOverScreen();
+		AudioHub.stopAll();
 	}
 
 	showGameOverScreen() {
