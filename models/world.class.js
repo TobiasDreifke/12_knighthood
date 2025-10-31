@@ -16,6 +16,10 @@ class World {
 	lastHolyThrow = 0;
 	darkCooldownMs = 1000;
 	holyCooldownMs = 500;
+	winSequenceStarted = false;
+	gameOverSequenceStarted = false;
+	inputLocked = false;
+	isWinSequenceActive = false;
 
 	level = level_01
 
@@ -75,6 +79,17 @@ class World {
 	stopAllIntervals() {
 		this.IntervalIDs.forEach(clearInterval);
 		this.IntervalIDs = [];
+	}
+
+	lockInput() {
+		this.inputLocked = true;
+		if (this.keyboard) {
+			for (const key in this.keyboard) {
+				if (Object.prototype.hasOwnProperty.call(this.keyboard, key)) {
+					this.keyboard[key] = false;
+				}
+			}
+		}
 	}
 
 	throwHoly() {
@@ -168,6 +183,9 @@ class World {
 				this.heroCharacter.hit();
 				this.statusBarHealth.setPercentage(this.heroCharacter.health);
 				this.statusBarEnergy.setPercentage(this.heroCharacter.health);
+				if (this.heroCharacter.isDead) {
+					this.startGameOverSequence();
+				}
 			}
 
 			// if (enemy.isHitting(this.heroCharacter)) {
@@ -177,7 +195,7 @@ class World {
 			// }
 
 			if (enemy instanceof SkeletonBoss && enemy.isDead) {
-				this.showEndScreen();
+				this.startWinSequence();
 			}
 		});
 
@@ -245,6 +263,10 @@ class World {
 		this.level.throwables = this.level.throwables.filter(
 			(t) => !this.heroCharacter.isColliding(t)
 		);
+
+		if (this.heroCharacter.isDead) {
+			this.startGameOverSequence();
+		}
 	}
 
 
@@ -337,8 +359,8 @@ class World {
 	}
 
 	showEndScreen() {
-		this.isRunning = false;          // stop draw loop
-		this.stopAllIntervals();         // stop background intervals
+		this.isWinSequenceActive = false;
+		this.isRunning = false;
 
 		const endScreen = document.getElementById("end-screen");
 		endScreen.style.display = "flex";
@@ -347,4 +369,33 @@ class World {
 		}, 50);
 	}
 
+	startWinSequence() {
+		if (this.winSequenceStarted) return;
+		this.winSequenceStarted = true;
+		this.lockInput();
+		this.stopAllIntervals();
+		this.isWinSequenceActive = true;
+		this.heroCharacter.setControlsLocked(true);
+		this.heroCharacter.startWinCelebration();
+		const celebrationDuration = (this.heroCharacter.getCelebrationDuration() || 0) + 500;
+		setTimeout(() => this.showEndScreen(), celebrationDuration);
+	}
+
+	startGameOverSequence() {
+		if (this.gameOverSequenceStarted) return;
+		this.gameOverSequenceStarted = true;
+		this.lockInput();
+		this.stopAllIntervals();
+		this.heroCharacter.setControlsLocked(true);
+		this.showGameOverScreen();
+	}
+
+	showGameOverScreen() {
+		this.isRunning = false;
+		const gameOverScreen = document.getElementById("gameover-screen");
+		gameOverScreen.style.display = "flex";
+		setTimeout(() => {
+			gameOverScreen.style.opacity = 1;
+		}, 50);
+	}
 }
