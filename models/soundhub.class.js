@@ -24,6 +24,10 @@ class AudioHub {
     static GOBLIN_DEAD = new Audio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3');
 
     static activeClones = new Set();
+    static masterVolume = 0.2;
+    static previousVolume = 0.2;
+    static muteRestoreVolume = 0.2;
+    static isMuted = false;
 
     static allSounds = [
         AudioHub.WALK_HERO,
@@ -70,7 +74,7 @@ class AudioHub {
 
     static playOne(sound) {
         const audio = sound.cloneNode();
-        audio.volume = 1;
+        audio.volume = this.getEffectiveVolume();
         audio.currentTime = 0;
         AudioHub.activeClones.add(audio);
         audio.addEventListener('ended', () => AudioHub.activeClones.delete(audio));
@@ -80,6 +84,50 @@ class AudioHub {
             }
         });
         audio.play().catch(e => console.warn('Playback failed:', e));
+    }
+
+    static applyVolumeToAll(volume) {
+        this.allSounds.forEach(sound => sound.volume = volume);
+        this.activeClones.forEach(clone => clone.volume = volume);
+    }
+
+    static getEffectiveVolume() {
+        return this.isMuted ? 0 : this.masterVolume;
+    }
+
+    static setVolume(value) {
+        const numericValue = Number(value);
+        const normalized = Math.max(0, Math.min(1, Number.isFinite(numericValue) ? numericValue : 0));
+        this.masterVolume = normalized;
+        this.muteRestoreVolume = normalized;
+        if (normalized > 0) {
+            this.previousVolume = normalized;
+            this.isMuted = false;
+        }
+        this.applyVolumeToAll(this.getEffectiveVolume());
+        return { volume: this.masterVolume, isMuted: this.isMuted };
+    }
+
+    static toggleMute() {
+        if (this.isMuted) {
+            this.isMuted = false;
+            if (typeof this.muteRestoreVolume === 'number') {
+                this.masterVolume = this.muteRestoreVolume;
+            }
+            this.applyVolumeToAll(this.getEffectiveVolume());
+        } else {
+            this.muteRestoreVolume = this.masterVolume;
+            if (this.masterVolume > 0) {
+                this.previousVolume = this.masterVolume;
+            }
+            this.isMuted = true;
+            this.applyVolumeToAll(0);
+        }
+        return { volume: this.masterVolume, isMuted: this.isMuted };
+    }
+
+    static initializeVolume() {
+        this.applyVolumeToAll(this.getEffectiveVolume());
     }
 
     static playOncePerKey(flagRef, sound, isPressed, canTrigger = true) {
@@ -105,7 +153,16 @@ class AudioHub {
         });
         AudioHub.activeClones.clear();
         const volumeSlider = document.getElementById('volume');
-        if (volumeSlider) volumeSlider.value = 0.2;
+        const defaultVolume = 0.2;
+        this.isMuted = false;
+        this.setVolume(defaultVolume);
+        if (volumeSlider) volumeSlider.value = this.masterVolume;
+        const muteButton = document.getElementById('mute-button');
+        if (muteButton) {
+            muteButton.textContent = 'Mute';
+            muteButton.setAttribute('aria-pressed', 'false');
+            muteButton.classList.remove('is-muted');
+        }
         const instrumentImages = document.querySelectorAll('.sound_img');
         instrumentImages.forEach(img => img.classList.remove('active'));
     }
@@ -116,3 +173,5 @@ class AudioHub {
         if (instrumentImg) instrumentImg.classList.remove('active');
     }
 }
+
+AudioHub.initializeVolume();

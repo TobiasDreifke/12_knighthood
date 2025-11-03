@@ -8,4 +8,5 @@ class KeyboardMapping {
     THROWHOLY = false;
     THROWDARK = false;
     ATTACK = false;
+    PAUSE = false;
 }

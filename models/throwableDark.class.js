@@ -74,6 +74,7 @@ class ThrowDark extends MoveableObject {
         this.isAnimating = true;
         let frame = 0;
         this.animationInterval = setInterval(() => {
+            if (this.world?.isPaused) return;
             if (this.isImpacting) return;
             this.img = this.imageCache[images[frame]];
             frame = (frame + 1) % images.length;
@@ -110,6 +111,7 @@ class ThrowDark extends MoveableObject {
 
         if (this.throwInterval) clearInterval(this.throwInterval);
         this.throwInterval = setInterval(() => {
+            if (this.world?.isPaused) return;
             if (this.isImpacting) return;
             this.x += this.speedX;
         }, 25);
@@ -118,6 +120,7 @@ class ThrowDark extends MoveableObject {
     applyGravity() {
         if (this.gravityInterval) clearInterval(this.gravityInterval);
         this.gravityInterval = setInterval(() => {
+            if (this.world?.isPaused) return;
             if (this.isImpacting) return;
             if (this.y < this.groundY || this.speedY > 0) {
                 this.y -= this.speedY;
@@ -152,6 +155,7 @@ class ThrowDark extends MoveableObject {
         const fps = 20;
 
         const playNextFrame = () => {
+            if (this.world?.isPaused) return;
             if (frame >= frames.length) {
                 clearInterval(this.animationInterval);
                 this.animationInterval = null;

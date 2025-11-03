@@ -44,6 +44,7 @@ class Cloud extends MoveableObject {
         const anchorY = this.y;
 
         setInterval(() => {
+            if (this.world?.isPaused) return;
             const now = Date.now();
             this.x = anchorX + Math.sin(now / horizontalSpeed) * horizontalAmplitude;
             this.y = anchorY + Math.sin(now / verticalSpeed) * verticalAmplitude;

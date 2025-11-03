@@ -77,6 +77,7 @@ class ThrowHoly extends MoveableObject {
         this.isAnimating = true;
         let frameIndex = 0;
         this.animationInterval = setInterval(() => {
+            if (this.world?.isPaused) return;
             if (this.isImpacting) return;
             this.img = this.imageCache[images[frameIndex]];
             frameIndex = (frameIndex + 1) % images.length;
@@ -112,6 +113,7 @@ class ThrowHoly extends MoveableObject {
 
         if (this.throwInterval) clearInterval(this.throwInterval);
         this.throwInterval = setInterval(() => {
+            if (this.world?.isPaused) return;
             if (this.isImpacting) return;
             this.x += this.speedX;
         }, 25);
@@ -120,6 +122,7 @@ class ThrowHoly extends MoveableObject {
     applyGravity() {
         if (this.gravityInterval) clearInterval(this.gravityInterval);
         this.gravityInterval = setInterval(() => {
+            if (this.world?.isPaused) return;
             if (this.isImpacting) return;
             if (this.y < this.groundY || this.speedY > 0) {
                 this.y -= this.speedY;
@@ -164,6 +167,7 @@ class ThrowHoly extends MoveableObject {
         const fps = 20;
 
         const playFrame = () => {
+            if (this.world?.isPaused) return;
             if (frameIndex >= frames.length) {
                 clearInterval(this.animationInterval);
                 this.animationInterval = null;

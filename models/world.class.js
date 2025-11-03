@@ -20,6 +20,8 @@ class World {
 	gameOverSequenceStarted = false;
 	inputLocked = false;
 	isWinSequenceActive = false;
+	isPaused = false;
+	hasStarted = false;
 
 	level = level_01
 
@@ -45,14 +47,24 @@ class World {
 	}
 
 	start() {
+		this.hasStarted = true;
+		this.isPaused = false;
+		this.isRunning = true;
 		this.draw();  // start rendering loop
 		this.run();   // start intervals (collision checking, throwing, etc.)
 	}
 	setWorld() {
 		this.heroCharacter.world = this;
 		this.statusBarAmmo.world = this;
+		this.attachWorldReference(this.statusBarHealth);
+		this.attachWorldReference(this.statusBarEnergy);
+		this.attachWorldReference(this.level.backgroundObjects);
+		this.attachWorldReference(this.level.clouds);
+		this.attachWorldReference(this.level.throwables);
+		this.attachWorldReference(this.level.pickables);
 
 		this.level.enemies.forEach(enemy => {
+			this.attachWorldReference(enemy);
 			if (enemy instanceof SkeletonBoss || enemy instanceof Goblin) {
 				enemy.player = this.heroCharacter;
 			}
@@ -65,11 +77,13 @@ class World {
 
 	run() {
 		const collisionId = setInterval(() => {
+			if (this.isPaused) return;
 			this.checkCollisions();
 		}, 200);
 		this.IntervalIDs.push(collisionId);
 
 		const throwId = setInterval(() => {
+			if (this.isPaused) return;
 			this.throwHoly();
 			this.throwDark();
 		}, 10);
@@ -105,7 +119,50 @@ class World {
 		}
 	}
 
+	unlockInput() {
+		this.inputLocked = false;
+	}
+
+	pauseGame() {
+		if (this.isPaused || !this.hasStarted || this.gameOverSequenceStarted || this.winSequenceStarted || this.isWinSequenceActive) return false;
+		this.isPaused = true;
+		this.lockInput();
+		if (this.heroCharacter) {
+			this.heroCharacter.setControlsLocked(true);
+		}
+		return true;
+	}
+
+	resumeGame() {
+		if (!this.isPaused) return false;
+		this.isPaused = false;
+		this.unlockInput();
+		if (this.heroCharacter) {
+			this.heroCharacter.setControlsLocked(false);
+		}
+		return true;
+	}
+
+	togglePause() {
+		if (this.isPaused) {
+			return this.resumeGame();
+		}
+		return this.pauseGame();
+	}
+
+	attachWorldReference(target) {
+		if (!target) return;
+		if (Array.isArray(target)) {
+			target.forEach(entity => this.attachWorldReference(entity));
+			return;
+		}
+		if (typeof target === 'object') {
+			target.world = this;
+		}
+	}
+
 	throwHoly() {
+		if (this.isPaused) return;
 		if (!this.keyboard.THROWHOLY) return;
 
 		const now = Date.now();
@@ -116,6 +173,7 @@ class World {
 		console.log("Throwing holy bottle, ammo left:", this.holyAmmo.length);
 
 		const holy = this.holyAmmo.pop();
+		holy.world = this;
 		const facingLeft = this.heroCharacter.otherDirection;
 
 		holy.x = this.heroCharacter.x + (facingLeft ? -50 : 75);
@@ -136,6 +194,7 @@ class World {
 	}
 
 	throwDark() {
+		if (this.isPaused) return;
 		if (!this.keyboard.THROWDARK) return;
 
 		const now = Date.now();
@@ -146,6 +205,7 @@ class World {
 		console.log("Throwing dark bottle, ammo left:", this.darkAmmo.length);
 
 		const dark = this.darkAmmo.pop();
+		dark.world = this;
 		const facingLeft = this.heroCharacter.otherDirection;
 
 		dark.x = this.heroCharacter.x + (facingLeft ? -50 : 75);
@@ -181,6 +241,7 @@ class World {
 	}
 
 	checkCollisions() {
+		if (this.isPaused) return;
 		this.level.enemies.forEach((enemy) => {
 
 			// player attack -> enemy gets hit

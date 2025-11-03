@@ -2,26 +2,151 @@
     margin: 0
 }
 
+h1 {
+    font-size: 2rem;
+    text-align: center;
+}
+
 body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    /* height: 100svh; */
+
+    /* position: relative; */
+    /* height: 100svh;
+    width: 100%; */
+    /* background-image: url("./01_assets/5_background/layers/parallax-demon-woods-bg.png");
+    background-image: url("./01_assets/5_background/layers/3_third_layer/parallax-demon-woods-far-trees.png");
+    background-image: url("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png");
+    background-image: url("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png"); */
+    background-size: cover;
+}
+
+main {
+    /* height: 100%;
+    width: 100%; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.game_screen_wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    /* height: 100%;
+    width: 100%; */
+
+    height: calc(100dvh - 2rem);
 }
 
 canvas {
     background-color: rgb(87, 87, 87);
+    position: relative;
+
+    /* display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; */
+    /* width: 720px;
+    height: 480px;
+    margin: 0;
+    padding: 0; */
+    /* height: 100%;
+    width: 100%; */
+}
+
+.toggle_button_wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sound_container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#start-screen .sound_container .toggle_button {
+    padding: 10px 18px;
+    font-size: 1rem;
+}
+
+.toggle_button.is-muted {
+    opacity: 0.7;
+}
+
+.volume_slider {
+    width: 160px;
+}
+
+.slider_label {
+    color: #fff;
+    font-size: 1rem;
+}
+
+
+
+#pause-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+#pause-screen.overlay_visible {
+    display: flex;
+    opacity: 1;
+}
+
+.pause_content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    color: #fff;
+    text-align: center;
+}
+
+.pause_actions {
+    display: flex;
+    gap: 16px;
 }
 
 #start-screen {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 720px;
-    height: 480px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+
     background-color: rgba(0, 0, 0, 0.8);
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
+
+    /* margin-top: 1rem;
+    margin-bottom: 1rem; */
+
     z-index: 10;
     opacity: 1;
     transition: opacity 1s ease;
@@ -37,10 +162,12 @@ canvas {
 
 #end-screen {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 720px;
-    height: 480px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+
     background-color: rgba(0, 0, 0, 0.8);
     display: none;
     /* hidden initially */
@@ -50,6 +177,37 @@ canvas {
     z-index: 10;
     opacity: 0;
     transition: opacity 1s ease;
+}
+
+#gameover-screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    /* hidden initially */
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+#gameover-screen h2 {
+    color: white;
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+#gameover-restart-button {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    cursor: pointer;
 }
 
 #end-screen h2 {

@@ -54,6 +54,9 @@ class Goblin extends MoveableObject {
 
     animation() {
         this.animationInterval = setInterval(() => {
+            const world = this.player?.world || this.world;
+            if (world && world.isPaused) return;
+
             if (this.isDead) {
                 this.playAnimationWithSpeed(this.IMAGES_DEAD, 12, false);
                 return;

@@ -111,6 +111,8 @@ class SkeletonBoss extends MoveableObject {
 
     animation() {
         this.animationInterval = setInterval(() => {
+            const world = this.player?.world || this.world;
+            if (world && world.isPaused) return;
             if (!this.player) return;
 
             if (this.isDead) {
@@ -218,6 +220,8 @@ class SkeletonBoss extends MoveableObject {
     }
 
     attackPlayer() {
+        const world = this.player?.world || this.world;
+        if (world && world.isPaused) return;
         if (!this.player) return;
 
         const hitbox = this.getHitbox();

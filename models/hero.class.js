@@ -176,6 +176,7 @@ class Hero extends MoveableObject {
         let currentFrame = 0;
 
         const drawInterval = setInterval(() => {
+            if (this.world?.isPaused) return;
             if (currentFrame < this.IMAGES_DRAW_SWORD.length) {
                 const path = this.IMAGES_DRAW_SWORD[currentFrame];
                 this.img = this.imageCache[path];
@@ -255,6 +256,7 @@ class Hero extends MoveableObject {
     }
 
     shouldSkipAnimation() {
+        if (this.world?.isPaused) return true;
         return this.isDrawingSword;
     }
 
@@ -474,6 +476,7 @@ class Hero extends MoveableObject {
     }
 
     dealDamageToEnemies() {
+        if (this.world?.isPaused) return;
         this.world.level.enemies.forEach(enemy => {
             const hitbox = this.getHitbox();
             const enemyHurtbox = enemy.getHurtbox();

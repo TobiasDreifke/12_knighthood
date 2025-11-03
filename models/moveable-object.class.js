@@ -109,8 +109,17 @@ class MoveableObject extends DrawableObject {
 		}
 	}
 
+	getWorld() {
+		if (this.world) return this.world;
+		if (this.player && this.player.world) return this.player.world;
+		if (this.owner && this.owner.world) return this.owner.world;
+		return null;
+	}
+
 	applyGravity() {
 		setInterval(() => {
+			const world = this.getWorld();
+			if (world && world.isPaused) return;
 			if (this.y < this.groundY || this.speedY > 0) {
 				this.y -= this.speedY;
 				this.speedY -= this.acceleration;
