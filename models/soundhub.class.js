@@ -152,17 +152,19 @@ class AudioHub {
             clone.currentTime = 0;
         });
         AudioHub.activeClones.clear();
-        const volumeSlider = document.getElementById('volume');
         const defaultVolume = 0.2;
         this.isMuted = false;
         this.setVolume(defaultVolume);
-        if (volumeSlider) volumeSlider.value = this.masterVolume;
-        const muteButton = document.getElementById('mute-button');
-        if (muteButton) {
-            muteButton.textContent = 'Mute';
-            muteButton.setAttribute('aria-pressed', 'false');
-            muteButton.classList.remove('is-muted');
-        }
+        document.querySelectorAll('.sound-volume').forEach(element => {
+            if (element instanceof HTMLInputElement) {
+                element.value = String(this.masterVolume);
+            }
+        });
+        document.querySelectorAll('.sound-mute').forEach(button => {
+            button.textContent = 'Mute';
+            button.setAttribute('aria-pressed', 'false');
+            button.classList.remove('is-muted');
+        });
         const instrumentImages = document.querySelectorAll('.sound_img');
         instrumentImages.forEach(img => img.classList.remove('active'));
     }

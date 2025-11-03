@@ -2,6 +2,7 @@ let canvas;
 let world;
 let keyboard = new KeyboardMapping()
 let pressedKey = [];
+let orientationPauseActive = false;
 
 function init() {
     canvas = document.getElementById("canvas");
@@ -11,6 +12,8 @@ function init() {
     setupStartButton();
     setupSoundControls();
     setupPauseMenu();
+    setupFullscreenToggle();
+    setupOrientationGuard();
 
     const restartButton = document.getElementById("restart-button");
     restartButton.addEventListener("click", () => {
@@ -38,37 +41,134 @@ function setupStartButton() {
 }
 
 function setupSoundControls() {
-    const volumeSlider = document.getElementById("volume");
-    const muteButton = document.getElementById("mute-button");
+    const volumeSliders = Array.from(document.querySelectorAll(".sound-volume"));
+    const muteButtons = Array.from(document.querySelectorAll(".sound-mute"));
 
-    const updateMuteButton = () => {
-        if (!muteButton) return;
-        const isMuted = AudioHub.isMuted;
-        muteButton.textContent = isMuted ? "Unmute" : "Mute";
-        muteButton.setAttribute("aria-pressed", String(isMuted));
-        muteButton.classList.toggle("is-muted", isMuted);
+    if (!volumeSliders.length && !muteButtons.length) return;
+
+    const syncSliderValues = value => {
+        volumeSliders.forEach(slider => {
+            if (slider instanceof HTMLInputElement) {
+                slider.value = value;
+            }
+        });
     };
 
-    if (volumeSlider) {
-        volumeSlider.value = String(AudioHub.masterVolume);
-        volumeSlider.addEventListener("input", event => {
-            const slider = event.target;
-            if (!(slider instanceof HTMLInputElement)) return;
-            const value = parseFloat(slider.value);
+    const updateMuteButtons = () => {
+        muteButtons.forEach(button => {
+            const isMuted = AudioHub.isMuted;
+            button.textContent = isMuted ? "Unmute" : "Mute";
+            button.setAttribute("aria-pressed", String(isMuted));
+            button.classList.toggle("is-muted", isMuted);
+        });
+    };
+
+    volumeSliders.forEach(slider => {
+        if (!(slider instanceof HTMLInputElement)) return;
+        slider.value = AudioHub.isMuted ? "0" : String(AudioHub.masterVolume);
+        slider.addEventListener("input", event => {
+            const input = event.target;
+            if (!(input instanceof HTMLInputElement)) return;
+            const value = parseFloat(input.value);
             AudioHub.setVolume(value);
-            updateMuteButton();
+            syncSliderValues(String(AudioHub.masterVolume));
+            updateMuteButtons();
         });
-    }
+    });
 
-    if (muteButton && volumeSlider) {
-        muteButton.addEventListener("click", () => {
+    muteButtons.forEach(button => {
+        button.addEventListener("click", () => {
             const { isMuted, volume } = AudioHub.toggleMute();
-            volumeSlider.value = String(volume);
-            updateMuteButton();
+            const sliderValue = isMuted ? "0" : String(volume);
+            syncSliderValues(sliderValue);
+            updateMuteButtons();
         });
+    });
+
+    syncSliderValues(AudioHub.isMuted ? "0" : String(AudioHub.masterVolume));
+    updateMuteButtons();
+}
+
+function setupFullscreenToggle() {
+    const fullscreenButtons = Array.from(document.querySelectorAll(".fullscreen-toggle"));
+    const gameWrapper = document.querySelector(".game_screen_wrapper");
+
+    if (!fullscreenButtons.length || !gameWrapper) return;
+
+    const supportsFullscreen = typeof gameWrapper.requestFullscreen === "function" && typeof document.exitFullscreen === "function";
+    if (!document.fullscreenEnabled && !supportsFullscreen) {
+        fullscreenButtons.forEach(button => {
+            button.disabled = true;
+            button.title = "Fullscreen not supported in this browser";
+        });
+        return;
     }
 
-    updateMuteButton();
+    const isInFullscreen = () => document.fullscreenElement === gameWrapper;
+
+    const updateButtons = () => {
+        const active = isInFullscreen();
+        fullscreenButtons.forEach(button => {
+            button.textContent = active ? "Exit Fullscreen" : "Fullscreen";
+            button.setAttribute("aria-pressed", String(active));
+        });
+    };
+
+    fullscreenButtons.forEach(button => {
+        button.addEventListener("click", async () => {
+            try {
+                if (isInFullscreen()) {
+                    if (document.exitFullscreen) {
+                        await document.exitFullscreen();
+                    }
+                } else if (gameWrapper.requestFullscreen) {
+                    await gameWrapper.requestFullscreen();
+                }
+            } catch (error) {
+                console.error("Fullscreen toggle failed:", error);
+            }
+        });
+    });
+
+    document.addEventListener("fullscreenchange", () => {
+        const active = isInFullscreen();
+        gameWrapper.classList.toggle("is-fullscreen", active);
+        updateButtons();
+    });
+
+    updateButtons();
+}
+
+function setupOrientationGuard() {
+    const orientationOverlay = document.getElementById("orientation-overlay");
+    const startButton = document.getElementById("start-button");
+
+    if (!orientationOverlay) return;
+
+    const isPortraitPhone = () => window.innerHeight > window.innerWidth && window.innerWidth < 900;
+
+    const applyOrientationState = () => {
+        const portrait = isPortraitPhone();
+        orientationOverlay.classList.toggle("visible", portrait);
+        if (startButton) startButton.disabled = portrait;
+
+        if (!world || !world.hasStarted) return;
+
+        if (portrait) {
+            if (!world.isPaused && !orientationPauseActive) {
+                orientationPauseActive = world.pauseGame();
+            }
+        } else {
+            if (orientationPauseActive && world.isPaused) {
+                world.resumeGame();
+            }
+            orientationPauseActive = false;
+        }
+    };
+
+    applyOrientationState();
+    window.addEventListener("resize", applyOrientationState);
+    window.addEventListener("orientationchange", applyOrientationState);
 }
 
 function setupPauseMenu() {
@@ -115,7 +215,7 @@ function hidePauseOverlay() {
 }
 
 window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
+    if (event.key === "p") {
         if (event.repeat) return;
         event.preventDefault();
         togglePause();

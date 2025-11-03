@@ -48,11 +48,11 @@
     <header></header>
     <main>
         <h1>KNIGHTHOOD</h1>
-        <div class="game_screen_wrapper"> 
-            
+        <div class="game_screen_wrapper">
+
             <!-- Canvas for the game -->
             <canvas id="canvas" width="720" height="480"></canvas>
-                        
+
             <!-- Pause screen overlay -->
             <div id="pause-screen" class="overlay">
                 <div class="pause_content">
@@ -61,17 +61,27 @@
                         <button id="pause-continue-button" class="toggle_button">Continue</button>
                         <button id="pause-retry-button" class="toggle_button">Retry</button>
                     </div>
+                    <div class="toggle_button_wrapper">
+                        <div class="sound_container">
+                            <button id="pause-mute-button" class="toggle_button sound-mute">Mute</button>
+                            <label class="slider_label" for="pause-volume">Volume</label>
+                            <input id="pause-volume" class="volume_slider sound-volume" type="range" min="0" max="1"
+                                step="0.01" value="0.2">
+                        </div>
+                        <button class="toggle_button fullscreen-toggle" id="pause-fullscreen-button">Fullscreen</button>
+                    </div>
                 </div>
             </div>
             <!-- Start screen overlay -->
             <div id="start-screen">
                 <div class="toggle_button_wrapper">
                     <div class="sound_container">
-                        <button id="mute-button" class="toggle_button">Mute</button>
-                        <label class="slider_label" for="volume">Volume</label>
-                        <input id="volume" class="volume_slider" type="range" min="0" max="1" step="0.01" value="0.2">
+                        <button id="start-mute-button" class="toggle_button sound-mute">Mute</button>
+                        <label class="slider_label" for="start-volume">Volume</label>
+                        <input id="start-volume" class="volume_slider sound-volume" type="range" min="0" max="1"
+                            step="0.01" value="0.2">
                     </div>
-                    <button class="toggle_button" id="fullscreen-button">Fullscreen</button>
+                    <button class="toggle_button fullscreen-toggle" id="start-fullscreen-button">Fullscreen</button>
                 </div>
                 <button id="start-button">Start Game</button>
                 <button>IMPRESUM</button>
@@ -85,6 +95,13 @@
             <div id="gameover-screen" style="display: none; opacity: 0;">
                 <h2>You Lose!</h2>
                 <button id="gameover-restart-button">Try Again</button>
+            </div>
+
+            <div id="orientation-overlay" class="overlay orientation-overlay">
+                <div class="orientation_content">
+                    <h2>Rotate Your Device</h2>
+                    <p>For the best experience, turn your phone sideways.</p>
+                </div>
             </div>
         </div>
     </main>
