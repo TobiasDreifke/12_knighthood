@@ -260,13 +260,30 @@ class SkeletonBoss extends MoveableObject {
         if (!this.isDead) {
             this.stopAttackImmediately();
             this.isHurt = true;
+            AudioHub.playOne(AudioHub.SKELETON_HURT);
             const hurtDuration = (this.IMAGES_HURT.length / 12) * 1000;
             setTimeout(() => {
                 this.isHurt = false;
             }, hurtDuration);
         } else {
+            AudioHub.playOne(AudioHub.SKELETON_DEAD);
             this.clearAttackTimers();
         }
+    }
+
+    onAnimationFrame(images, frameIndex) {
+        const animationName = this.getAnimationName(images);
+        if (!animationName) return;
+        AudioHub.syncSound(`SKELETON_${animationName}`, frameIndex);
+    }
+
+    getAnimationName(images) {
+        for (const key in this) {
+            if (Object.prototype.hasOwnProperty.call(this, key) && this[key] === images && key.startsWith('IMAGES_')) {
+                return key;
+            }
+        }
+        return null;
     }
 
     scheduleHurtEnd() {

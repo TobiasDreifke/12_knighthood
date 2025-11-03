@@ -105,16 +105,33 @@ class Goblin extends MoveableObject {
         super.hit(amount);
 
         if (this.isDead) {
+            AudioHub.playOne(AudioHub.GOBLIN_DEAD);
             this.clearHurtTimeout();
             return;
         }
 
+        AudioHub.playOne(AudioHub.GOBLIN_HURT);
         this.isHurt = true;
         this.clearHurtTimeout();
         const hurtDuration = (this.IMAGES_HURT.length / 14) * 1000;
         this.hurtTimeout = setTimeout(() => {
             this.isHurt = false;
         }, hurtDuration);
+    }
+
+    onAnimationFrame(images, frameIndex) {
+        const animationName = this.getAnimationName(images);
+        if (!animationName) return;
+        AudioHub.syncSound(`GOBLIN_${animationName}`, frameIndex);
+    }
+
+    getAnimationName(images) {
+        for (const key in this) {
+            if (Object.prototype.hasOwnProperty.call(this, key) && this[key] === images && key.startsWith('IMAGES_')) {
+                return key;
+            }
+        }
+        return null;
     }
 
     clearHurtTimeout() {

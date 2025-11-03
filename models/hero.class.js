@@ -167,6 +167,7 @@ class Hero extends MoveableObject {
         this.celebrationHoldDuration = 3000;
         this.celebrationTotalDuration = 0;
         this.celebrationSoundPlayed = false;
+        this.deathSoundPlayed = false;
     }
 
     startDrawSwordAnimation() {
@@ -287,23 +288,33 @@ class Hero extends MoveableObject {
     playPriorityAnimation(keyboard, movementState) {
         this.resetHurtBox();
         if (this.isCelebrating) {
+            AudioHub.stopHeroIdleLoop();
             this.handleCelebration();
             return true;
         }
 
         if (this.isDead) {
+            AudioHub.stopHeroIdleLoop();
+            if (!this.deathSoundPlayed) {
+                AudioHub.playHeroDeath();
+                this.deathSoundPlayed = true;
+            }
             const deadImages = this.hasSword ? this.IMAGES_DEAD_SWORD : this.IMAGES_DEAD;
             this.playAnimationWithSpeed(deadImages, 14, false);
             return true;
         }
+        this.deathSoundPlayed = false;
 
         if (this.isHurt) {
+            AudioHub.stopHeroIdleLoop();
+            AudioHub.playHeroHurt();
             this.playAnimationWithSpeed(this.IMAGES_HURT, 16, false);
             this.isHurt = false;
             return true;
         }
 
         if (this.isAttacking) {
+            AudioHub.stopHeroIdleLoop();
             this.setCrouchHurtBox();
             const attackImages = this.hasSword ? this.IMAGES_ATTACK_SWORD : this.IMAGES_ATTACK;
             this.playAnimationWithSpeed(attackImages, 20, false);
@@ -311,12 +322,14 @@ class Hero extends MoveableObject {
         }
 
         if (this.isCasting && this.castType) {
+            AudioHub.stopHeroIdleLoop();
             const castImages = this.castType === 'DARK' ? this.IMAGES_CAST_DARK : this.IMAGES_CAST_HOLY;
             this.playAnimationWithSpeed(castImages, 20, false);
             return true;
         }
 
         if (keyboard.ATTACK) {
+            AudioHub.stopHeroIdleLoop();
             if (!this.attackPressed) {
                 this.attackPressed = true;
                 this.playAttackAnimationOnce();
@@ -325,6 +338,7 @@ class Hero extends MoveableObject {
         }
 
         if (movementState.slidePressed) {
+            AudioHub.stopHeroIdleLoop();
             this.setSlideHurtBox();
             this.playAnimationWithSpeed(this.IMAGES_SLIDE, 18);
             return true;
@@ -335,6 +349,7 @@ class Hero extends MoveableObject {
 
     playMovementAnimation(keyboard) {
         if (keyboard.DOWN) {
+            AudioHub.stopHeroIdleLoop();
             this.crouch();
             this.setCrouchHurtBox();
             this.playAnimationWithSpeed(this.IMAGES_CROUCH, 12);
@@ -342,6 +357,7 @@ class Hero extends MoveableObject {
         }
 
         if (this.isAboveGround()) {
+            AudioHub.stopHeroIdleLoop();
             if (this.speedY > 0) {
                 this.playAnimationWithSpeed(this.IMAGES_JUMP, 14);
             } else if (this.speedY < 0) {
@@ -351,11 +367,13 @@ class Hero extends MoveableObject {
         }
 
         if (keyboard.RIGHT || keyboard.LEFT) {
+            AudioHub.stopHeroIdleLoop();
             const walkImages = this.hasSword ? this.IMAGES_WALK_SWORD : this.IMAGES_WALK;
             this.playAnimationWithSpeed(walkImages, 16);
             return;
         }
 
+        AudioHub.playHeroIdleLoop();
         const idleImages = this.hasSword ? this.IMAGES_IDLE_SWORD : this.IMAGES_IDLE;
         this.playAnimationWithSpeed(idleImages, 12);
     }

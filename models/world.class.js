@@ -131,6 +131,7 @@ class World {
 		if (this.heroCharacter) {
 			this.heroCharacter.setControlsLocked(true);
 		}
+		AudioHub.stopHeroIdleLoop();
 		return true;
 	}
 
