@@ -3,6 +3,7 @@ let world;
 let keyboard = new KeyboardMapping()
 let pressedKey = [];
 let orientationPauseActive = false;
+let touchControlsManager = null;
 
 function init() {
     canvas = document.getElementById("canvas");
@@ -13,6 +14,7 @@ function init() {
     setupSoundControls();
     setupPauseMenu();
     setupFullscreenToggle();
+    touchControlsManager = setupTouchControls();
     setupOrientationGuard();
 
     const restartButton = document.getElementById("restart-button");
@@ -139,6 +141,79 @@ function setupFullscreenToggle() {
     updateButtons();
 }
 
+function setupTouchControls() {
+    const container = document.getElementById("touch-controls");
+    if (!container) return null;
+
+    const controlBindings = {
+        left: "LEFT",
+        right: "RIGHT",
+        jump: "JUMP",
+        attack: "ATTACK",
+        throwholy: "THROWHOLY",
+        throwdark: "THROWDARK",
+    };
+
+    const activeControls = new Set();
+
+    const setKeyState = (control, isActive) => {
+        const key = controlBindings[control];
+        if (!key) return;
+        if (!keyboard) return;
+        if (!world || !world.hasStarted) {
+            if (!isActive) keyboard[key] = false;
+            return;
+        }
+        if (world.inputLocked && isActive) return;
+        keyboard[key] = isActive;
+    };
+
+    const handleActivate = (event) => {
+        event.preventDefault();
+        const button = event.currentTarget;
+        const control = button.dataset.control;
+        if (!control) return;
+        activeControls.add(control);
+        setKeyState(control, true);
+        if (button.setPointerCapture) {
+            button.setPointerCapture(event.pointerId);
+        }
+    };
+
+    const handleDeactivate = (event) => {
+        const button = event.currentTarget;
+        const control = button.dataset.control;
+        if (!control) return;
+        activeControls.delete(control);
+        setKeyState(control, false);
+        if (button.releasePointerCapture) {
+            button.releasePointerCapture(event.pointerId);
+        }
+    };
+
+    container.querySelectorAll("[data-control]").forEach(button => {
+        button.addEventListener("pointerdown", handleActivate, { passive: false });
+        ["pointerup", "pointercancel", "pointerleave"].forEach(action => {
+            button.addEventListener(action, handleDeactivate);
+        });
+    });
+
+    const releaseAll = () => {
+        activeControls.forEach(control => setKeyState(control, false));
+        activeControls.clear();
+    };
+
+    return {
+        setVisible(visible) {
+            container.classList.toggle("visible", !!visible);
+            if (!visible) {
+                releaseAll();
+            }
+        },
+        releaseAll,
+    };
+}
+
 function setupOrientationGuard() {
     const orientationOverlay = document.getElementById("orientation-overlay");
     const startButton = document.getElementById("start-button");
@@ -151,6 +226,12 @@ function setupOrientationGuard() {
         const portrait = isPortraitPhone();
         orientationOverlay.classList.toggle("visible", portrait);
         if (startButton) startButton.disabled = portrait;
+
+        const shouldShowTouchControls = !portrait && window.innerWidth < 900;
+        if (touchControlsManager) {
+            touchControlsManager.setVisible(shouldShowTouchControls);
+            if (portrait) touchControlsManager.releaseAll();
+        }
 
         if (!world || !world.hasStarted) return;
 

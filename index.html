@@ -47,9 +47,9 @@
 <body onload="init()">
     <header></header>
     <main>
-        <h1>KNIGHTHOOD</h1>
+        
         <div class="game_screen_wrapper">
-
+<h1>KNIGHTHOOD</h1>
             <!-- Canvas for the game -->
             <canvas id="canvas" width="720" height="480"></canvas>
 
@@ -95,6 +95,19 @@
             <div id="gameover-screen" style="display: none; opacity: 0;">
                 <h2>You Lose!</h2>
                 <button id="gameover-restart-button">Try Again</button>
+            </div>
+
+            <div id="touch-controls" class="touch-controls">
+                <div class="touch-controls__group touch-controls__movement">
+                    <button class="touch-button" data-control="left" aria-label="Move Left">◀</button>
+                    <button class="touch-button" data-control="right" aria-label="Move Right">▶</button>
+                </div>
+                <div class="touch-controls__group touch-controls__actions">
+                    <button class="touch-button primary" data-control="jump" aria-label="Jump">Jump</button>
+                    <button class="touch-button" data-control="attack" aria-label="Attack">Attack</button>
+                    <button class="touch-button" data-control="throwholy" aria-label="Throw Holy">Holy</button>
+                    <button class="touch-button" data-control="throwdark" aria-label="Throw Dark">Dark</button>
+                </div>
             </div>
 
             <div id="orientation-overlay" class="overlay orientation-overlay">

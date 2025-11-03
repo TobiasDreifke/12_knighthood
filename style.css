@@ -60,6 +60,8 @@ main {
 canvas {
     background-color: rgb(87, 87, 87);
     position: relative;
+    display: block;
+    max-width: 100%;
 
     /* display: flex;
     flex-direction: column;
@@ -140,6 +142,61 @@ canvas {
 .pause_actions {
     display: flex;
     gap: 16px;
+}
+
+.touch-controls {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    display: none;
+    justify-content: space-between;
+    gap: 24px;
+    pointer-events: none;
+    z-index: 8;
+}
+
+.touch-controls.visible {
+    display: flex;
+}
+
+.touch-controls__group {
+    display: flex;
+    gap: 16px;
+    pointer-events: auto;
+}
+
+.touch-controls__movement .touch-button {
+    min-width: 64px;
+}
+
+.touch-button {
+    padding: 14px 18px;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    touch-action: none;
+}
+
+.touch-button.primary {
+    background: rgba(94, 177, 255, 0.6);
+    border-color: rgba(94, 177, 255, 0.9);
+}
+
+.touch-button:active {
+    transform: scale(0.95);
+}
+
+.touch-button:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
 }
 
 .orientation-overlay {
@@ -256,6 +313,34 @@ canvas {
     padding: 15px 30px;
     font-size: 1.2rem;
     cursor: pointer;
+}
+
+@media (max-width: 900px) {
+    body, main, .game_screen_wrapper {
+        width: 100vw;
+    }
+
+    .game_screen_wrapper {
+        height: 100dvh;
+        padding: 16px;
+        box-sizing: border-box;
+    }
+
+    canvas {
+        width: 100%;
+        height: auto;
+        max-height: calc(100dvh - 200px);
+        min-height: 200px;
+        border-radius: 12px;
+    }
+
+    #start-screen,
+    #pause-screen,
+    #end-screen,
+    #gameover-screen,
+    #orientation-overlay {
+        border-radius: 12px;
+    }
 }
 
 #end-screen h2 {
