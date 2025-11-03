@@ -16,6 +16,7 @@ function init() {
     setupFullscreenToggle();
     touchControlsManager = setupTouchControls();
     setupOrientationGuard();
+    setupImpressumModal();
 
     const restartButton = document.getElementById("restart-button");
     restartButton.addEventListener("click", () => {
@@ -212,6 +213,42 @@ function setupTouchControls() {
         },
         releaseAll,
     };
+}
+
+function setupImpressumModal() {
+    const openButton = document.getElementById("start-impressum-button");
+    const modal = document.getElementById("impressum-modal");
+    const closeButton = document.getElementById("impressum-close-button");
+
+    if (!openButton || !modal || !closeButton) return;
+
+    const showModal = () => {
+        modal.classList.add("visible");
+        modal.setAttribute("aria-hidden", "false");
+    };
+
+    const hideModal = () => {
+        modal.classList.remove("visible");
+        modal.setAttribute("aria-hidden", "true");
+        openButton.focus();
+    };
+
+    openButton.addEventListener("click", showModal);
+    closeButton.addEventListener("click", hideModal);
+
+    modal.addEventListener("click", event => {
+        if (event.target === modal) {
+            hideModal();
+        }
+    });
+
+    window.addEventListener("keydown", event => {
+        if (event.key === "Escape" && modal.classList.contains("visible")) {
+            hideModal();
+        }
+    });
+
+    hideModal();
 }
 
 function setupOrientationGuard() {
