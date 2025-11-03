@@ -34,6 +34,7 @@ function setupStartButton() {
     const startButton = document.getElementById("start-button");
 
     startButton.addEventListener("click", () => {
+        AudioHub.playGameplayMusic();
         startScreen.style.opacity = 0;
 
         setTimeout(() => {
@@ -41,6 +42,8 @@ function setupStartButton() {
             world.start();
         }, 10);
     });
+
+    requestAnimationFrame(() => AudioHub.playStartScreenMusic());
 }
 
 function setupSoundControls() {

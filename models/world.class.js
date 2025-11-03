@@ -50,6 +50,7 @@ class World {
 		this.hasStarted = true;
 		this.isPaused = false;
 		this.isRunning = true;
+		AudioHub.playGameplayMusic();
 		this.draw();  // start rendering loop
 		this.run();   // start intervals (collision checking, throwing, etc.)
 	}
@@ -438,6 +439,7 @@ class World {
 
 		const endScreen = document.getElementById("end-screen");
 		endScreen.style.display = "flex";
+		AudioHub.playStartScreenMusic();
 		setTimeout(() => {
 			endScreen.style.opacity = 1;
 		}, 50);
@@ -464,8 +466,9 @@ class World {
 		this.stopAllIntervals();
 		this.stopAllEnemyActivity();
 		this.heroCharacter.setControlsLocked(true);
-		this.showGameOverScreen();
 		AudioHub.stopAll();
+		this.showGameOverScreen();
+		AudioHub.playStartScreenMusic();
 	}
 
 	showGameOverScreen() {
