@@ -8,6 +8,9 @@ class AudioHub {
     static CAST_HOLY = AudioHub.createAudio('./01_assets/00_audio/cast/holy_cast.mp3', 0.75);
     static CAST_DARK = AudioHub.createAudio('./01_assets/00_audio/cast/dark_cast.mp3', 0.75);
 
+    static CAST_DARK_PICKUP = AudioHub.createAudio('./01_assets/00_audio/pickup_cast/particle-mask-breath-through-mouth-103531 (mp3cut.net).mp3', 0.75);
+    static CAST_HOLY_PICKUP = AudioHub.createAudio('./01_assets/00_audio/pickup_cast/silver-chime-290187 (mp3cut.net).mp3', 0.75);
+
     static CAST_DARK_IMPACT = AudioHub.createAudio('./01_assets/00_audio/hurt/fire-sound-effects-224089 (mp3cut.net).mp3', 0.75);
     static CAST_HOLY_IMPACT = AudioHub.createAudio('./01_assets/00_audio/hurt/impact-sound-effect-308750 (mp3cut.net).mp3', 0.75);
     static SWORD_IMPACT = AudioHub.createAudio('./01_assets/00_audio/hurt/punch-03-352040.mp3', 0.75);
