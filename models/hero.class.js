@@ -410,7 +410,7 @@ class Hero extends MoveableObject {
         this.frameIndex = 0; // reset animation
         this.attackPressed = true;
         this.currentImpactSound = this.hasSword ? AudioHub.SWORD_IMPACT : AudioHub.PUNCH_IMPACT;
-        this.attackImpactFrames = this.hasSword ? [3] : [1, 5];
+        this.attackImpactFrames = this.hasSword ? [0] : [1, 5];
         this.attackImpactAnimation = this.hasSword ? 'IMAGES_ATTACK_SWORD' : 'IMAGES_ATTACK';
         this.triggeredImpactFrames.clear();
         this.impactFramesPlayed.clear();

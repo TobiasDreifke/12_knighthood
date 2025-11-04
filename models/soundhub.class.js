@@ -13,7 +13,7 @@ class AudioHub {
 
     static CAST_DARK_IMPACT = AudioHub.createAudio('./01_assets/00_audio/hurt/fire-sound-effects-224089 (mp3cut.net).mp3', 0.75);
     static CAST_HOLY_IMPACT = AudioHub.createAudio('./01_assets/00_audio/hurt/impact-sound-effect-308750 (mp3cut.net).mp3', 0.75);
-    static SWORD_IMPACT = AudioHub.createAudio('./01_assets/00_audio/hurt/punch-03-352040.mp3', 0.75);
+    static SWORD_IMPACT = AudioHub.createAudio('./01_assets/00_audio/crushing_bones/bone-break-2-140224.mp3', 0.75);
     static PUNCH_IMPACT = AudioHub.createAudio('./01_assets/00_audio/hurt/thud-impact-sound-sfx-379990.mp3', 0.75);
 
     static JUMP_HERO = AudioHub.createAudio('./01_assets/00_audio/jump_and_land/swoosh-011-352855 (mp3cut.net).mp3', 0.7);
@@ -86,7 +86,7 @@ class AudioHub {
         { animation: 'IMAGES_DRAW_SWORD', frames: [0], sound: AudioHub.SWORD_DRAW },
         { animation: 'IMAGES_SHEATHE_SWORD', frames: [0], sound: AudioHub.SWORD_SHEATHE },
         { animation: 'IMAGES_ATTACK', frames: [0, 4], sound: AudioHub.PUNCH_HERO },
-        { animation: 'IMAGES_ATTACK_SWORD', frames: [0], sound: AudioHub.SWORD_SLICE },
+        { animation: 'IMAGES_ATTACK_SWORD', frames: [1], sound: AudioHub.SWORD_SLICE },
         { animation: 'IMAGES_WALK', frames: [2, 5], sound: AudioHub.WALK_HERO },
         { animation: 'IMAGES_WALK_SWORD', frames: [2, 5], sound: AudioHub.WALK_HERO },
         { animation: 'IMAGES_CAST_HOLY', frames: [2], sound: AudioHub.CAST_HOLY },
