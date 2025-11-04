@@ -9,7 +9,6 @@ class ThrowDark extends MoveableObject {
     debugColor = "red";
 
     throwInterval = null;
-    gravityInterval = null;
     animationInterval = null;
 
     isThrown = false;
@@ -17,6 +16,10 @@ class ThrowDark extends MoveableObject {
     isImpacting = false;
     hasHit = false;
     shouldRemove = false;
+
+    travelDistance = 0;
+    startY = 0;
+    straightRatio = 0.35;
 
     IMAGES_IDLE = [
         "./01_assets/6_salsa_bottle/bottle_rotation/idle_01/dark_vfx_splash_idle_1.png",
@@ -51,7 +54,7 @@ class ThrowDark extends MoveableObject {
         this.y = y;
         this.isThrown = isThrown;
         this.damage = Number.isFinite(damage) ? damage : 20;
-        this.maxDistance = 520;
+        this.maxDistance = 720;
         this.originX = x;
 
         this.loadImages(this.IMAGES_IDLE);
@@ -92,7 +95,7 @@ class ThrowDark extends MoveableObject {
         this.isAnimating = false;
     }
 
-    throwDark(facingLeft = false) {
+    throwDark(facingLeft = false, launch = {}) {
         this.stopAnimation();
         this.isThrown = true;
         this.isImpacting = false;
@@ -102,40 +105,76 @@ class ThrowDark extends MoveableObject {
 
         this.otherDirection = !!facingLeft;
         this.originX = this.x;
+        this.startY = this.y;
+        this.travelDistance = 0;
+        this.straightRatio = this.normalizeStraightRatio(launch.straightRatio);
+        this.maxDistance = this.normalizeMaxDistance(launch.maxDistance);
         this.img = this.imageCache[this.IMAGES_THROW[0]];
 
         this.startLoopAnimation(this.IMAGES_THROW, 18);
 
-        // launch motion
-        this.speedY = 0;
-        this.applyGravity();
-
-        const throwPower = 2;
-        this.speedX = facingLeft ? -throwPower : throwPower;
+        const horizontalPower = Number.isFinite(launch.horizontalPower) ? launch.horizontalPower : 2.8;
+        this.speedX = facingLeft ? -horizontalPower : horizontalPower;
 
         if (this.throwInterval) clearInterval(this.throwInterval);
         this.throwInterval = setInterval(() => {
             if (this.world?.isPaused) return;
             if (this.isImpacting) return;
-            this.x += this.speedX;
-            if (Math.abs(this.x - this.originX) >= this.maxDistance) {
-                this.triggerImpact();
-                return;
-            }
+            this.advanceProjectile();
         }, 25);
     }
 
-    applyGravity() {
-        if (this.gravityInterval) clearInterval(this.gravityInterval);
-        this.gravityInterval = setInterval(() => {
-            if (this.world?.isPaused) return;
-            if (this.isImpacting) return;
-            if (this.y < this.groundY || this.speedY > 0) {
-                this.y -= this.speedY;
-                this.speedY -= this.acceleration;
-                if (this.y > this.groundY) this.y = this.groundY;
+    advanceProjectile() {
+        this.x += this.speedX;
+        this.travelDistance += Math.abs(this.speedX);
+
+        const progress = Math.min(this.travelDistance / this.maxDistance, 1);
+        const groundTarget = this.computeGroundTarget();
+
+        if (progress >= 1) {
+            this.triggerImpact();
+            return;
+        }
+
+        if (progress <= this.straightRatio) {
+            this.y = this.startY;
+        } else {
+            const curveProgress = (progress - this.straightRatio) / (1 - this.straightRatio);
+            const eased = curveProgress * curveProgress;
+            const dropDistance = groundTarget - this.startY;
+            const nextY = this.startY + dropDistance * eased;
+            if (nextY >= groundTarget - 1) {
+                this.y = groundTarget;
+                this.triggerImpact();
+                return;
             }
-        }, 1000 / 25);
+            this.y = nextY;
+        }
+
+        if (Math.abs(this.x - this.originX) >= this.maxDistance) {
+            this.triggerImpact();
+        }
+    }
+
+    computeGroundTarget() {
+        const explicitGround = typeof this.groundY === "number" ? this.groundY : null;
+        const fallback = this.startY + 160;
+        if (explicitGround !== null && explicitGround > this.startY + 5) {
+            return explicitGround;
+        }
+        return fallback;
+    }
+
+    normalizeStraightRatio(value) {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) return 0.35;
+        return Math.min(Math.max(numeric, 0), 0.9);
+    }
+
+    normalizeMaxDistance(value) {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric) || numeric <= 0) return 720;
+        return numeric;
     }
 
     stopMotion() {
@@ -143,12 +182,7 @@ class ThrowDark extends MoveableObject {
             clearInterval(this.throwInterval);
             this.throwInterval = null;
         }
-        if (this.gravityInterval) {
-            clearInterval(this.gravityInterval);
-            this.gravityInterval = null;
-        }
         this.speedX = 0;
-        this.speedY = 0;
     }
 
     triggerImpact() {
