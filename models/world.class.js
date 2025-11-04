@@ -215,7 +215,7 @@ class World {
 		const collisionId = setInterval(() => {
 			if (this.isPaused) return;
 			this.checkCollisions();
-		}, 200);
+		}, 80);
 		this.IntervalIDs.push(collisionId);
 
 		const throwId = setInterval(() => {

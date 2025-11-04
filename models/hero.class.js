@@ -21,6 +21,7 @@ class Hero extends MoveableObject {
     attackImpactAnimation = null;
     triggeredImpactFrames = new Set();
     impactFramesPlayed = new Set();
+    hitCooldownMs = 600;
 
     slideSoundFlag = { value: false };
     jumpSoundFlag = { value: false };
@@ -222,7 +223,6 @@ class Hero extends MoveableObject {
 
 
         const animationName = this.getAnimationName(images);
-                if (animationName === 'IMAGES_ATTACK') console.log('punch frame', frameIndex);
 
         AudioHub.syncSound(animationName, frameIndex);
 
@@ -543,6 +543,14 @@ class Hero extends MoveableObject {
             AudioHub.playOne(this.currentImpactSound);
             this.impactFramesPlayed.add(frameKey);
         }
+    }
+
+    hit(amount = this.damageOnCollision) {
+        const now = Date.now();
+        const cooldown = typeof this.hitCooldownMs === 'number' ? this.hitCooldownMs : 0;
+        if (now - this.lastHit < cooldown) return;
+        this.lastHit = now;
+        super.hit(amount);
     }
 
     setCrouchHurtBox() {
