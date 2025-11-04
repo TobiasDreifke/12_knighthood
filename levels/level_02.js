@@ -29,18 +29,11 @@ function createLevel02() {
     dark2.spawnY = dark2.y;
     throwables.push(dark2);
 
-    const pickables = [];
-    const sword = new Sword(tile * 0.35, 340);
-    sword.spawnX = sword.x;
-    sword.spawnY = sword.y;
-    pickables.push(sword);
-
     const level = new Level(
         enemies,
         generateClouds(90),
         createBackgroundObjects(),
         throwables,
-        pickables,
     );
 
     level.level_end_x = tile * 4;

@@ -1,19 +1,25 @@
 class AudioHub {
-    static START_SCREEN_MUSIC = AudioHub.createLoopingAudio('./01_assets/00_audio/looping_intro.mp3', 0.5);
-    static GAMEPLAY_MUSIC = AudioHub.createLoopingAudio('./01_assets/00_audio/looping_gameplay.mp3', 0.6);
+    static START_SCREEN_MUSIC = AudioHub.createLoopingAudio('./01_assets/00_audio/looping_intro.mp3', 0.2);
+    static GAMEPLAY_MUSIC = AudioHub.createLoopingAudio('./01_assets/00_audio/looping_gameplay.mp3', 0.05);
 
-    static WALK_HERO = AudioHub.createAudio('./01_assets/00_audio/walking/Hero/indoor-footsteps-6385 (mp3cut.net).mp3', 0.65);
+    static WALK_HERO = AudioHub.createAudio('./01_assets/00_audio/walking/Hero/indoor-footsteps-6385 (mp3cut.net).mp3', 1);
     static SWORD_DRAW = AudioHub.createAudio('./01_assets/00_audio/sword/draw-sword1-44724.mp3', 0.8);
     static SWORD_SLICE = AudioHub.createAudio('./01_assets/00_audio/sword/sword-slice-393847.mp3', 0.8);
     static CAST_HOLY = AudioHub.createAudio('./01_assets/00_audio/cast/holy_cast.mp3', 0.75);
     static CAST_DARK = AudioHub.createAudio('./01_assets/00_audio/cast/dark_cast.mp3', 0.75);
+
+    static CAST_DARK_IMPACT = AudioHub.createAudio('./01_assets/00_audio/hurt/fire-sound-effects-224089 (mp3cut.net).mp3', 0.75);
+    static CAST_HOLY_IMPACT = AudioHub.createAudio('./01_assets/00_audio/hurt/impact-sound-effect-308750 (mp3cut.net).mp3', 0.75);
+    static SWORD_IMPACT = AudioHub.createAudio('./01_assets/00_audio/hurt/punch-03-352040.mp3', 0.75);
+    static PUNCH_IMPACT = AudioHub.createAudio('./01_assets/00_audio/hurt/thud-impact-sound-sfx-379990.mp3', 0.75);
+
     static JUMP_HERO = AudioHub.createAudio('./01_assets/00_audio/jump_and_land/swoosh-011-352855 (mp3cut.net).mp3', 0.7);
     static FALL_HERO = AudioHub.createAudio('./01_assets/00_audio/jump_and_land/walk-on-dirt-1-291981 (mp3cut.net).mp3', 0.55);
     static SLIDE_HERO = AudioHub.createAudio('./01_assets/00_audio/jump_and_land/sliding.mp3', 0.7);
     static PUNCH_HERO = AudioHub.createAudio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3', 0.75);
     static SWORD_SHEATHE = AudioHub.createAudio('./01_assets/00_audio/sword/sheathe_sword.mp3', 0.8);
     static HURT_HERO = AudioHub.createAudio('./01_assets/00_audio/hurt/ouch-oof-hurt-sound-effect-262616 (mp3cut.net).mp3', 0.9);
-    static IDLE_HERO = AudioHub.createLoopingAudio('./01_assets/00_audio/walking/man-panting-softly-401018.mp3', 0.35);
+    static IDLE_HERO = AudioHub.createLoopingAudio('./01_assets/00_audio/walking/man-panting-softly-401018.mp3', 1);
     static DEATH_HERO = AudioHub.createAudio('./01_assets/00_audio/sword/sword-clattering-to-the-ground-393838.mp3', 0.9);
 
     static SKELETON_WALK = AudioHub.createAudio('./01_assets/00_audio/walking/giant-robot-footsteps-in-cave-199854 (mp3cut.net).mp3', 0.65);
@@ -23,10 +29,10 @@ class AudioHub {
     static SKELETON_DEAD = AudioHub.createAudio('./01_assets/00_audio/boss_death.mp3', 0.85);
     static SKELETON_LAUGHING = AudioHub.createAudio('./01_assets/00_audio/laughter/evil-laugh-with-reverb-423668.mp3', 0.7);
 
-    static GOBLIN_WALK = AudioHub.createAudio('./01_assets/00_audio/walking/footsteps-on-gravel-2-397986 (mp3cut.net).mp3', 0.6);
+    static GOBLIN_WALK = AudioHub.createAudio('./01_assets/00_audio/walking/footsteps-on-gravel-2-397986 (mp3cut.net).mp3', 0);
     static GOBLIN_IDLE = AudioHub.createAudio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3', 0.45);
     static GOBLIN_ATTACK = AudioHub.createAudio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3', 0.6);
-    static GOBLIN_HURT = AudioHub.createAudio('./01_assets/00_audio/hurt/soft-body-impact-295404.mp3', 0.85);
+    static GOBLIN_HURT = AudioHub.createAudio('./01_assets/00_audio/hurt/thud-impact-sound-sfx-379990.mp3', 0.85);
     static GOBLIN_DEAD = AudioHub.createAudio('./01_assets/00_audio/sword/violent-sword-slice-2-393841.mp3', 0.8);
 
     static activeClones = new Set();
@@ -47,6 +53,12 @@ class AudioHub {
         AudioHub.SWORD_SHEATHE,
         AudioHub.CAST_HOLY,
         AudioHub.CAST_DARK,
+
+        AudioHub.CAST_DARK_IMPACT,
+        AudioHub.CAST_HOLY_IMPACT,
+        AudioHub.SWORD_IMPACT,
+        AudioHub.PUNCH_IMPACT,
+
         AudioHub.JUMP_HERO,
         AudioHub.FALL_HERO,
         AudioHub.SLIDE_HERO,

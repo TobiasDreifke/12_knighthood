@@ -3,21 +3,16 @@ function createLevel03() {
 
     const enemies = [];
 
-    const goblin1 = new Goblin();
-    goblin1.spawnX = tile * 2.2;
-    goblin1.x = goblin1.spawnX;
-    goblin1.activationX = tile * 1.6;
-    goblin1.isDormant = true;
-    goblin1.otherDirection = true;
-    enemies.push(goblin1);
-
-    const goblin2 = new Goblin();
-    goblin2.spawnX = tile * 2.5;
-    goblin2.x = goblin2.spawnX;
-    goblin2.activationX = tile * 1.9;
-    goblin2.isDormant = true;
-    goblin2.otherDirection = true;
-    enemies.push(goblin2);
+    const goblinPositions = [1.5, 1.9, 2.3, 2.7, 3.1];
+    goblinPositions.forEach((mult, index) => {
+        const goblin = new Goblin();
+        goblin.spawnX = tile * mult;
+        goblin.x = goblin.spawnX;
+        goblin.activationX = tile * (1.1 + index * 0.3);
+        goblin.isDormant = true;
+        goblin.otherDirection = true;
+        enemies.push(goblin);
+    });
 
     const throwables = [];
 
