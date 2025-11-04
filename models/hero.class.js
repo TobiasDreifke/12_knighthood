@@ -16,6 +16,11 @@ class Hero extends MoveableObject {
     castPressed = false;
     isCasting = false;
     castType = null;
+    currentImpactSound = null;
+    attackImpactFrames = [];
+    attackImpactAnimation = null;
+    triggeredImpactFrames = new Set();
+    impactFramesPlayed = new Set();
 
     slideSoundFlag = { value: false };
     jumpSoundFlag = { value: false };
@@ -214,11 +219,22 @@ class Hero extends MoveableObject {
     }
 
     onAnimationFrame(images, frameIndex) {
+
+
         const animationName = this.getAnimationName(images);
+                if (animationName === 'IMAGES_ATTACK') console.log('punch frame', frameIndex);
+
         AudioHub.syncSound(animationName, frameIndex);
 
-        if (animationName === 'IMAGES_ATTACK' && frameIndex === 5 && this.isAttacking) {
-            this.dealDamageToEnemies();
+        if (
+            this.isAttacking &&
+            animationName === this.attackImpactAnimation &&
+            Array.isArray(this.attackImpactFrames) &&
+            this.attackImpactFrames.includes(frameIndex) &&
+            !this.triggeredImpactFrames.has(frameIndex)
+        ) {
+            this.triggeredImpactFrames.add(frameIndex);
+            this.dealDamageToEnemies(frameIndex);
         }
     }
 
@@ -347,6 +363,7 @@ class Hero extends MoveableObject {
         return false;
     }
 
+
     playMovementAnimation(keyboard) {
         if (keyboard.DOWN) {
             AudioHub.stopHeroIdleLoop();
@@ -392,25 +409,32 @@ class Hero extends MoveableObject {
         this.isAttacking = true;
         this.frameIndex = 0; // reset animation
         this.attackPressed = true;
+        this.currentImpactSound = this.hasSword ? AudioHub.SWORD_IMPACT : AudioHub.PUNCH_IMPACT;
+        this.attackImpactFrames = this.hasSword ? [3] : [1, 5];
+        this.attackImpactAnimation = this.hasSword ? 'IMAGES_ATTACK_SWORD' : 'IMAGES_ATTACK';
+        this.triggeredImpactFrames.clear();
+        this.impactFramesPlayed.clear();
 
         // hitbox setup
         this.hitboxOffsetTop = this.hasSword ? -30 : 10;
         this.hitboxOffsetBottom = this.hasSword ? 10 : 20;
         this.hitboxWidth = this.hasSword ? 40 : 30;
 
-        // schedule damage at the correct frame
+        // animation timing
         const attackImages = this.hasSword ? this.IMAGES_ATTACK_SWORD : this.IMAGES_ATTACK;
         const fps = 20;
-        const hitFrame = this.hasSword ? 3 : 5;
         const frameDuration = 1000 / fps;
-
-        setTimeout(() => this.dealDamageToEnemies(), hitFrame * frameDuration);
 
         // end attack after full animation
         const totalDuration = attackImages.length * frameDuration;
         setTimeout(() => {
             this.isAttacking = false;
             this.attackPressed = false;
+            this.attackImpactAnimation = null;
+            this.attackImpactFrames = [];
+            this.currentImpactSound = null;
+            this.triggeredImpactFrames.clear();
+            this.impactFramesPlayed.clear();
         }, totalDuration);
     }
 
@@ -493,8 +517,9 @@ class Hero extends MoveableObject {
         return this.celebrationTotalDuration;
     }
 
-    dealDamageToEnemies() {
+    dealDamageToEnemies(impactFrame = null) {
         if (this.world?.isPaused) return;
+        let hitSomething = false;
         this.world.level.enemies.forEach(enemy => {
             const hitbox = this.getHitbox();
             const enemyHurtbox = enemy.getHurtbox();
@@ -508,8 +533,16 @@ class Hero extends MoveableObject {
             if (isHit) {
                 console.log("HERO hit ENEMY!");
                 enemy.hit(this.hasSword ? this.swordDamage : this.punchDamage);
+                hitSomething = true;
             }
         });
+        if (!hitSomething || !this.currentImpactSound) return;
+
+        const frameKey = impactFrame ?? 'default';
+        if (!this.impactFramesPlayed.has(frameKey)) {
+            AudioHub.playOne(this.currentImpactSound);
+            this.impactFramesPlayed.add(frameKey);
+        }
     }
 
     setCrouchHurtBox() {

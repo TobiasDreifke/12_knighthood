@@ -8,8 +8,8 @@ class AudioHub {
     static CAST_HOLY = AudioHub.createAudio('./01_assets/00_audio/cast/holy_cast.mp3', 0.75);
     static CAST_DARK = AudioHub.createAudio('./01_assets/00_audio/cast/dark_cast.mp3', 0.75);
 
-    static CAST_DARK_PICKUP = AudioHub.createAudio('./01_assets/00_audio/pickup_cast/particle-mask-breath-through-mouth-103531 (mp3cut.net).mp3', 0.75);
-    static CAST_HOLY_PICKUP = AudioHub.createAudio('./01_assets/00_audio/pickup_cast/silver-chime-290187 (mp3cut.net).mp3', 0.75);
+    static CAST_DARK_PICKUP = AudioHub.createAudio('./01_assets/00_audio/pickup_cast/particle-mask-breath-through-mouth-103531 (mp3cut.net).mp3', 1);
+    static CAST_HOLY_PICKUP = AudioHub.createAudio('./01_assets/00_audio/pickup_cast/silver-chime-290187 (mp3cut.net).mp3', 1);
 
     static CAST_DARK_IMPACT = AudioHub.createAudio('./01_assets/00_audio/hurt/fire-sound-effects-224089 (mp3cut.net).mp3', 0.75);
     static CAST_HOLY_IMPACT = AudioHub.createAudio('./01_assets/00_audio/hurt/impact-sound-effect-308750 (mp3cut.net).mp3', 0.75);
@@ -28,14 +28,14 @@ class AudioHub {
     static SKELETON_WALK = AudioHub.createAudio('./01_assets/00_audio/walking/giant-robot-footsteps-in-cave-199854 (mp3cut.net).mp3', 0.65);
     static SKELETON_IDLE = AudioHub.createAudio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3', 0.5);
     static SKELETON_ATTACK = AudioHub.createAudio('./01_assets/00_audio/heavy_whoosh/heavy-whoosh-04-414577.mp3', 0.75);
-    static SKELETON_HURT = AudioHub.createAudio('./01_assets/00_audio/monster_sounds/monster-screech-368677.mp3', 0.8);
+    static SKELETON_HURT = AudioHub.createAudio('./01_assets/00_audio/monster_sounds/monster-screech-368677.mp3', 1);
     static SKELETON_DEAD = AudioHub.createAudio('./01_assets/00_audio/boss_death.mp3', 0.85);
     static SKELETON_LAUGHING = AudioHub.createAudio('./01_assets/00_audio/laughter/evil-laugh-with-reverb-423668.mp3', 0.7);
 
     static GOBLIN_WALK = AudioHub.createAudio('./01_assets/00_audio/walking/footsteps-on-gravel-2-397986 (mp3cut.net).mp3', 0);
     static GOBLIN_IDLE = AudioHub.createAudio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3', 0.45);
     static GOBLIN_ATTACK = AudioHub.createAudio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3', 0.6);
-    static GOBLIN_HURT = AudioHub.createAudio('./01_assets/00_audio/hurt/thud-impact-sound-sfx-379990.mp3', 0.85);
+    static GOBLIN_HURT = AudioHub.createAudio('./01_assets/00_audio/hurt/goblin-death-6729 (mp3cut.net).mp3', 1);
     static GOBLIN_DEAD = AudioHub.createAudio('./01_assets/00_audio/sword/violent-sword-slice-2-393841.mp3', 0.8);
 
     static activeClones = new Set();

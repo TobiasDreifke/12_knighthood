@@ -169,6 +169,7 @@ class ThrowHoly extends MoveableObject {
         this.isImpacting = true;
         this.stopMotion();
         this.stopAnimation();
+        AudioHub.playOne(AudioHub.CAST_HOLY_IMPACT);
 
         const frames = this.IMAGES_IMPACT;
         let frameIndex = 0;

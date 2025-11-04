@@ -454,14 +454,21 @@ class World {
 		// --- PICKUP COLLISION (for ammo, etc.) ---
 		this.level.throwables.forEach((throwable) => {
 			if (this.heroCharacter.isColliding(throwable)) {
+				let pickupSound = null;
 				if (throwable instanceof ThrowDark) {
 					this.darkAmmo.push(throwable);
 					// console.log("Dark ammo collected:", this.darkAmmo.length);
+					pickupSound = AudioHub.CAST_DARK_PICKUP;
 				}
 
 				if (throwable instanceof ThrowHoly) {
 					this.holyAmmo.push(throwable);
 					// console.log("Holy ammo collected:", this.holyAmmo.length);
+					pickupSound = AudioHub.CAST_HOLY_PICKUP;
+				}
+
+				if (pickupSound) {
+					AudioHub.playOne(pickupSound);
 				}
 
 				this.statusBarAmmo.collect();

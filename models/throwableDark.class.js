@@ -157,6 +157,7 @@ class ThrowDark extends MoveableObject {
         this.hasHit = true;
         this.stopMotion();
         this.stopAnimation();
+        AudioHub.playOne(AudioHub.CAST_DARK_IMPACT);
 
         const frames = this.IMAGES_IMPACT;
         let frame = 0;
