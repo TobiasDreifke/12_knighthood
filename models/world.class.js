@@ -197,7 +197,7 @@ class World {
 			} else if (enemy.isDormant === undefined) {
 				enemy.isDormant = false;
 			}
-			if (enemy instanceof SkeletonBoss || enemy instanceof Goblin) {
+			if (enemy instanceof SkeletonBoss || enemy instanceof Goblin || enemy instanceof Mushroom || enemy instanceof Bat) {
 				enemy.player = this.heroCharacter;
 			}
 			if (typeof enemy.animation === 'function') {
@@ -343,7 +343,13 @@ class World {
 		holy.y = this.heroCharacter.y + 20;
 		holy.isThrown = true;
 
-		holy.throwHoly(facingLeft);
+		const heroGround = typeof this.heroCharacter.groundY === "number" ? this.heroCharacter.groundY : null;
+		const groundTarget = heroGround !== null ? Math.max(heroGround, this.heroCharacter.y + 120) : this.heroCharacter.y + 150;
+		holy.groundY = groundTarget;
+		const horizontalPower = 7;
+		const straightRatio = 0.4;
+
+		holy.throwHoly(facingLeft, { horizontalPower, straightRatio, maxDistance: 720 });
 
 		this.throwableHoly.push(holy);
 
@@ -373,7 +379,12 @@ class World {
 		dark.y = this.heroCharacter.y + 20;
 		dark.isThrown = true;
 
-		dark.throwDark(facingLeft);
+		const groundTargetDark = heroGround !== null ? Math.max(heroGround, this.heroCharacter.y + 120) : this.heroCharacter.y + 150;
+		dark.groundY = groundTargetDark;
+		const horizontalPower = 4.5;
+		const straightRatio = 0.4;
+
+		dark.throwDark(facingLeft, { horizontalPower, straightRatio, maxDistance: 720 });
 
 		this.throwableDark.push(dark);
 

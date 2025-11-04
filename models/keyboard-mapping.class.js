@@ -1,10 +1,10 @@
 class KeyboardMapping {
     static DEFAULT_BINDINGS = {
-        LEFT: { keys: ["arrowleft", "a"], display: "Arrow Left / A" },
-        RIGHT: { keys: ["arrowright", "d"], display: "Arrow Right / D" },
-        UP: { keys: ["arrowup", "w"], display: "Arrow Up / W" },
-        DOWN: { keys: ["arrowdown", "s"], display: "Arrow Down / S" },
-        JUMP: { codes: ["Space"], display: "Space" },
+        LEFT: { keys: ["arrowleft", "a"], display: "A" },
+        RIGHT: { keys: ["arrowright", "d"], display: "D" },
+        UP: { keys: ["arrowup", "w"], display: "W" },
+        DOWN: { keys: ["arrowdown", "s"], display: "S" },
+        JUMP: { codes: ["Space"], display: "W / SPACE" },
         ATTACK: { keys: ["f"], display: "F" },
         THROWHOLY: { keys: ["q"], display: "Q" },
         THROWDARK: { keys: ["e"], display: "E" },

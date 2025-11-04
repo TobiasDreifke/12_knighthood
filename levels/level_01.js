@@ -4,20 +4,36 @@ function createLevel01() {
     const enemies = [];
 
     const goblin1 = new Goblin();
-    goblin1.spawnX = tile * 1.8;
+    goblin1.spawnX = tile * 2.75;
     goblin1.x = goblin1.spawnX;
-    goblin1.activationX = tile * 1.2;
+    goblin1.activationX = tile * 2;
     goblin1.isDormant = true;
     goblin1.otherDirection = true;
     enemies.push(goblin1);
 
     const goblin2 = new Goblin();
-    goblin2.spawnX = tile * 2.1;
+    goblin2.spawnX = tile * 2.85;
     goblin2.x = goblin2.spawnX;
-    goblin2.activationX = tile * 1.5;
+    goblin2.activationX = tile * 2;
     goblin2.isDormant = true;
     goblin2.otherDirection = true;
     enemies.push(goblin2);
+
+    const mushroom1 = new Mushroom();
+    goblin1.spawnX = tile * 2.75;
+    goblin1.x = goblin1.spawnX;
+    goblin1.activationX = tile * 2;
+    goblin1.isDormant = true;
+    goblin1.otherDirection = true;
+    enemies.push(mushroom1);
+
+       const bat1 = new Bat();
+    goblin1.spawnX = tile * 2.75;
+    goblin1.x = goblin1.spawnX;
+    goblin1.activationX = tile * 2;
+    goblin1.isDormant = true;
+    goblin1.otherDirection = true;
+    enemies.push(bat1);
 
     const throwables = [];
     const holy1 = new ThrowHoly(tile * 0.6, 350, false, 22);
@@ -32,9 +48,47 @@ function createLevel01() {
     const pickables = [];
 
     const overlays = [];
-    const attackTooltip = new TooltipText({
+
+
+    const pauseTooltip = new TooltipText({
+        x: tile * 0.25,
+        y: 350,
+        textAlign: "center",
+        textBaseline: "top",
+        font: "22px \"Merriweather\", serif",
+        padding: 12,
+        maxWidth: 360,
+        text: () => `For Menu press ${KeyboardMapping.getDisplayKey("PAUSE", "pause")}`,
+    });
+    overlays.push(pauseTooltip);
+
+    const jumpTooltip = new TooltipText({
         x: tile * 0.75,
-        y: 140,
+        y: 350,
+        textAlign: "center",
+        textBaseline: "top",
+        font: "22px \"Merriweather\", serif",
+        padding: 12,
+        maxWidth: 360,
+        text: () => `To Jump press ${KeyboardMapping.getDisplayKey("JUMP", "jump")}`,
+    });
+    overlays.push(jumpTooltip);
+
+    const slideTooltip = new TooltipText({
+        x: tile * 1.25,
+        y: 350,
+        textAlign: "center",
+        textBaseline: "top",
+        font: "22px \"Merriweather\", serif",
+        padding: 12,
+        maxWidth: 360,
+        text: () => `To Slide press ${KeyboardMapping.getDisplayKey("down", "DOWN")} and ${KeyboardMapping.getDisplayKey("LEFT", "left")} / ${KeyboardMapping.getDisplayKey("RIGHT", "right")}`,
+    });
+    overlays.push(slideTooltip);
+
+    const attackTooltip = new TooltipText({
+        x: tile * 2.25,
+        y: 275,
         textAlign: "center",
         textBaseline: "top",
         font: "22px \"Merriweather\", serif",
