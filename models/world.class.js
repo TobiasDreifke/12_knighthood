@@ -4,8 +4,8 @@ class World {
 
 	heroCharacter = new Hero();
 	statusBarHealth = new StatusbarHealth();
-	statusBarEnergy = new StatusbarEnergy();
-	statusBarAmmo = null;
+	StatusbarHoly = new StatusbarHoly();
+	StatusbarDark = null;
 
 	throwableHoly = [];
 	throwableDark = [];
@@ -38,7 +38,7 @@ class World {
 		this.keyboard = keyboardPara;
 		this.levelIndex = levelIndex;
 		this.level = this.resolveLevel(levelIndex);
-		this.statusBarAmmo = new StatusbarAmmo();
+		this.StatusbarDark = new StatusbarDark();
 		this.setWorld();
 	}
 
@@ -154,12 +154,12 @@ class World {
 	}
 	setWorld() {
 		this.heroCharacter.world = this;
-		this.statusBarAmmo.world = this;
-		if (typeof this.statusBarAmmo.setPercentage === 'function') {
-			this.statusBarAmmo.setPercentage(0);
+		this.StatusbarDark.world = this;
+		if (typeof this.StatusbarDark.setPercentage === 'function') {
+			this.StatusbarDark.setPercentage(0);
 		}
 		this.attachWorldReference(this.statusBarHealth);
-		this.attachWorldReference(this.statusBarEnergy);
+		this.attachWorldReference(this.StatusbarHoly);
 		this.attachWorldReference(this.level.backgroundObjects);
 		this.attachWorldReference(this.level.clouds);
 		this.attachWorldReference(this.level.throwables);
@@ -321,9 +321,9 @@ class World {
 
 		this.throwableHoly.push(holy);
 
-		this.statusBarAmmo.percentage -= 10;
-		if (this.statusBarAmmo.percentage < 0) this.statusBarAmmo.percentage = 0;
-		this.statusBarAmmo.setPercentage(this.statusBarAmmo.percentage);
+		this.StatusbarDark.percentage -= 10;
+		if (this.StatusbarDark.percentage < 0) this.StatusbarDark.percentage = 0;
+		this.StatusbarDark.setPercentage(this.StatusbarDark.percentage);
 
 		if (this.heroCharacter.triggerCastAnimation) {
 			this.heroCharacter.triggerCastAnimation('HOLY');
@@ -353,9 +353,9 @@ class World {
 
 		this.throwableDark.push(dark);
 
-		this.statusBarAmmo.percentage -= 10;
-		if (this.statusBarAmmo.percentage < 0) this.statusBarAmmo.percentage = 0;
-		this.statusBarAmmo.setPercentage(this.statusBarAmmo.percentage);
+		this.StatusbarDark.percentage -= 10;
+		if (this.StatusbarDark.percentage < 0) this.StatusbarDark.percentage = 0;
+		this.StatusbarDark.setPercentage(this.StatusbarDark.percentage);
 
 		if (this.heroCharacter.triggerCastAnimation) {
 			this.heroCharacter.triggerCastAnimation('DARK');
@@ -393,7 +393,7 @@ class World {
 			if (this.heroCharacter.isColliding(enemy)) {
 				this.heroCharacter.hit();
 				this.statusBarHealth.setPercentage(this.heroCharacter.health);
-				this.statusBarEnergy.setPercentage(this.heroCharacter.health);
+				this.StatusbarHoly.setPercentage(this.heroCharacter.health);
 				if (this.heroCharacter.isDead) {
 					this.startGameOverSequence();
 				}
@@ -402,7 +402,7 @@ class World {
 			// if (enemy.isHitting(this.heroCharacter)) {
 			// 	this.heroCharacter.hit();
 			// 	this.statusBarHealth.setPercentage(this.heroCharacter.health);
-			// 	this.statusBarEnergy.setPercentage(this.heroCharacter.health);
+			// 	this.StatusbarHoly.setPercentage(this.heroCharacter.health);
 			// }
 
 			if (enemy instanceof SkeletonBoss && enemy.isDead) {
@@ -471,7 +471,7 @@ class World {
 					AudioHub.playOne(pickupSound);
 				}
 
-				this.statusBarAmmo.collect();
+				this.StatusbarDark.collect();
 			}
 		});
 
@@ -536,8 +536,8 @@ class World {
 
 		// UI elements
 		this.addToMap(this.statusBarHealth);
-		this.addToMap(this.statusBarEnergy);
-		this.addToMap(this.statusBarAmmo);
+		this.addToMap(this.StatusbarHoly);
+		this.addToMap(this.StatusbarDark);
 
 		requestAnimationFrame(() => this.draw());
 	}

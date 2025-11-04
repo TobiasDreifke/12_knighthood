@@ -4,19 +4,24 @@ class StatusbarHealth extends DrawableObject {
     percentage = 100;
 
     IMAGES = [
-        "./01_assets/7_statusbars/1_statusbar/1_statusbar_coin/blue/0.png",
-        "./01_assets/7_statusbars/1_statusbar/1_statusbar_coin/blue/20.png",
-        "./01_assets/7_statusbars/1_statusbar/1_statusbar_coin/blue/40.png",
-        "./01_assets/7_statusbars/1_statusbar/1_statusbar_coin/blue/60.png",
-        "./01_assets/7_statusbars/1_statusbar/1_statusbar_coin/blue/80.png",
-        "./01_assets/7_statusbars/1_statusbar/1_statusbar_coin/blue/100.png",
+        "./01_assets/7_statusbars/1_statusbar/2_statusbar_health/health_bar_statusbar_0.png",
+        "./01_assets/7_statusbars/1_statusbar/2_statusbar_health/health_bar_statusbar_10.png",
+        "./01_assets/7_statusbars/1_statusbar/2_statusbar_health/health_bar_statusbar_20.png",
+        "./01_assets/7_statusbars/1_statusbar/2_statusbar_health/health_bar_statusbar_30.png",
+        "./01_assets/7_statusbars/1_statusbar/2_statusbar_health/health_bar_statusbar_40.png",
+        "./01_assets/7_statusbars/1_statusbar/2_statusbar_health/health_bar_statusbar_50.png",
+        "./01_assets/7_statusbars/1_statusbar/2_statusbar_health/health_bar_statusbar_60.png",
+        "./01_assets/7_statusbars/1_statusbar/2_statusbar_health/health_bar_statusbar_70.png",
+        "./01_assets/7_statusbars/1_statusbar/2_statusbar_health/health_bar_statusbar_80.png",
+        "./01_assets/7_statusbars/1_statusbar/2_statusbar_health/health_bar_statusbar_90.png",
+        "./01_assets/7_statusbars/1_statusbar/2_statusbar_health/health_bar_statusbar_100.png",
     ]
     constructor() {
         super();
-        this.x = 50;
-        this.y = 0;
-        this.width = 200;
-        this.height = 60;
+        this.x = 10;
+        this.y = 10;
+        this.width = 292;
+        this.height = 53;
 
         
         this.loadImages(this.IMAGES);
@@ -28,24 +33,14 @@ class StatusbarHealth extends DrawableObject {
 
 
     setPercentage(percentage) {
-        this.percentage = percentage; // => 0 ... 5
-        let path = this.IMAGES[this.resolveImageIndex()];
+        const clamped = Math.max(0, Math.min(100, percentage));
+        this.percentage = clamped;
+        const path = this.IMAGES[this.resolveImageIndex()];
         this.img = this.imageCache[path];
     }
 
     resolveImageIndex() {
-        if (this.percentage == 100) {
-            return 5;
-        } else if (this.percentage > 80) {
-            return 4;
-        } else if (this.percentage > 60) {
-            return 3;
-        } else if (this.percentage > 40) {
-            return 2;
-        } else if (this.percentage > 20) {
-            return 1;
-        } else {
-            return 0;
-        }
+        const index = Math.floor(this.percentage / 10);
+        return Math.max(0, Math.min(index, this.IMAGES.length - 1));
     }
 }
