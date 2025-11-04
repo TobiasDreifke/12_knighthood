@@ -1,9 +1,9 @@
 class StatusbarHoly extends DrawableObject {
 
     world;
-    testAmount = 10;
-    Ammo = 0;
+    ammoCount = 0;
     percentage = 0;
+    maxAmmoSlots = 10;
 
     IMAGES = [
         "./01_assets/7_statusbars/1_statusbar/3_statusbar_bottle/holy__holy_00.png",
@@ -29,7 +29,7 @@ class StatusbarHoly extends DrawableObject {
 
 
         this.loadImages(this.IMAGES);
-        this.setPercentage(0);
+        this.setAmmoCount(0);
         // this.isHurt();
         // console.log("loaded statusbar img:", this.IMAGES);
         // this.collect();
@@ -48,5 +48,14 @@ class StatusbarHoly extends DrawableObject {
     resolveImageIndex() {
         const index = Math.floor(this.percentage / 10);
         return Math.max(0, Math.min(index, this.IMAGES.length - 1));
+    }
+
+    setAmmoCount(count) {
+        const safeCount = Math.max(0, Number.isFinite(count) ? count : 0);
+        this.ammoCount = safeCount;
+        const capacity = Math.max(1, this.maxAmmoSlots);
+        const capped = Math.min(safeCount, capacity);
+        const percentage = (capped / capacity) * 100;
+        this.setPercentage(percentage);
     }
 }

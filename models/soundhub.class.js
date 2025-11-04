@@ -38,6 +38,18 @@ class AudioHub {
     static GOBLIN_HURT = AudioHub.createAudio('./01_assets/00_audio/hurt/goblin-death-6729 (mp3cut.net).mp3', 1);
     static GOBLIN_DEAD = AudioHub.createAudio('./01_assets/00_audio/sword/violent-sword-slice-2-393841.mp3', 0.8);
 
+    static MUSHROOM_WALK = AudioHub.createAudio('./01_assets/00_audio/walking/footsteps-on-gravel-2-397986 (mp3cut.net).mp3', 0);
+    static MUSHROOM_IDLE = AudioHub.createAudio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3', 0.45);
+    static MUSHROOM_ATTACK = AudioHub.createAudio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3', 0.6);
+    static MUSHROOM_HURT = AudioHub.createAudio('./01_assets/00_audio/hurt/goblin-death-6729 (mp3cut.net).mp3', 1);
+    static MUSHROOM_DEAD = AudioHub.createAudio('./01_assets/00_audio/sword/violent-sword-slice-2-393841.mp3', 0.8);
+    
+    static BAT_WALK = AudioHub.createAudio('./01_assets/00_audio/walking/footsteps-on-gravel-2-397986 (mp3cut.net).mp3', 0);
+    static BAT_IDLE = AudioHub.createAudio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3', 0.45);
+    static BAT_ATTACK = AudioHub.createAudio('./01_assets/00_audio/whoosh/simple-whoosh-382724.mp3', 0.6);
+    static BAT_HURT = AudioHub.createAudio('./01_assets/00_audio/hurt/goblin-death-6729 (mp3cut.net).mp3', 1);
+    static BAT_DEAD = AudioHub.createAudio('./01_assets/00_audio/sword/violent-sword-slice-2-393841.mp3', 0.8);
+
     static activeClones = new Set();
     static masterVolume = 0.2;
     static previousVolume = 0.2;
@@ -69,17 +81,31 @@ class AudioHub {
         AudioHub.IDLE_HERO,
         AudioHub.HURT_HERO,
         AudioHub.DEATH_HERO,
+
         AudioHub.SKELETON_WALK,
         AudioHub.SKELETON_IDLE,
         AudioHub.SKELETON_ATTACK,
         AudioHub.SKELETON_HURT,
         AudioHub.SKELETON_DEAD,
         AudioHub.SKELETON_LAUGHING,
+
         AudioHub.GOBLIN_WALK,
         AudioHub.GOBLIN_IDLE,
         AudioHub.GOBLIN_ATTACK,
         AudioHub.GOBLIN_HURT,
         AudioHub.GOBLIN_DEAD,
+
+        AudioHub.MUSHROOM_WALK,
+        AudioHub.MUSHROOM_IDLE,
+        AudioHub.MUSHROOM_ATTACK,
+        AudioHub.MUSHROOM_HURT,
+        AudioHub.MUSHROOM_DEAD,
+
+        AudioHub.BAT_WALK,
+        AudioHub.BAT_IDLE,
+        AudioHub.BAT_ATTACK,
+        AudioHub.BAT_HURT,
+        AudioHub.BAT_DEAD,
     ];
 
     static animationSoundSync = [
@@ -91,8 +117,11 @@ class AudioHub {
         { animation: 'IMAGES_WALK_SWORD', frames: [2, 5], sound: AudioHub.WALK_HERO },
         { animation: 'IMAGES_CAST_HOLY', frames: [2], sound: AudioHub.CAST_HOLY },
         { animation: 'IMAGES_CAST_DARK', frames: [2], sound: AudioHub.CAST_DARK },
+
         { animation: 'GOBLIN_IMAGES_WALK', frames: [0], sound: AudioHub.GOBLIN_WALK },
         { animation: 'SKELETON_IMAGES_WALK', frames: [1], sound: AudioHub.SKELETON_WALK },
+        { animation: 'BAT_IMAGES_WALK', frames: [0], sound: AudioHub.BAT_WALK },
+        { animation: 'MUSHROOM_IMAGES_WALK', frames: [1], sound: AudioHub.MUSHROOM_WALK },
     ];
 
     static syncSound(animationName, frameIndex) {

@@ -336,53 +336,41 @@ function hidePauseOverlay() {
     pauseScreen.classList.remove("overlay_visible");
 }
 
+function setKeyboardActionsState(actions, state) {
+    actions.forEach(action => {
+        if (action === "PAUSE") return;
+        if (Object.prototype.hasOwnProperty.call(keyboard, action)) {
+            keyboard[action] = state;
+        }
+    });
+}
+
 window.addEventListener("keydown", (event) => {
-    if (event.key === "p") {
+    const actions = KeyboardMapping.getActionsForEvent(event);
+
+    if (actions.includes("PAUSE")) {
         if (event.repeat) return;
         event.preventDefault();
         togglePause();
-        return;
     }
 
     if (!world) return;
     if (world.isPaused) return;
     if (world.inputLocked) return;
 
-    const key = event.key.toLowerCase();
+    if (!actions.length) return;
 
-    if (key === "arrowright" || key === "d") keyboard.RIGHT = true;
-    if (key === "arrowleft" || key === "a") keyboard.LEFT = true;
-    if (key === "arrowup" || key === "w") keyboard.UP = true;
-    if (key === "arrowdown" || key === "s") keyboard.DOWN = true;
-
-    if (event.code === "Space") {
+    if (actions.includes("JUMP")) {
         event.preventDefault(); // important to stop scrolling sideways
-        keyboard.JUMP = true;
     }
 
-    if (key === "f") keyboard.ATTACK = true;
-    if (key === "q") keyboard.THROWHOLY = true;
-    if (key === "e") keyboard.THROWDARK = true;
+    setKeyboardActionsState(actions, true);
 });
-
-
 
 window.addEventListener("keyup", (event) => {
     if (world && world.inputLocked) return;
 
-    const key = event.key.toLowerCase();
-
-    if (key === "arrowright" || key === "d") keyboard.RIGHT = false;
-    if (key === "arrowleft" || key === "a") keyboard.LEFT = false;
-    if (key === "arrowup" || key === "w") keyboard.UP = false;
-    if (key === "arrowdown" || key === "s") keyboard.DOWN = false;
-    if (event.code === "Space") {
-        keyboard.JUMP = false;
-    }
-
-    if (key === "f") keyboard.ATTACK = false
-    if (key === "q") keyboard.THROWHOLY = false;
-    if (key === "e") keyboard.THROWDARK = false;
-
-
+    const actions = KeyboardMapping.getActionsForEvent(event);
+    if (!actions.length) return;
+    setKeyboardActionsState(actions, false);
 });

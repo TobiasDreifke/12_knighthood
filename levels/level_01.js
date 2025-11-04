@@ -31,12 +31,26 @@ function createLevel01() {
 
     const pickables = [];
 
+    const overlays = [];
+    const attackTooltip = new TooltipText({
+        x: tile * 0.75,
+        y: 140,
+        textAlign: "center",
+        textBaseline: "top",
+        font: "22px \"Merriweather\", serif",
+        padding: 12,
+        maxWidth: 360,
+        text: () => `To attack press ${KeyboardMapping.getDisplayKey("ATTACK", "Attack")}`,
+    });
+    overlays.push(attackTooltip);
+
     const level = new Level(
         enemies,
-        generateClouds(80),
+        generateClouds(20),
         createBackgroundObjects(),
         throwables,
         pickables,
+        overlays,
     );
 
     level.level_end_x = tile * 4;

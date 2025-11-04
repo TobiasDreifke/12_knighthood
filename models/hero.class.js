@@ -521,6 +521,7 @@ class Hero extends MoveableObject {
         if (this.world?.isPaused) return;
         let hitSomething = false;
         this.world.level.enemies.forEach(enemy => {
+            if (enemy?.isDead) return;
             const hitbox = this.getHitbox();
             const enemyHurtbox = enemy.getHurtbox();
 

@@ -12,6 +12,7 @@ class World {
 	darkAmmo = [];
 	holyAmmo = [];
 	heroinventory = [];
+	overlayObjects = [];
 	lastDarkThrow = 0;
 	lastHolyThrow = 0;
 	darkCooldownMs = 1000;
@@ -38,6 +39,11 @@ class World {
 		this.keyboard = keyboardPara;
 		this.levelIndex = levelIndex;
 		this.level = this.resolveLevel(levelIndex);
+		const levelOverlays = Array.isArray(this.level?.overlays) ? this.level.overlays : [];
+		this.overlayObjects = levelOverlays;
+		if (this.level && !Array.isArray(this.level.overlays)) {
+			this.level.overlays = levelOverlays;
+		}
 		this.StatusbarDark = new StatusbarDark();
 		this.setWorld();
 	}
@@ -59,6 +65,7 @@ class World {
 		const combinedPickables = [];
 		const combinedClouds = [];
 		const combinedBackgrounds = [];
+		const combinedOverlays = [];
 		const checkpoints = [];
 		let offset = 0;
 
@@ -125,6 +132,14 @@ class World {
 				combinedBackgrounds.push(obj);
 			});
 
+			(segment.overlays || []).forEach(overlay => {
+				if (!overlay) return;
+				if (typeof overlay.x === 'number') {
+					overlay.x += segmentOffset;
+				}
+				combinedOverlays.push(overlay);
+			});
+
 			const segmentLength = segment.level_end_x ?? (tileWidth * 4);
 			offset += segmentLength;
 		});
@@ -136,11 +151,13 @@ class World {
 			combinedBackgrounds.length ? combinedBackgrounds : createBackgroundObjects(),
 			combinedThrowables,
 			combinedPickables,
+			combinedOverlays,
 		);
 
 		level.level_end_x = offset;
 		// level.projectileBarrierX = offset - tileWidth * 0.1;
 		level.checkpoints = checkpoints;
+		level.overlays = combinedOverlays;
 		return level;
 	}
 
@@ -155,15 +172,15 @@ class World {
 	setWorld() {
 		this.heroCharacter.world = this;
 		this.StatusbarDark.world = this;
-		if (typeof this.StatusbarDark.setPercentage === 'function') {
-			this.StatusbarDark.setPercentage(0);
-		}
+		this.StatusbarHoly.world = this;
+		this.updateAmmoBars();
 		this.attachWorldReference(this.statusBarHealth);
 		this.attachWorldReference(this.StatusbarHoly);
 		this.attachWorldReference(this.level.backgroundObjects);
 		this.attachWorldReference(this.level.clouds);
 		this.attachWorldReference(this.level.throwables);
 		this.attachWorldReference(this.level.pickables);
+		this.attachWorldReference(this.overlayObjects);
 
 		this.level.enemies.forEach(enemy => {
 			if (!enemy) return;
@@ -298,6 +315,15 @@ class World {
 		}
 	}
 
+	updateAmmoBars() {
+		if (this.StatusbarDark?.setAmmoCount) {
+			this.StatusbarDark.setAmmoCount(this.darkAmmo.length);
+		}
+		if (this.StatusbarHoly?.setAmmoCount) {
+			this.StatusbarHoly.setAmmoCount(this.holyAmmo.length);
+		}
+	}
+
 	throwHoly() {
 		if (this.isPaused) return;
 		if (!this.keyboard.THROWHOLY) return;
@@ -321,9 +347,7 @@ class World {
 
 		this.throwableHoly.push(holy);
 
-		this.StatusbarDark.percentage -= 10;
-		if (this.StatusbarDark.percentage < 0) this.StatusbarDark.percentage = 0;
-		this.StatusbarDark.setPercentage(this.StatusbarDark.percentage);
+		this.updateAmmoBars();
 
 		if (this.heroCharacter.triggerCastAnimation) {
 			this.heroCharacter.triggerCastAnimation('HOLY');
@@ -353,9 +377,7 @@ class World {
 
 		this.throwableDark.push(dark);
 
-		this.StatusbarDark.percentage -= 10;
-		if (this.StatusbarDark.percentage < 0) this.StatusbarDark.percentage = 0;
-		this.StatusbarDark.setPercentage(this.StatusbarDark.percentage);
+		this.updateAmmoBars();
 
 		if (this.heroCharacter.triggerCastAnimation) {
 			this.heroCharacter.triggerCastAnimation('DARK');
@@ -393,7 +415,6 @@ class World {
 			if (this.heroCharacter.isColliding(enemy)) {
 				this.heroCharacter.hit();
 				this.statusBarHealth.setPercentage(this.heroCharacter.health);
-				this.StatusbarHoly.setPercentage(this.heroCharacter.health);
 				if (this.heroCharacter.isDead) {
 					this.startGameOverSequence();
 				}
@@ -471,7 +492,7 @@ class World {
 					AudioHub.playOne(pickupSound);
 				}
 
-				this.StatusbarDark.collect();
+				this.updateAmmoBars();
 			}
 		});
 
@@ -531,6 +552,7 @@ class World {
 		this.addObjectsToMap(this.throwableDark);
 
 		this.addObjectsToMap(cloudsFront);
+		this.drawOverlayLayer(this.overlayObjects);
 
 		this.ctx.translate(-this.camera_x, 0);
 
@@ -568,6 +590,19 @@ class World {
 		const parallax = background.parallax ?? 1;
 		const drawX = background.x + (parallax - 1) * this.camera_x;
 		this.ctx.drawImage(background.img, drawX, background.y, background.width, background.height);
+	}
+
+	drawOverlayLayer(overlays) {
+		if (!Array.isArray(overlays)) return;
+		overlays.forEach(overlay => {
+			if (!overlay) return;
+			if (typeof overlay.update === 'function') {
+				overlay.update(this);
+			}
+			if (typeof overlay.draw === 'function') {
+				overlay.draw(this.ctx);
+			}
+		});
 	}
 
 	addObjectsToMap(objects) {

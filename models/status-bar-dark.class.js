@@ -1,8 +1,8 @@
 class StatusbarDark extends DrawableObject {
     world;
-    testAmount = 10;
-    Ammo = 0;
+    ammoCount = 0;
     percentage = 0;
+    maxAmmoSlots = 10;
 
     IMAGES = [
         "./01_assets/7_statusbars/1_statusbar/3_statusbar_bottle/dark_dark_00.png",
@@ -28,7 +28,7 @@ class StatusbarDark extends DrawableObject {
 
 
         this.loadImages(this.IMAGES);
-        this.setPercentage(0);
+        this.setAmmoCount(0);
         // this.isHurt();
         // console.log("loaded statusbar img:", this.IMAGES);
         // this.collect();
@@ -49,30 +49,12 @@ class StatusbarDark extends DrawableObject {
         return Math.max(0, Math.min(index, this.IMAGES.length - 1));
     }
 
-
-    collect() {
-        if (!this.world || !this.world.level) {
-            console.warn("StatusbarDark: world or level not set yet");
-            return;
-        }
-
-        if (this.percentage < 100) {
-            this.percentage += this.testAmount;
-
-            if (this.percentage > 100) this.percentage = 100;
-
-            console.log("Current Ammo: " + this.percentage);
-
-
-            this.setPercentage(this.percentage);
-        }
-
-        if (this.percentage <= 0) {
-            this.percentage = 0;
-            this.setPercentage(this.percentage);
-            console.log("Out of ammo");
-        }
+    setAmmoCount(count) {
+        const safeCount = Math.max(0, Number.isFinite(count) ? count : 0);
+        this.ammoCount = safeCount;
+        const capacity = Math.max(1, this.maxAmmoSlots);
+        const capped = Math.min(safeCount, capacity);
+        const percentage = (capped / capacity) * 100;
+        this.setPercentage(percentage);
     }
-
 }
-
