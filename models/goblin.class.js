@@ -10,6 +10,10 @@ class Goblin extends MoveableObject {
 
     encounterSoundPlayed = false;
     hurtTimeout = null;
+    spawnX = null;
+    spawnY = null;
+    activationX = null;
+    isDormant = false;
 
     IMAGES_HURT = [
         "./01_assets/3_enemies_mobs/goblin/3_hurt/goblin_hurt_01.png",
@@ -53,9 +57,17 @@ class Goblin extends MoveableObject {
     }
 
     animation() {
+        if (this.animationInterval) {
+            return;
+        }
         this.animationInterval = setInterval(() => {
             const world = this.player?.world || this.world;
             if (world && world.isPaused) return;
+
+            if (this.isDormant) {
+                this.holdDormantPose();
+                return;
+            }
 
             if (this.isDead) {
                 this.playAnimationWithSpeed(this.IMAGES_DEAD, 12, false);
@@ -117,6 +129,18 @@ class Goblin extends MoveableObject {
         this.hurtTimeout = setTimeout(() => {
             this.isHurt = false;
         }, hurtDuration);
+    }
+
+    holdDormantPose() {
+        const idleFrame = this.IMAGES_WALK[0];
+        if (this.imageCache && this.imageCache[idleFrame]) {
+            this.img = this.imageCache[idleFrame];
+        }
+    }
+
+    activate() {
+        this.isDormant = false;
+        this.activationTriggered = true;
     }
 
     onAnimationFrame(images, frameIndex) {

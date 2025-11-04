@@ -513,13 +513,13 @@ class Hero extends MoveableObject {
     }
 
     setCrouchHurtBox() {
-         this.offsetLeft = 35;
+        this.offsetLeft = 35;
         this.offsetRight = 35;
         this.offsetTop = 35;
         this.offsetBottom = 5;
     }
     setSlideHurtBox() {
-       this.offsetLeft = 20;
+        this.offsetLeft = 20;
         this.offsetRight = 25;
         this.offsetTop = 55;
         this.offsetBottom = 5;

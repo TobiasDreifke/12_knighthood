@@ -40,14 +40,20 @@ class Cloud extends MoveableObject {
         const horizontalAmplitude = 1 + Math.random() * 20; // 10-30 px drift
         const horizontalSpeed = 7000 + Math.random() * 4000;
 
-        const anchorX = this.x;
-        const anchorY = this.y;
+        this.anchorX = this.x;
+        this.anchorY = this.y;
+        this.floatParams = {
+            verticalAmplitude,
+            verticalSpeed,
+            horizontalAmplitude,
+            horizontalSpeed,
+        };
 
-        setInterval(() => {
+        this.floatInterval = setInterval(() => {
             if (this.world?.isPaused) return;
             const now = Date.now();
-            this.x = anchorX + Math.sin(now / horizontalSpeed) * horizontalAmplitude;
-            this.y = anchorY + Math.sin(now / verticalSpeed) * verticalAmplitude;
+            this.x = this.anchorX + Math.sin(now / horizontalSpeed) * horizontalAmplitude;
+            this.y = this.anchorY + Math.sin(now / verticalSpeed) * verticalAmplitude;
         }, 1000 / 30);
     }
 }

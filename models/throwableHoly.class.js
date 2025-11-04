@@ -48,12 +48,14 @@ class ThrowHoly extends MoveableObject {
         "./01_assets/6_salsa_bottle/bottle_rotation/impact_02/holy_impact_7.png",
     ];
 
-    constructor(x, y, isThrown = false, damage = 10) {
+    constructor(x, y, isThrown = false, damage = 20) {
         super();
         this.x = x;
         this.y = y;
         this.isThrown = isThrown;
-        this.damage = Number.isFinite(damage) ? damage : 10;
+        this.damage = Number.isFinite(damage) ? damage : 20;
+        this.maxDistance = 600;
+        this.originX = x;
 
         this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_THROW);
@@ -102,6 +104,7 @@ class ThrowHoly extends MoveableObject {
         this.currentImage = 0;
 
         this.otherDirection = !!facingLeft;
+        this.originX = this.x;
         this.img = this.imageCache[this.IMAGES_THROW[0]];
 
         this.startLoopAnimation(this.IMAGES_THROW, 18);
@@ -117,6 +120,10 @@ class ThrowHoly extends MoveableObject {
             if (this.world?.isPaused) return;
             if (this.isImpacting) return;
             this.x += this.speedX;
+            if (Math.abs(this.x - this.originX) >= this.maxDistance) {
+                this.triggerImpact();
+                return;
+            }
         }, 25);
     }
 

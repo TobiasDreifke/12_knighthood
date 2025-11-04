@@ -43,10 +43,105 @@ class World {
 	}
 
 	resolveLevel(index) {
+		if (Array.isArray(GAME_LEVEL_BUILDERS) && GAME_LEVEL_BUILDERS.length) {
+			return this.combineLevels(GAME_LEVEL_BUILDERS);
+		}
 		if (Array.isArray(GAME_LEVELS) && GAME_LEVELS[index]) {
 			return GAME_LEVELS[index];
 		}
 		return typeof level_01 !== 'undefined' ? level_01 : null;
+	}
+
+	combineLevels(builders) {
+		const tileWidth = 720;
+		const combinedEnemies = [];
+		const combinedThrowables = [];
+		const combinedPickables = [];
+		const combinedClouds = [];
+		const combinedBackgrounds = [];
+		const checkpoints = [];
+		let offset = 0;
+
+		builders.forEach(builder => {
+			if (typeof builder !== 'function') return;
+			const segment = builder();
+			if (!segment) return;
+
+			const segmentOffset = offset;
+			checkpoints.push(segmentOffset);
+
+			(segment.enemies || []).forEach(enemy => {
+				if (!enemy) return;
+				if (typeof enemy.spawnX === 'number') {
+					enemy.spawnX += segmentOffset;
+					enemy.x = enemy.spawnX;
+				} else if (typeof enemy.x === 'number') {
+					enemy.x += segmentOffset;
+					enemy.spawnX = enemy.x;
+				}
+				if (typeof enemy.spawnY === 'number') {
+					enemy.y = enemy.spawnY;
+				}
+				if (typeof enemy.activationX === 'number') {
+					enemy.activationX += segmentOffset;
+					enemy.isDormant = true;
+					enemy.activationTriggered = false;
+				}
+				combinedEnemies.push(enemy);
+			});
+
+			(segment.throwables || []).forEach(item => {
+				if (!item) return;
+				if (typeof item.x === 'number') item.x += segmentOffset;
+				if (typeof item.spawnX === 'number') {
+					item.spawnX += segmentOffset;
+				} else {
+					item.spawnX = item.x;
+				}
+				combinedThrowables.push(item);
+			});
+
+			(segment.pickables || []).forEach(item => {
+				if (!item) return;
+				if (typeof item.x === 'number') item.x += segmentOffset;
+				if (typeof item.spawnX === 'number') {
+					item.spawnX += segmentOffset;
+				} else {
+					item.spawnX = item.x;
+				}
+				combinedPickables.push(item);
+			});
+
+			(segment.clouds || []).forEach(cloud => {
+				if (!cloud) return;
+				if (typeof cloud.x === 'number') cloud.x += segmentOffset;
+				if (typeof cloud.anchorX === 'number') cloud.anchorX += segmentOffset;
+				combinedClouds.push(cloud);
+			});
+
+			(segment.backgroundObjects || []).forEach(obj => {
+				if (!obj) return;
+				if (typeof obj.x === 'number') obj.x += segmentOffset;
+				combinedBackgrounds.push(obj);
+			});
+
+			const segmentLength = segment.level_end_x ?? (tileWidth * 4);
+			offset += segmentLength;
+		});
+		checkpoints.push(offset);
+
+		const level = new Level(
+			combinedEnemies,
+			combinedClouds.length ? combinedClouds : generateClouds(120),
+			combinedBackgrounds.length ? combinedBackgrounds : createBackgroundObjects(),
+			combinedThrowables,
+			combinedPickables,
+		);
+
+		level.level_end_x = offset;
+		// level.projectileBarrierX = offset - tileWidth * 0.1;
+		level.checkpoints = checkpoints;
+		return level;
 	}
 
 	start() {
@@ -60,6 +155,9 @@ class World {
 	setWorld() {
 		this.heroCharacter.world = this;
 		this.statusBarAmmo.world = this;
+		if (typeof this.statusBarAmmo.setPercentage === 'function') {
+			this.statusBarAmmo.setPercentage(0);
+		}
 		this.attachWorldReference(this.statusBarHealth);
 		this.attachWorldReference(this.statusBarEnergy);
 		this.attachWorldReference(this.level.backgroundObjects);
@@ -68,15 +166,49 @@ class World {
 		this.attachWorldReference(this.level.pickables);
 
 		this.level.enemies.forEach(enemy => {
+			if (!enemy) return;
 			this.attachWorldReference(enemy);
+			if (typeof enemy.spawnX === 'number') {
+				enemy.x = enemy.spawnX;
+			}
+			if (typeof enemy.spawnY === 'number') {
+				enemy.y = enemy.spawnY;
+			}
+			if (typeof enemy.activationX === 'number') {
+				enemy.isDormant = true;
+				enemy.activationTriggered = false;
+			} else if (enemy.isDormant === undefined) {
+				enemy.isDormant = false;
+			}
 			if (enemy instanceof SkeletonBoss || enemy instanceof Goblin) {
 				enemy.player = this.heroCharacter;
 			}
-
-			if (enemy instanceof SkeletonBoss) {
+			if (typeof enemy.animation === 'function') {
 				enemy.animation();
 			}
 		});
+
+		(this.level.throwables || []).forEach(item => {
+			if (typeof item.spawnX === 'number') {
+				item.x = item.spawnX;
+			}
+			if (typeof item.spawnY === 'number') {
+				item.y = item.spawnY;
+			}
+		});
+
+		(this.level.pickables || []).forEach(item => {
+			if (typeof item.spawnX === 'number') {
+				item.x = item.spawnX;
+			}
+			if (typeof item.spawnY === 'number') {
+				item.y = item.spawnY;
+			}
+		});
+
+		if (typeof this.level.projectileBarrierX !== 'number') {
+			this.level.projectileBarrierX = this.level.level_end_x ?? (720 * 4);
+		}
 	}
 
 	run() {
@@ -279,6 +411,10 @@ class World {
 		});
 
 		this.throwableHoly.forEach((projectile) => {
+			if (this.level.projectileBarrierX !== undefined && projectile.x >= this.level.projectileBarrierX) {
+				projectile.triggerImpact();
+				return;
+			}
 			if (projectile.isImpacting) return;
 			this.level.enemies.forEach(enemy => {
 				if (enemy.isDead) return;
@@ -294,6 +430,10 @@ class World {
 
 
 		this.throwableDark.forEach((projectile) => {
+			if (this.level.projectileBarrierX !== undefined && projectile.x >= this.level.projectileBarrierX) {
+				projectile.triggerImpact();
+				return;
+			}
 			if (projectile.hasHit) return;
 			this.level.enemies.some(enemy => {
 				if (!enemy.isDead && projectile.isColliding(enemy)) {
@@ -354,6 +494,7 @@ class World {
 	draw() {
 
 		if (this.isRunning === false) return; // stops rendering when game ended
+		this.updateEnemyActivation();
 
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.ctx.translate(this.camera_x, 0);
@@ -394,6 +535,23 @@ class World {
 		requestAnimationFrame(() => this.draw());
 	}
 
+
+	updateEnemyActivation() {
+		if (!this.level || !Array.isArray(this.level.enemies)) return;
+		const heroX = this.heroCharacter?.x ?? 0;
+		this.level.enemies.forEach(enemy => {
+			if (!enemy || typeof enemy.activationX !== 'number') return;
+			if (enemy.activationTriggered) return;
+			if (heroX >= enemy.activationX) {
+				if (typeof enemy.activate === 'function') {
+					enemy.activate();
+				} else {
+					enemy.isDormant = false;
+				}
+				enemy.activationTriggered = true;
+			}
+		});
+	}
 
 	drawBackgroundLayer(objects) {
 		objects.forEach(o => this.drawBackgroundObject(o));
@@ -486,3 +644,4 @@ class World {
 		}, 50);
 	}
 }
+

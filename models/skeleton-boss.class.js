@@ -14,6 +14,10 @@ class SkeletonBoss extends MoveableObject {
     encounterSoundPlayed = false;
     attackTimers = [];
     hurtTimeout = null;
+    spawnX = null;
+    spawnY = null;
+    activationX = null;
+    isDormant = false;
 
     IMAGES_IDLE = [
         "01_assets/4_enemie_boss/2_alert/skeleton_idle_01.png",
@@ -110,10 +114,16 @@ class SkeletonBoss extends MoveableObject {
     }
 
     animation() {
+        if (this.animationInterval) return;
         this.animationInterval = setInterval(() => {
             const world = this.player?.world || this.world;
             if (world && world.isPaused) return;
             if (!this.player) return;
+
+            if (this.isDormant) {
+                this.playIdleAnimation();
+                return;
+            }
 
             if (this.isDead) {
                 this.playAnimationWithSpeed(this.IMAGES_DEAD, 6, false);
@@ -190,6 +200,11 @@ class SkeletonBoss extends MoveableObject {
 
     playIdleAnimation() {
         this.playAnimationWithSpeed(this.IMAGES_IDLE, 6);
+    }
+
+    activate() {
+        this.isDormant = false;
+        this.activationTriggered = true;
     }
 
     startAttack() {

@@ -51,6 +51,8 @@ class ThrowDark extends MoveableObject {
         this.y = y;
         this.isThrown = isThrown;
         this.damage = Number.isFinite(damage) ? damage : 20;
+        this.maxDistance = 520;
+        this.originX = x;
 
         this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_THROW);
@@ -99,6 +101,7 @@ class ThrowDark extends MoveableObject {
         this.currentImage = 0;
 
         this.otherDirection = !!facingLeft;
+        this.originX = this.x;
         this.img = this.imageCache[this.IMAGES_THROW[0]];
 
         this.startLoopAnimation(this.IMAGES_THROW, 18);
@@ -115,6 +118,10 @@ class ThrowDark extends MoveableObject {
             if (this.world?.isPaused) return;
             if (this.isImpacting) return;
             this.x += this.speedX;
+            if (Math.abs(this.x - this.originX) >= this.maxDistance) {
+                this.triggerImpact();
+                return;
+            }
         }, 25);
     }
 
