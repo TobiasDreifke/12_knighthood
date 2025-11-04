@@ -5,7 +5,7 @@ class World {
 	heroCharacter = new Hero();
 	statusBarHealth = new StatusbarHealth();
 	statusBarEnergy = new StatusbarEnergy();
-	statusBarAmmo = new StatusbarAmmo(this.level);
+	statusBarAmmo = null;
 
 	throwableHoly = [];
 	throwableDark = [];
@@ -16,6 +16,7 @@ class World {
 	lastHolyThrow = 0;
 	darkCooldownMs = 1000;
 	holyCooldownMs = 500;
+
 	winSequenceStarted = false;
 	gameOverSequenceStarted = false;
 	inputLocked = false;
@@ -23,27 +24,29 @@ class World {
 	isPaused = false;
 	hasStarted = false;
 
-	level = level_01
-
+	levelIndex = 0;
+	level = null;
 
 	canvas;
 	ctx;
 	keyboard;
 	camera_x = 0;
 
-
-
-
-
-	constructor(canvasPara, keyboardPara) {
+	constructor(canvasPara, keyboardPara, levelIndex = 0) {
 		this.ctx = canvasPara.getContext("2d");
 		this.canvas = canvasPara;
 		this.keyboard = keyboardPara;
-		// this.draw();
+		this.levelIndex = levelIndex;
+		this.level = this.resolveLevel(levelIndex);
+		this.statusBarAmmo = new StatusbarAmmo();
 		this.setWorld();
-		// this.run();
-		// console.log(this.level.throwables);
-		console.log(this.level.pickables);
+	}
+
+	resolveLevel(index) {
+		if (Array.isArray(GAME_LEVELS) && GAME_LEVELS[index]) {
+			return GAME_LEVELS[index];
+		}
+		return typeof level_01 !== 'undefined' ? level_01 : null;
 	}
 
 	start() {
@@ -280,7 +283,8 @@ class World {
 			this.level.enemies.forEach(enemy => {
 				if (enemy.isDead) return;
 				if (projectile.isColliding(enemy) && projectile.registerHit(enemy)) {
-					enemy.hit();
+					const dmg = Number.isFinite(projectile.damage) ? projectile.damage : enemy.damageOnCollision;
+					enemy.hit(dmg);
 					console.log(`[${enemy.constructor.name}] hit by HolyThrow!`);
 				}
 			});
@@ -293,7 +297,8 @@ class World {
 			if (projectile.hasHit) return;
 			this.level.enemies.some(enemy => {
 				if (!enemy.isDead && projectile.isColliding(enemy)) {
-					enemy.hit();
+					const dmg = Number.isFinite(projectile.damage) ? projectile.damage : enemy.damageOnCollision;
+					enemy.hit(dmg);
 					projectile.triggerImpact();
 					console.log(`[${enemy.constructor.name}] hit by DarkThrow!`);
 					return true;

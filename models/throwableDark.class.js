@@ -45,11 +45,12 @@ class ThrowDark extends MoveableObject {
         "./01_assets/6_salsa_bottle/bottle_rotation/impact_01/dark_vfx_splash_6.png",
     ];
 
-    constructor(x, y, isThrown = false) {
+    constructor(x, y, isThrown = false, damage = 20) {
         super();
         this.x = x;
         this.y = y;
         this.isThrown = isThrown;
+        this.damage = Number.isFinite(damage) ? damage : 20;
 
         this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_THROW);

@@ -1,0 +1,6 @@
+const GAME_LEVELS = [
+    level_01,
+    level_02,
+    level_03,
+    level_04,
+];

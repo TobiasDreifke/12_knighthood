@@ -7,7 +7,8 @@ let touchControlsManager = null;
 
 function init() {
     canvas = document.getElementById("canvas");
-    world = new World(canvas, keyboard);
+    const initialLevelIndex = 0;
+    world = new World(canvas, keyboard, initialLevelIndex);
 
     console.log("my char is", world.heroCharacter);
     setupStartButton();
