@@ -1,6 +1,10 @@
 class Hero extends MoveableObject {
     world;
     speed = 15;
+    animationController = null;
+    movementController = null;
+    combatController = null;
+    audioHooks = null;
 
     offsetLeft = 35;
     offsetRight = 35;
@@ -174,6 +178,10 @@ class Hero extends MoveableObject {
         this.celebrationTotalDuration = 0;
         this.celebrationSoundPlayed = false;
         this.deathSoundPlayed = false;
+        this.audioHooks = new HeroAudioHooks(this);
+        this.animationController = new HeroAnimationController(this);
+        this.movementController = new HeroMovementController(this);
+        this.combatController = new HeroCombatController(this);
     }
 
     startDrawSwordAnimation() {
