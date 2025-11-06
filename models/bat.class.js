@@ -87,19 +87,30 @@ class Bat extends MoveableObject {
     }
 
     performDivePattern() {
-        const heroBox = typeof this.player?.getHurtbox === "function" ? this.player.getHurtbox() : null;
-        const heroCenterX = heroBox ? (heroBox.left + heroBox.right) / 2 : this.player ? this.player.x : this.x;
-        const heroBottom = heroBox ? heroBox.bottom : (this.player ? this.player.y + (this.player.height ?? 120) : this.y + this.height);
-        const topAltitude = this.spawnY ?? 100;
-
+        const metrics = this.resolveDiveMetrics();
         if (this.flightPhase === "descend") {
-            this.ensureDiveTarget(heroCenterX, heroBottom);
-            this.diveTowardTarget();
+            this.prepareDive(metrics);
         } else {
             this.resetDiveTarget();
-            this.ascendToAltitude(topAltitude);
+            this.ascendToAltitude(metrics.topAltitude);
         }
+        this.playDiveAnimation();
+    }
 
+    resolveDiveMetrics() {
+        const box = typeof this.player?.getHurtbox === "function" ? this.player.getHurtbox() : null;
+        const heroCenterX = box ? (box.left + box.right) / 2 : this.player ? this.player.x : this.x;
+        const heroBottom = box ? box.bottom : (this.player ? this.player.y + (this.player.height ?? 120) : this.y + this.height);
+        const topAltitude = this.spawnY ?? 100;
+        return { heroCenterX, heroBottom, topAltitude };
+    }
+
+    prepareDive({ heroCenterX, heroBottom }) {
+        this.ensureDiveTarget(heroCenterX, heroBottom);
+        this.diveTowardTarget();
+    }
+
+    playDiveAnimation() {
         this.playAnimationWithSpeed(this.frames.WALK, 14);
     }
 
@@ -119,34 +130,63 @@ class Bat extends MoveableObject {
     }
 
     diveTowardTarget() {
-        if (this.diveTargetX === null || this.diveTargetY === null) {
+        if (!this.hasDiveTarget()) {
             this.flightPhase = "ascend";
             return;
         }
+        const position = this.getCenterPosition();
+        const delta = this.calculateDiveDelta(position);
+        const step = this.calculateDiveStep(delta);
+        this.applyDiveStep(step);
+        this.currentDiveSpeed = this.nextDiveSpeed(step.speedCap);
+        if (this.reachedDiveTarget()) {
+            this.flightPhase = "ascend";
+        }
+    }
 
-        const centerX = this.x + this.width / 2;
-        const centerY = this.y + this.height / 2;
+    hasDiveTarget() {
+        return this.diveTargetX !== null && this.diveTargetY !== null;
+    }
+
+    getCenterPosition() {
+        return {
+            centerX: this.x + this.width / 2,
+            centerY: this.y + this.height / 2,
+        };
+    }
+
+    calculateDiveDelta({ centerX, centerY }) {
         const deltaX = this.diveTargetX - centerX;
         const deltaY = this.diveTargetY - centerY;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY) || 1;
+        return { deltaX, deltaY, distance };
+    }
 
+    calculateDiveStep({ deltaX, deltaY, distance }) {
         const speedCap = this.baseHorizontalSpeed * this.diveSpeedCapMultiplier;
         const stepSpeed = Math.min(this.currentDiveSpeed, speedCap);
-        const stepX = (deltaX / distance) * stepSpeed;
-        const stepY = (deltaY / distance) * stepSpeed;
+        return {
+            stepX: (deltaX / distance) * stepSpeed,
+            stepY: (deltaY / distance) * stepSpeed,
+            speedCap,
+        };
+    }
 
+    applyDiveStep({ stepX, stepY }) {
         this.x += stepX;
         this.y += stepY;
+    }
 
-        this.currentDiveSpeed = Math.min(this.currentDiveSpeed + this.diveAcceleration, speedCap);
+    nextDiveSpeed(speedCap) {
+        return Math.min(this.currentDiveSpeed + this.diveAcceleration, speedCap);
+    }
 
+    reachedDiveTarget() {
+        const { centerX, centerY } = this.getCenterPosition();
         const closeHorizontally = Math.abs(centerX - this.diveTargetX) <= 12;
         const reachedVertical = centerY >= this.diveTargetY - 8;
         const touchedGround = this.y >= this.diveTargetY - 2;
-
-        if (closeHorizontally && (reachedVertical || touchedGround)) {
-            this.flightPhase = "ascend";
-        }
+        return closeHorizontally && (reachedVertical || touchedGround);
     }
 
     resetDiveTarget() {
@@ -175,37 +215,63 @@ class Bat extends MoveableObject {
         this.isDeathFalling = true;
         const frames = this.frames.DEAD || [];
         if (!frames.length) return;
+        this.applyDeathFallFrame(frames);
+        this.deathFallInterval = this.createDeathFallInterval();
+    }
+
+    applyDeathFallFrame(frames) {
         const fallFrameIndex = Math.min(1, frames.length - 1);
         const fallFrame = frames[fallFrameIndex];
         if (fallFrame && this.imageCache?.[fallFrame]) {
             this.img = this.imageCache[fallFrame];
         }
+    }
 
+    createDeathFallInterval() {
         let verticalSpeed = 0;
         const horizontalDrift = this.baseHorizontalSpeed * 0.4;
+        const stepMs = 1000 / 25;
+        return setInterval(() => {
+            if (this.shouldPauseDeathFall()) return;
+            verticalSpeed = this.updateDeathFallSpeed(verticalSpeed);
+            this.applyDeathFallMovement(verticalSpeed, horizontalDrift);
+            this.checkDeathFallLanding();
+        }, stepMs);
+    }
 
-        this.deathFallInterval = setInterval(() => {
-            const world = this.player?.world || this.world;
-            if (world && world.isPaused) return;
+    shouldPauseDeathFall() {
+        const world = this.player?.world || this.world;
+        return Boolean(world && world.isPaused);
+    }
 
-            verticalSpeed = Math.min(verticalSpeed + 0.45, 12);
-            this.y += verticalSpeed;
-            if (this.otherDirection) {
-                this.x -= horizontalDrift;
-            } else {
-                this.x += horizontalDrift;
-            }
+    updateDeathFallSpeed(current) {
+        return Math.min(current + 0.45, 12);
+    }
 
-            const groundLevel = this.getGroundLevel();
-            if (this.y >= groundLevel) {
-                this.y = groundLevel;
-                clearInterval(this.deathFallInterval);
-                this.deathFallInterval = null;
-                this.isDeathFalling = false;
-                this.frameIndex = 0;
-                this.lastFrameTime = 0;
-            }
-        }, 1000 / 25);
+    applyDeathFallMovement(verticalSpeed, horizontalDrift) {
+        this.y += verticalSpeed;
+        if (this.otherDirection) {
+            this.x -= horizontalDrift;
+        } else {
+            this.x += horizontalDrift;
+        }
+    }
+
+    checkDeathFallLanding() {
+        const groundLevel = this.getGroundLevel();
+        if (this.y < groundLevel) return;
+        this.y = groundLevel;
+        this.completeDeathFall();
+    }
+
+    completeDeathFall() {
+        if (this.deathFallInterval) {
+            clearInterval(this.deathFallInterval);
+            this.deathFallInterval = null;
+        }
+        this.isDeathFalling = false;
+        this.frameIndex = 0;
+        this.lastFrameTime = 0;
     }
 
     holdDeathFallPose() {

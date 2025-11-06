@@ -137,15 +137,12 @@ class SkeletonBoss extends MoveableObject {
     }
 
     walkTowardPlayer() {
-        if (!this.player) return;
-
-        if (this.otherDirection) {
-            this.moveLeft();
+        const moved = this.moveTowardPlayer({ player: this.player, speed: this.speed, flipThreshold: 20 });
+        if (moved) {
+            this.playAnimationWithSpeed(this.frames.WALK, 8);
         } else {
-            this.moveRight();
+            this.playIdleAnimation();
         }
-
-        this.playAnimationWithSpeed(this.frames.WALK, 8);
     }
 
     playIdleAnimation() {
@@ -166,30 +163,41 @@ class SkeletonBoss extends MoveableObject {
     }
 
     startAttack() {
+        this.resetAttackState();
+        const timing = this.createAttackTiming();
+        this.attackTimers.push(
+            setTimeout(() => AudioHub.playOne(AudioHub.SKELETON_ATTACK), timing.swing),
+            setTimeout(() => this.attackPlayer(), timing.hit),
+            this.scheduleAttackEnd(timing.totalDuration, timing.cooldown)
+        );
+    }
+
+    resetAttackState() {
         this.clearAttackTimers();
         this.isAttacking = true;
         this.attackCooldown = true;
         this.frameIndex = 0;
         this.lastFrameTime = 0;
+    }
 
-        const fps = 10;
-        const frameDuration = 1000 / fps;
-        const swingSoundFrame = 4;
-        const hitFrame = 7;
-        const totalDuration = (this.frames.ATTACK?.length ?? 0) * frameDuration;
-        const remainingCooldown = Math.max(3000 - totalDuration, 0);
+    createAttackTiming() {
+        const frameDuration = 1000 / 10;
+        const frameCount = this.frames.ATTACK?.length ?? 0;
+        const totalDuration = frameCount * frameDuration;
+        return {
+            swing: frameDuration * 4,
+            hit: frameDuration * 7,
+            totalDuration,
+            cooldown: Math.max(3000 - totalDuration, 0),
+        };
+    }
 
-        this.attackTimers.push(
-            setTimeout(() => AudioHub.playOne(AudioHub.SKELETON_ATTACK), swingSoundFrame * frameDuration),
-            setTimeout(() => this.attackPlayer(), hitFrame * frameDuration),
-            setTimeout(() => {
-                this.isAttacking = false;
-                this.playIdleAnimation();
-                this.attackTimers.push(
-                    setTimeout(() => this.attackCooldown = false, remainingCooldown)
-                );
-            }, totalDuration)
-        );
+    scheduleAttackEnd(totalDuration, cooldown) {
+        return setTimeout(() => {
+            this.isAttacking = false;
+            this.playIdleAnimation();
+            this.attackTimers.push(setTimeout(() => this.attackCooldown = false, cooldown));
+        }, totalDuration);
     }
 
     attackPlayer() {
@@ -228,24 +236,31 @@ class SkeletonBoss extends MoveableObject {
         this.attackTimers = [];
     }
 
-	hit(amount = this.damageOnCollision) {
-		const frames = this.frames.HURT?.length ?? 0;
-		const handled = this.handleHit(amount, {
-			deadSound: AudioHub.SKELETON_DEAD,
-			hurtSound: AudioHub.SKELETON_HURT,
-			hurtFps: 12,
-			hurtFrameCount: frames,
-			onDeath: () => this.clearAttackTimers(),
-			onHurtStart: () => {
-				this.stopAttackImmediately();
-				this.isHurt = true;
-			},
-			onHurtEnd: () => {
-				this.isHurt = false;
-			},
-		});
-		if (!handled) return;
-	}
+    hit(amount = this.damageOnCollision) {
+        this.handleHit(amount, this.createHitConfig());
+    }
+
+    createHitConfig() {
+        const frameCount = this.frames.HURT?.length ?? 0;
+        return {
+            deadSound: AudioHub.SKELETON_DEAD,
+            hurtSound: AudioHub.SKELETON_HURT,
+            hurtFps: 12,
+            hurtFrameCount: frameCount,
+            onDeath: () => this.clearAttackTimers(),
+            onHurtStart: () => this.startHurtState(),
+            onHurtEnd: () => this.endHurtState(),
+        };
+    }
+
+    startHurtState() {
+        this.stopAttackImmediately();
+        this.isHurt = true;
+    }
+
+    endHurtState() {
+        this.isHurt = false;
+    }
 
     onAnimationFrame(images, frameIndex) {
         const animationName = this.getAnimationName(images);

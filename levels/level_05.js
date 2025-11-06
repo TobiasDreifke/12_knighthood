@@ -15,11 +15,11 @@ function createLevel04() {
     });
 
     const boss = new SkeletonBoss();
-    boss.spawnX = tile * 4.2;
-    boss.x = boss.spawnX;
-    boss.activationX = tile * 3.6;
-    boss.isDormant = true;
-    enemies.push(boss);
+        boss.spawnX = tile * 4.2;
+        boss.x = boss.spawnX;
+        boss.activationX = tile * 3.6;
+        boss.isDormant = true;
+        enemies.push(boss);
 
     const throwables = [];
     const dark1 = new ThrowDark(tile * 0.8, 350, false, 20);

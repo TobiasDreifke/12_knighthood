@@ -179,7 +179,14 @@ class AudioHub {
                 AudioHub.activeClones.delete(audio);
             }
         });
-        audio.play().catch(e => console.warn('Playback failed:', e));
+		audio.play().catch(error => {
+			if (error?.name === 'AbortError') return;
+			if (error?.name === 'NotAllowedError') {
+				this.ensureInteractionUnlock();
+				return;
+			}
+			console.warn('Playback failed:', error);
+		});
     }
 
     static applyVolumeToAll(volume) {
@@ -212,29 +219,33 @@ class AudioHub {
     }
 
     static toggleMute() {
-        if (this.isMuted) {
-            this.isMuted = false;
-            if (typeof this.muteRestoreVolume === 'number') {
-                this.masterVolume = this.muteRestoreVolume;
-            }
-            this.applyVolumeToAll(this.getEffectiveVolume());
-            this.resumeCurrentMusic();
-            if (this.pendingHeroIdleResume) {
-                this.playHeroIdleLoop(true);
-            }
-            this.pendingHeroIdleResume = false;
-        } else {
-            this.muteRestoreVolume = this.masterVolume;
-            if (this.masterVolume > 0) {
-                this.previousVolume = this.masterVolume;
-            }
-            this.pendingHeroIdleResume = this.heroIdleLoopActive;
-            this.isMuted = true;
-            this.applyVolumeToAll(0);
-            this.pauseCurrentMusic();
-            this.stopHeroIdleLoop();
-        }
+        this.isMuted ? this.unmuteAudio() : this.muteAudio();
         return { volume: this.masterVolume, isMuted: this.isMuted };
+    }
+
+    static unmuteAudio() {
+        this.isMuted = false;
+        if (typeof this.muteRestoreVolume === 'number') {
+            this.masterVolume = this.muteRestoreVolume;
+        }
+        this.applyVolumeToAll(this.getEffectiveVolume());
+        this.resumeCurrentMusic();
+        if (this.pendingHeroIdleResume) {
+            this.playHeroIdleLoop(true);
+        }
+        this.pendingHeroIdleResume = false;
+    }
+
+    static muteAudio() {
+        this.muteRestoreVolume = this.masterVolume;
+        if (this.masterVolume > 0) {
+            this.previousVolume = this.masterVolume;
+        }
+        this.pendingHeroIdleResume = this.heroIdleLoopActive;
+        this.isMuted = true;
+        this.applyVolumeToAll(0);
+        this.pauseCurrentMusic();
+        this.stopHeroIdleLoop();
     }
 
     static initializeVolume() {
@@ -355,53 +366,69 @@ class AudioHub {
 
 	static playHeroIdleLoop(force = false) {
 		if (!this.IDLE_HERO) return;
-        if (!this.isUnlocked && !force) {
-            this.pendingHeroIdleResume = true;
-            this.ensureInteractionUnlock();
-            return;
-        }
-        this.pendingHeroIdleResume = false;
-		if (this.isMuted || this.getEffectiveVolume() === 0) {
-			this.stopHeroIdleLoop();
-			return;
-		}
+        if (!this.ensureHeroIdleUnlocked(force)) return;
+		if (this.shouldAbortHeroIdleLoop()) return;
         if (this.heroIdleLoopActive && !force) return;
+        const audio = this.prepareHeroIdleAudio();
+        this.startHeroIdlePlayback(audio);
+    }
+
+    static ensureHeroIdleUnlocked(force) {
+        if (this.isUnlocked || force) {
+            this.pendingHeroIdleResume = false;
+            return true;
+        }
+        this.pendingHeroIdleResume = true;
+        this.ensureInteractionUnlock();
+        return false;
+    }
+
+    static shouldAbortHeroIdleLoop() {
+        if (!this.IDLE_HERO) return true;
+        if (this.isMuted || this.getEffectiveVolume() === 0) {
+            this.stopHeroIdleLoop();
+            return true;
+        }
+        return false;
+    }
+
+    static prepareHeroIdleAudio() {
         const audio = this.IDLE_HERO;
         audio.loop = true;
         audio.volume = this.getBaseVolume(audio) * this.getEffectiveVolume();
+        return audio;
+    }
+
+    static startHeroIdlePlayback(audio) {
         try {
-			this.heroIdleLoopActive = true;
+            this.heroIdleLoopActive = true;
             audio.currentTime = 0;
             const playPromise = audio.play();
             if (playPromise instanceof Promise) {
-                playPromise.then(() => {
-                    this.heroIdleLoopActive = true;
-                }).catch(err => {
-                    if (err?.name === 'AbortError') {
-                        return;
-                    }
-                    if (err?.name === 'NotAllowedError') {
-                        this.pendingHeroIdleResume = true;
-                        this.ensureInteractionUnlock();
-                        this.heroIdleLoopActive = false;
-                        return;
-                    }
-                    this.heroIdleLoopActive = false;
-                    console.warn('Idle loop playback blocked:', err);
-                });
+                this.handleHeroIdlePromise(playPromise);
             } else {
                 this.heroIdleLoopActive = true;
             }
         } catch (error) {
-            this.heroIdleLoopActive = false;
-            if (error?.name === 'AbortError') return;
-            if (error?.name === 'NotAllowedError') {
-                this.pendingHeroIdleResume = true;
-                this.ensureInteractionUnlock();
-                return;
-            }
-            console.warn('Idle loop playback failed:', error);
+            this.handleHeroIdlePlaybackError(error);
         }
+    }
+
+    static handleHeroIdlePromise(playPromise) {
+        playPromise.then(() => {
+            this.heroIdleLoopActive = true;
+        }).catch(error => this.handleHeroIdlePlaybackError(error));
+    }
+
+    static handleHeroIdlePlaybackError(error) {
+        this.heroIdleLoopActive = false;
+        if (error?.name === 'AbortError') return;
+        if (error?.name === 'NotAllowedError') {
+            this.pendingHeroIdleResume = true;
+            this.ensureInteractionUnlock();
+            return;
+        }
+        console.warn('Idle loop playback issue:', error);
     }
 
     static stopHeroIdleLoop() {
@@ -439,6 +466,12 @@ class AudioHub {
         this.stopBackgroundMusic();
         this.stopHeroIdleLoop();
         this.pendingHeroIdleResume = false;
+        this.resetAllSoundInstances();
+        this.resetMuteState();
+        this.resetSoundControls();
+    }
+
+    static resetAllSoundInstances() {
         AudioHub.allSounds.forEach(sound => {
             sound.pause();
             sound.currentTime = 0;
@@ -448,21 +481,37 @@ class AudioHub {
             clone.currentTime = 0;
         });
         AudioHub.activeClones.clear();
-        const defaultVolume = 0.2;
+    }
+
+    static resetMuteState(defaultVolume = 0.2) {
         this.isMuted = false;
         this.setVolume(defaultVolume);
+    }
+
+    static resetSoundControls() {
+        this.resetVolumeSliders(String(this.masterVolume));
+        this.resetMuteButtons();
+        this.clearInstrumentIndicators();
+    }
+
+    static resetVolumeSliders(value) {
         document.querySelectorAll('.sound-volume').forEach(element => {
             if (element instanceof HTMLInputElement) {
-                element.value = String(this.masterVolume);
+                element.value = value;
             }
         });
+    }
+
+    static resetMuteButtons() {
         document.querySelectorAll('.sound-mute').forEach(button => {
             button.textContent = 'Mute';
             button.setAttribute('aria-pressed', 'false');
             button.classList.remove('is-muted');
         });
-        const instrumentImages = document.querySelectorAll('.sound_img');
-        instrumentImages.forEach(img => img.classList.remove('active'));
+    }
+
+    static clearInstrumentIndicators() {
+        document.querySelectorAll('.sound_img').forEach(img => img.classList.remove('active'));
     }
 
     static stopOne(sound, instrumentId) {

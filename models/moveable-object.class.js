@@ -41,31 +41,43 @@ class MoveableObject extends DrawableObject {
 
 
 	playAnimationWithSpeed(images, fps, loop = true) {
-		const now = Date.now();
-		if (!this.lastFrameTime) this.lastFrameTime = 0;
-		if (this.frameIndex === undefined) this.frameIndex = 0;
+		if (!Array.isArray(images) || !images.length) return;
+		this.initializeFrameState();
+		const frameDuration = this.calculateFrameDuration(fps);
+		this.handleAnimationCallback(images);
+		if (!this.readyForNextFrame(frameDuration)) return;
+		this.renderNextFrame(images, loop);
+	}
 
-		const frameDuration = 1000 / fps;
-		if (this.onAnimationFrame) {
+	initializeFrameState() {
+		if (typeof this.frameIndex !== "number") this.frameIndex = 0;
+		if (typeof this.lastFrameTime !== "number") this.lastFrameTime = 0;
+	}
+
+	calculateFrameDuration(fps) {
+		return 1000 / fps;
+	}
+
+	handleAnimationCallback(images) {
+		if (typeof this.onAnimationFrame === "function") {
 			this.onAnimationFrame(images, this.frameIndex);
 		}
-		if (now - this.lastFrameTime > frameDuration) {
-			this.lastFrameTime = now;
+	}
 
-			// Set frame
-			if (this.frameIndex >= images.length) {
-				if (loop) {
-					this.frameIndex = 0;
-				} else {
-					this.frameIndex = images.length - 1; // stop at last frame
-				}
-			}
+	readyForNextFrame(frameDuration) {
+		const now = Date.now();
+		if (now - this.lastFrameTime <= frameDuration) return false;
+		this.lastFrameTime = now;
+		return true;
+	}
 
-			const path = images[this.frameIndex];
-			this.img = this.imageCache[path];
-
-			this.frameIndex++;
+	renderNextFrame(images, loop) {
+		if (this.frameIndex >= images.length) {
+			this.frameIndex = loop ? 0 : images.length - 1;
 		}
+		const path = images[this.frameIndex];
+		this.img = this.imageCache[path];
+		this.frameIndex++;
 	}
 
 
@@ -135,9 +147,19 @@ class MoveableObject extends DrawableObject {
 
 	jump() {
 		this.speedY = 30;
-	} ddd
+	}
 
 	handleHit(amount = this.damageOnCollision, options = {}) {
+		if (this.isDead) return false;
+		const config = this.normalizeHitOptions(options);
+		const result = this.applyDamage(amount);
+		if (result.wasFatal) return this.processFatalHit(config);
+		this.processHurtState(config);
+		return true;
+	}
+
+	normalizeHitOptions(options) {
+		const defaultFrames = Array.isArray(this.frames?.HURT) ? this.frames.HURT.length : this.IMAGES_HURT?.length ?? 0;
 		const {
 			deadSound = null,
 			hurtSound = null,
@@ -147,39 +169,39 @@ class MoveableObject extends DrawableObject {
 			onHurtStart = null,
 			onHurtEnd = null,
 		} = options;
+		const frames = typeof hurtFrameCount === "number" ? hurtFrameCount : defaultFrames;
+		return { deadSound, hurtSound, hurtFps, frames, onDeath, onHurtStart, onHurtEnd };
+	}
 
-		if (this.isDead) return false;
-
+	applyDamage(amount) {
 		this.health -= amount;
 		console.log(`[${this.constructor.name}] is hit with [${amount}]`);
-
 		if (this.health <= 0) {
 			this.health = 0;
 			this.isDead = true;
 			console.log(`[${this.constructor.name}] is dead`);
-		} else {
-			this.isHurt = true;
+			return { wasFatal: true };
 		}
+		this.isHurt = true;
+		return { wasFatal: false };
+	}
 
-		if (this.isDead) {
-			if (deadSound) AudioHub.playOne(deadSound);
-			if (typeof onDeath === "function") onDeath();
-			return true;
-		}
-
-		if (hurtSound) AudioHub.playOne(hurtSound);
-		if (typeof onHurtStart === "function") onHurtStart();
-
-		const defaultFrames = Array.isArray(this.frames?.HURT) ? this.frames.HURT.length : this.IMAGES_HURT?.length ?? 0;
-		const frames = typeof hurtFrameCount === "number" ? hurtFrameCount : defaultFrames;
-		const duration = frames > 0 ? (frames / hurtFps) * 1000 : 1000;
-		if (this.hurtTimeout) clearTimeout(this.hurtTimeout);
-		this.hurtTimeout = setTimeout(() => {
-			if (typeof onHurtEnd === "function") {
-				onHurtEnd();
-			}
-		}, duration);
+	processFatalHit(config) {
+		if (config.deadSound) AudioHub.playOne(config.deadSound);
+		if (typeof config.onDeath === "function") config.onDeath();
 		return true;
+	}
+
+	processHurtState(config) {
+		if (config.hurtSound) AudioHub.playOne(config.hurtSound);
+		if (typeof config.onHurtStart === "function") config.onHurtStart();
+		this.scheduleHurtRecovery(config.frames, config.hurtFps, config.onHurtEnd);
+	}
+
+	scheduleHurtRecovery(frames, fps, onHurtEnd) {
+		const duration = frames > 0 ? (frames / fps) * 1000 : 1000;
+		if (this.hurtTimeout) clearTimeout(this.hurtTimeout);
+		this.hurtTimeout = setTimeout(() => onHurtEnd?.(), duration);
 	}
 
 	hit(amount = this.damageOnCollision) {
@@ -194,12 +216,8 @@ class MoveableObject extends DrawableObject {
 			onMoveLeft,
 			onMoveRight,
 		} = options;
-		if (!player) return false;
-		const targetBox = typeof player.getHurtbox === "function" ? player.getHurtbox() : null;
-		const targetCenter = targetBox ? (targetBox.left + targetBox.right) / 2 : player.x ?? this.x;
-		const actorCenter = this.x + (this.width ?? 0) / 2;
-		const delta = targetCenter - actorCenter;
-
+		const delta = this.resolveTargetDelta(player);
+		if (delta === null) return false;
 		if (delta < -flipThreshold) {
 			this.otherDirection = true;
 			onMoveLeft?.(this);
@@ -217,11 +235,8 @@ class MoveableObject extends DrawableObject {
 
 	updateFacingTowardPlayer(options = {}) {
 		const { player = this.player, flipThreshold = 10 } = options;
-		if (!player) return false;
-		const targetBox = typeof player.getHurtbox === "function" ? player.getHurtbox() : null;
-		const targetCenter = targetBox ? (targetBox.left + targetBox.right) / 2 : player.x ?? this.x;
-		const actorCenter = this.x + (this.width ?? 0) / 2;
-		const delta = targetCenter - actorCenter;
+		const delta = this.resolveTargetDelta(player);
+		if (delta === null) return false;
 		if (delta < -flipThreshold) {
 			this.otherDirection = true;
 			return true;
@@ -231,6 +246,14 @@ class MoveableObject extends DrawableObject {
 			return true;
 		}
 		return false;
+	}
+
+	resolveTargetDelta(player = this.player) {
+		if (!player) return null;
+		const targetBox = typeof player.getHurtbox === "function" ? player.getHurtbox() : null;
+		const targetCenter = targetBox ? (targetBox.left + targetBox.right) / 2 : player.x ?? this.x;
+		const actorCenter = this.x + (this.width ?? 0) / 2;
+		return targetCenter - actorCenter;
 	}
 
 	holdPose(frames, index = 0) {

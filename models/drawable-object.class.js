@@ -48,19 +48,22 @@ class DrawableObject {
 
 
     drawCollisionBox(ctx) {
-        if (!this.collidingObject) return; // skip if no collision box
-
-        const x = this.x + (this.offsetLeft || 0);
-        const y = this.y + (this.offsetTop || 0);
-        const width = this.width - (this.offsetLeft || 0) - (this.offsetRight || 0);
-        const height = this.height - (this.offsetTop || 0) - (this.offsetBottom || 0);
-
+        const box = this.getCollisionBox();
+        if (!box) return;
         ctx.beginPath();
         ctx.lineWidth = 2;
-        ctx.strokeStyle = this.collisionColor || "yellow"; // fallback color
-
-        ctx.rect(x, y, width, height);
+        ctx.strokeStyle = box.color;
+        ctx.rect(box.left, box.top, box.width, box.height);
         ctx.stroke();
+    }
+
+    getCollisionBox() {
+        if (!this.collidingObject) return null;
+        const left = this.x + (this.offsetLeft || 0);
+        const top = this.y + (this.offsetTop || 0);
+        const width = this.width - (this.offsetLeft || 0) - (this.offsetRight || 0);
+        const height = this.height - (this.offsetTop || 0) - (this.offsetBottom || 0);
+        return { left, top, width, height, color: this.collisionColor || "yellow" };
     }
 
     drawHitbox(ctx) {
