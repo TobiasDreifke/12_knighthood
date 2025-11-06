@@ -1,4 +1,5 @@
 class SkeletonBoss extends MoveableObject {
+    frames = {};
     width = 250;
     height = 250;
     y = 155;
@@ -19,47 +20,10 @@ class SkeletonBoss extends MoveableObject {
     activationX = null;
     isDormant = false;
 
-    IMAGES_IDLE = [
-        "01_assets/4_enemie_boss/2_alert/skeleton_idle_01.png",
-        "01_assets/4_enemie_boss/2_alert/skeleton_idle_02.png",
-        "01_assets/4_enemie_boss/2_alert/skeleton_idle_03.png",
-        "01_assets/4_enemie_boss/2_alert/skeleton_idle_04.png",
-    ];
-
-    IMAGES_WALK = [
-        "./01_assets/4_enemie_boss/1_walk/skeleton_walk_01.png",
-        "./01_assets/4_enemie_boss/1_walk/skeleton_walk_02.png",
-        "./01_assets/4_enemie_boss/1_walk/skeleton_walk_03.png",
-        "./01_assets/4_enemie_boss/1_walk/skeleton_walk_04.png"
-    ];
-
-    IMAGES_ATTACK = [
-        "01_assets/4_enemie_boss/3_attack/skeleton_attack_01.png",
-        "01_assets/4_enemie_boss/3_attack/skeleton_attack_02.png",
-        "01_assets/4_enemie_boss/3_attack/skeleton_attack_03.png",
-        "01_assets/4_enemie_boss/3_attack/skeleton_attack_04.png",
-        "01_assets/4_enemie_boss/3_attack/skeleton_attack_05.png",
-        "01_assets/4_enemie_boss/3_attack/skeleton_attack_06.png",
-        "01_assets/4_enemie_boss/3_attack/skeleton_attack_07.png",
-        "01_assets/4_enemie_boss/3_attack/skeleton_attack_08.png",
-    ];
-
-    IMAGES_HURT = [
-        "01_assets/4_enemie_boss/4_hurt/skeleton_hurt_01.png",
-        "01_assets/4_enemie_boss/4_hurt/skeleton_hurt_02.png",
-        "01_assets/4_enemie_boss/4_hurt/skeleton_hurt_03.png",
-        "01_assets/4_enemie_boss/4_hurt/skeleton_hurt_04.png",
-    ];
-
-    IMAGES_DEAD = [
-        "01_assets/4_enemie_boss/5_dead/skeleton_death_01.png",
-        "01_assets/4_enemie_boss/5_dead/skeleton_death_02.png",
-        "01_assets/4_enemie_boss/5_dead/skeleton_death_03.png",
-        "01_assets/4_enemie_boss/5_dead/skeleton_death_04.png",
-    ];
-
     constructor(player, isHurt = false, isDead = false) {
-        super().loadImage(this.IMAGES_IDLE[0]);
+        super().loadImage(SkeletonBossFrameCatalog.getFrameSet("IDLE")[0]);
+        this.frames = SkeletonBossFrameCatalog.createCatalog();
+        this.loadAllImages();
         this.player = player;
         this.x = 700;
         this.speed = 0.55;
@@ -76,13 +40,11 @@ class SkeletonBoss extends MoveableObject {
         this.hitboxOffsetLeft = 0;
         this.hitboxOffsetRight = 0;
 
-        this.loadImages(this.IMAGES_IDLE);
-        this.loadImages(this.IMAGES_WALK);
-        this.loadImages(this.IMAGES_ATTACK);
-        this.loadImages(this.IMAGES_DEAD);
-        this.loadImages(this.IMAGES_HURT);
-
         if (this.player) this.animation();
+    }
+
+    loadAllImages() {
+        Object.values(this.frames).forEach(group => this.loadImages(group));
     }
 
     distanceToPlayer() {
@@ -126,12 +88,12 @@ class SkeletonBoss extends MoveableObject {
             }
 
             if (this.isDead) {
-                this.playAnimationWithSpeed(this.IMAGES_DEAD, 6, false);
+                this.playAnimationWithSpeed(this.frames.DEAD, 6, false);
                 return;
             }
 
             if (this.isHurt) {
-                this.playAnimationWithSpeed(this.IMAGES_HURT, 12, false);
+                this.playAnimationWithSpeed(this.frames.HURT, 12, false);
                 return;
             }
 
@@ -147,7 +109,7 @@ class SkeletonBoss extends MoveableObject {
             }
 
             if (this.isAttacking) {
-                this.playAnimationWithSpeed(this.IMAGES_ATTACK, 10, false);
+                this.playAnimationWithSpeed(this.frames.ATTACK, 10, false);
                 return;
             }
 
@@ -195,11 +157,11 @@ class SkeletonBoss extends MoveableObject {
             this.moveRight();
         }
 
-        this.playAnimationWithSpeed(this.IMAGES_WALK, 8);
+        this.playAnimationWithSpeed(this.frames.WALK, 8);
     }
 
     playIdleAnimation() {
-        this.playAnimationWithSpeed(this.IMAGES_IDLE, 6);
+        this.playAnimationWithSpeed(this.frames.IDLE, 6);
     }
 
     activate() {
@@ -218,7 +180,7 @@ class SkeletonBoss extends MoveableObject {
         const frameDuration = 1000 / fps;
         const swingSoundFrame = 4;
         const hitFrame = 7;
-        const totalDuration = this.IMAGES_ATTACK.length * frameDuration;
+        const totalDuration = (this.frames.ATTACK?.length ?? 0) * frameDuration;
         const remainingCooldown = Math.max(3000 - totalDuration, 0);
 
         this.attackTimers.push(
@@ -270,21 +232,24 @@ class SkeletonBoss extends MoveableObject {
         this.attackTimers = [];
     }
 
-    hit(amount = this.damageOnCollision) {
-        super.hit(amount);
-        if (!this.isDead) {
-            this.stopAttackImmediately();
-            this.isHurt = true;
-            AudioHub.playOne(AudioHub.SKELETON_HURT);
-            const hurtDuration = (this.IMAGES_HURT.length / 12) * 1000;
-            setTimeout(() => {
-                this.isHurt = false;
-            }, hurtDuration);
-        } else {
-            AudioHub.playOne(AudioHub.SKELETON_DEAD);
-            this.clearAttackTimers();
-        }
-    }
+	hit(amount = this.damageOnCollision) {
+		const frames = this.frames.HURT?.length ?? 0;
+		const handled = this.handleHit(amount, {
+			deadSound: AudioHub.SKELETON_DEAD,
+			hurtSound: AudioHub.SKELETON_HURT,
+			hurtFps: 12,
+			hurtFrameCount: frames,
+			onDeath: () => this.clearAttackTimers(),
+			onHurtStart: () => {
+				this.stopAttackImmediately();
+				this.isHurt = true;
+			},
+			onHurtEnd: () => {
+				this.isHurt = false;
+			},
+		});
+		if (!handled) return;
+	}
 
     onAnimationFrame(images, frameIndex) {
         const animationName = this.getAnimationName(images);
@@ -293,20 +258,13 @@ class SkeletonBoss extends MoveableObject {
     }
 
     getAnimationName(images) {
-        for (const key in this) {
-            if (Object.prototype.hasOwnProperty.call(this, key) && this[key] === images && key.startsWith('IMAGES_')) {
+        const catalog = this.frames || {};
+        for (const [key, frames] of Object.entries(catalog)) {
+            if (frames === images) {
                 return key;
             }
         }
         return null;
-    }
-
-    scheduleHurtEnd() {
-        if (this.hurtTimeout) clearTimeout(this.hurtTimeout);
-        const hurtDuration = (this.IMAGES_HURT.length / 12) * 1000;
-        this.hurtTimeout = setTimeout(() => {
-            this.isHurt = false;
-        }, hurtDuration);
     }
 
     stopAllActivity() {

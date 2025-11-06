@@ -1,4 +1,5 @@
 class Goblin extends MoveableObject {
+    frames = {};
     offsetLeft = 35;
     offsetRight = 35;
     offsetTop = 40;
@@ -15,37 +16,11 @@ class Goblin extends MoveableObject {
     activationX = null;
     isDormant = false;
 
-    IMAGES_HURT = [
-        "./01_assets/3_enemies_mobs/goblin/3_hurt/goblin_hurt_01.png",
-        "./01_assets/3_enemies_mobs/goblin/3_hurt/goblin_hurt_02.png",
-        "./01_assets/3_enemies_mobs/goblin/3_hurt/goblin_hurt_03.png",
-        "./01_assets/3_enemies_mobs/goblin/3_hurt/goblin_hurt_04.png",
-    ];
-
-    IMAGES_DEAD = [
-        "./01_assets/3_enemies_mobs/goblin/2_dead/goblin_death_01.png",
-        "./01_assets/3_enemies_mobs/goblin/2_dead/goblin_death_02.png",
-        "./01_assets/3_enemies_mobs/goblin/2_dead/goblin_death_03.png",
-        "./01_assets/3_enemies_mobs/goblin/2_dead/goblin_death_04.png"
-    ];
-
-    IMAGES_WALK = [
-        "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_01.png",
-        "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_02.png",
-        "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_03.png",
-        "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_04.png",
-        "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_05.png",
-        "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_06.png",
-        "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_07.png",
-        "./01_assets/3_enemies_mobs/goblin/1_walk/goblin_walk_08.png"
-    ];
-
     constructor(player = null, isHurt = false, isDead = false) {
-        super().loadImage(this.IMAGES_WALK[0]);
+        super().loadImage(GoblinFrameCatalog.getFrameSet("WALK")[0]);
+        this.frames = GoblinFrameCatalog.createCatalog();
+        this.loadAllImages();
         this.x = 400 + Math.random() * 1000;
-        this.loadImages(this.IMAGES_WALK);
-        this.loadImages(this.IMAGES_DEAD);
-        this.loadImages(this.IMAGES_HURT);
 
         this.player = player;
         this.speed = 0.35 + Math.random() * 0.25;
@@ -54,6 +29,10 @@ class Goblin extends MoveableObject {
         this.isDead = isDead;
 
         this.animation();
+    }
+
+    loadAllImages() {
+        Object.values(this.frames).forEach(group => this.loadImages(group));
     }
 
     animation() {
@@ -70,12 +49,12 @@ class Goblin extends MoveableObject {
             }
 
             if (this.isDead) {
-                this.playAnimationWithSpeed(this.IMAGES_DEAD, 12, false);
+                this.playAnimationWithSpeed(this.frames.DEAD, 12, false);
                 return;
             }
 
             if (this.isHurt) {
-                this.playAnimationWithSpeed(this.IMAGES_HURT, 14, false);
+                this.playAnimationWithSpeed(this.frames.HURT, 14, false);
                 return;
             }
 
@@ -98,7 +77,7 @@ class Goblin extends MoveableObject {
         }
     }
 
-    walkTowardPlayer() {
+	walkTowardPlayer() {
         if (this.player) {
             if (this.otherDirection) {
                 this.moveLeft();
@@ -109,30 +88,25 @@ class Goblin extends MoveableObject {
             this.moveLeft();
         }
 
-        this.playAnimationWithSpeed(this.IMAGES_WALK, 12);
-    }
+		this.playAnimationWithSpeed(this.frames.WALK, 12);
+	}
 
-    hit(amount = this.damageOnCollision) {
-        if (this.isDead) return;
-        super.hit(amount);
+	hit(amount = this.damageOnCollision) {
+		const frames = this.frames.HURT?.length ?? 0;
+		this.handleHit(amount, {
+			deadSound: AudioHub.GOBLIN_DEAD,
+			hurtSound: AudioHub.GOBLIN_HURT,
+			hurtFps: 14,
+			hurtFrameCount: frames,
+			onDeath: () => this.clearHurtTimeout(),
+			onHurtStart: () => { this.clearHurtTimeout(); this.isHurt = true; },
+			onHurtEnd: () => { this.isHurt = false; },
+		});
+	}
 
-        if (this.isDead) {
-            AudioHub.playOne(AudioHub.GOBLIN_DEAD);
-            this.clearHurtTimeout();
-            return;
-        }
-
-        AudioHub.playOne(AudioHub.GOBLIN_HURT);
-        this.isHurt = true;
-        this.clearHurtTimeout();
-        const hurtDuration = (this.IMAGES_HURT.length / 14) * 1000;
-        this.hurtTimeout = setTimeout(() => {
-            this.isHurt = false;
-        }, hurtDuration);
-    }
 
     holdDormantPose() {
-        const idleFrame = this.IMAGES_WALK[0];
+        const idleFrame = this.frames.WALK[0];
         if (this.imageCache && this.imageCache[idleFrame]) {
             this.img = this.imageCache[idleFrame];
         }
@@ -150,8 +124,9 @@ class Goblin extends MoveableObject {
     }
 
     getAnimationName(images) {
-        for (const key in this) {
-            if (Object.prototype.hasOwnProperty.call(this, key) && this[key] === images && key.startsWith('IMAGES_')) {
+        const catalog = this.frames || {};
+        for (const [key, frames] of Object.entries(catalog)) {
+            if (frames === images) {
                 return key;
             }
         }

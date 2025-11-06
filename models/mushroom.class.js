@@ -1,4 +1,5 @@
 class Mushroom extends MoveableObject {
+    frames = {};
     width = 120;
     height = 120;
     y = 285;
@@ -21,33 +22,10 @@ class Mushroom extends MoveableObject {
     isDormant = false;
     activationTriggered = false;
 
-    IMAGES_HURT = [
-        "./01_assets/3_enemies_mobs/mushroom/2_hurt/mushroom_hurt_01.png",
-        "./01_assets/3_enemies_mobs/mushroom/2_hurt/mushroom_hurt_02.png",
-        "./01_assets/3_enemies_mobs/mushroom/2_hurt/mushroom_hurt_03.png",
-        "./01_assets/3_enemies_mobs/mushroom/2_hurt/mushroom_hurt_04.png",
-    ];
-
-    IMAGES_DEAD = [
-        "./01_assets/3_enemies_mobs/mushroom/2_dead/mushroom_death_01.png",
-        "./01_assets/3_enemies_mobs/mushroom/2_dead/mushroom_death_02.png",
-        "./01_assets/3_enemies_mobs/mushroom/2_dead/mushroom_death_03.png",
-        "./01_assets/3_enemies_mobs/mushroom/2_dead/mushroom_death_04.png",
-    ];
-
-    IMAGES_WALK = [
-        "./01_assets/3_enemies_mobs/mushroom/1_walk/mushroom_walk_01.png",
-        "./01_assets/3_enemies_mobs/mushroom/1_walk/mushroom_walk_02.png",
-        "./01_assets/3_enemies_mobs/mushroom/1_walk/mushroom_walk_03.png",
-        "./01_assets/3_enemies_mobs/mushroom/1_walk/mushroom_walk_04.png",
-        "./01_assets/3_enemies_mobs/mushroom/1_walk/mushroom_walk_05.png",
-        "./01_assets/3_enemies_mobs/mushroom/1_walk/mushroom_walk_06.png",
-        "./01_assets/3_enemies_mobs/mushroom/1_walk/mushroom_walk_07.png",
-        "./01_assets/3_enemies_mobs/mushroom/1_walk/mushroom_walk_08.png",
-    ];
-
     constructor(player = null, isHurt = false, isDead = false) {
-        super().loadImage(this.IMAGES_WALK[0]);
+        super().loadImage(MushroomFrameCatalog.getFrameSet("WALK")[0]);
+        this.frames = MushroomFrameCatalog.createCatalog();
+        this.loadAllImages();
         this.player = player;
         this.x = 450 + Math.random() * 900;
         this.spawnX = this.x;
@@ -62,12 +40,11 @@ class Mushroom extends MoveableObject {
         this.hitboxOffsetBottom = 30;
         this.hitboxOffsetLeft = 0;
         this.hitboxOffsetRight = 0;
-
-        this.loadImages(this.IMAGES_WALK);
-        this.loadImages(this.IMAGES_DEAD);
-        this.loadImages(this.IMAGES_HURT);
-
         this.animation();
+    }
+
+    loadAllImages() {
+        Object.values(this.frames).forEach(group => this.loadImages(group));
     }
 
     animation() {
@@ -85,12 +62,12 @@ class Mushroom extends MoveableObject {
             }
 
             if (this.isDead) {
-                this.playAnimationWithSpeed(this.IMAGES_DEAD, 10, false);
+                this.playAnimationWithSpeed(this.frames.DEAD, 10, false);
                 return;
             }
 
             if (this.isHurt) {
-                this.playAnimationWithSpeed(this.IMAGES_HURT, 12, false);
+                this.playAnimationWithSpeed(this.frames.HURT, 12, false);
                 return;
             }
 
@@ -125,30 +102,30 @@ class Mushroom extends MoveableObject {
             this.moveLeft();
         }
 
-        this.playAnimationWithSpeed(this.IMAGES_WALK, 11);
+        this.playAnimationWithSpeed(this.frames.WALK, 11);
     }
 
-    hit(amount = this.damageOnCollision) {
-        if (this.isDead) return;
-        super.hit(amount);
-
-        if (this.isDead) {
-            AudioHub.playOne(AudioHub.MUSHROOM_DEAD);
-            this.clearHurtTimeout();
-            return;
-        }
-
-        AudioHub.playOne(AudioHub.MUSHROOM_HURT);
-        this.isHurt = true;
-        this.clearHurtTimeout();
-        const hurtDuration = (this.IMAGES_HURT.length / 12) * 1000;
-        this.hurtTimeout = setTimeout(() => {
-            this.isHurt = false;
-        }, hurtDuration);
-    }
+	hit(amount = this.damageOnCollision) {
+		const frames = this.frames.HURT?.length ?? 0;
+		const handled = this.handleHit(amount, {
+			deadSound: AudioHub.MUSHROOM_DEAD,
+			hurtSound: AudioHub.MUSHROOM_HURT,
+			hurtFps: 12,
+			hurtFrameCount: frames,
+			onDeath: () => this.clearHurtTimeout(),
+			onHurtStart: () => {
+				this.clearHurtTimeout();
+				this.isHurt = true;
+			},
+			onHurtEnd: () => {
+				this.isHurt = false;
+			},
+		});
+		if (!handled) return;
+	}
 
     holdDormantPose() {
-        const idleFrame = this.IMAGES_WALK[0];
+        const idleFrame = this.frames.WALK?.[0];
         if (this.imageCache && this.imageCache[idleFrame]) {
             this.img = this.imageCache[idleFrame];
         }
@@ -166,9 +143,9 @@ class Mushroom extends MoveableObject {
     }
 
     getAnimationName(images) {
-        for (const key in this) {
-            if (!Object.prototype.hasOwnProperty.call(this, key)) continue;
-            if (this[key] === images && key.startsWith('IMAGES_')) {
+        const catalog = this.frames || {};
+        for (const [key, frames] of Object.entries(catalog)) {
+            if (frames === images) {
                 return key;
             }
         }

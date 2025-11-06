@@ -1,4 +1,5 @@
 class Bat extends MoveableObject {
+    frames = {};
     width = 120;
     height = 90;
     y = -100;
@@ -30,36 +31,11 @@ class Bat extends MoveableObject {
     isDeathFalling = false;
     deathFallInterval = null;
 
-    IMAGES_HURT = [
-        "./01_assets/3_enemies_mobs/bat/3_hurt/bat_hurt_01.png",
-        "./01_assets/3_enemies_mobs/bat/3_hurt/bat_hurt_02.png",
-        "./01_assets/3_enemies_mobs/bat/3_hurt/bat_hurt_03.png",
-        "./01_assets/3_enemies_mobs/bat/3_hurt/bat_hurt_04.png",
-    ];
-
-    IMAGES_DEAD = [
-        "./01_assets/3_enemies_mobs/bat/2_dead/bat_dead_01.png",
-        "./01_assets/3_enemies_mobs/bat/2_dead/bat_dead_02.png",
-        "./01_assets/3_enemies_mobs/bat/2_dead/bat_dead_03.png",
-        "./01_assets/3_enemies_mobs/bat/2_dead/bat_dead_04.png",
-    ];
-
-    IMAGES_WALK = [
-        "./01_assets/3_enemies_mobs/bat/1_walk/bat_walk_01.png",
-        "./01_assets/3_enemies_mobs/bat/1_walk/bat_walk_02.png",
-        "./01_assets/3_enemies_mobs/bat/1_walk/bat_walk_03.png",
-        "./01_assets/3_enemies_mobs/bat/1_walk/bat_walk_04.png",
-        "./01_assets/3_enemies_mobs/bat/1_walk/bat_walk_05.png",
-        "./01_assets/3_enemies_mobs/bat/1_walk/bat_walk_06.png",
-        "./01_assets/3_enemies_mobs/bat/1_walk/bat_walk_07.png",
-    ];
-
     constructor(player = null, isHurt = false, isDead = false) {
-        super().loadImage(this.IMAGES_WALK[0]);
+        super().loadImage(BatFrameCatalog.getFrameSet("WALK")[0]);
+        this.frames = BatFrameCatalog.createCatalog();
+        this.loadAllImages();
         this.x = 400 + Math.random() * 1000;
-        this.loadImages(this.IMAGES_WALK);
-        this.loadImages(this.IMAGES_DEAD);
-        this.loadImages(this.IMAGES_HURT);
 
         this.player = player;
         this.speed = 0.45 + Math.random() * 0.2;
@@ -79,6 +55,10 @@ class Bat extends MoveableObject {
         this.animation();
     }
 
+    loadAllImages() {
+        Object.values(this.frames).forEach(group => this.loadImages(group));
+    }
+
     animation() {
         if (this.animationInterval) {
             return;
@@ -96,13 +76,13 @@ class Bat extends MoveableObject {
                 if (this.isDeathFalling) {
                     this.holdDeathFallPose();
                 } else {
-                    this.playAnimationWithSpeed(this.IMAGES_DEAD, 10, false);
+                    this.playAnimationWithSpeed(this.frames.DEAD, 10, false);
                 }
                 return;
             }
 
             if (this.isHurt) {
-                this.playAnimationWithSpeed(this.IMAGES_HURT, 12, false);
+                this.playAnimationWithSpeed(this.frames.HURT, 12, false);
                 return;
             }
 
@@ -139,7 +119,7 @@ class Bat extends MoveableObject {
             this.ascendToAltitude(topAltitude);
         }
 
-        this.playAnimationWithSpeed(this.IMAGES_WALK, 14);
+        this.playAnimationWithSpeed(this.frames.WALK, 14);
     }
 
     ensureDiveTarget(heroCenterX, heroBottom) {
@@ -212,8 +192,10 @@ class Bat extends MoveableObject {
     startDeathFall() {
         if (this.deathFallInterval) return;
         this.isDeathFalling = true;
-        const fallFrameIndex = Math.min(1, this.IMAGES_DEAD.length - 1);
-        const fallFrame = this.IMAGES_DEAD[fallFrameIndex];
+        const frames = this.frames.DEAD || [];
+        if (!frames.length) return;
+        const fallFrameIndex = Math.min(1, frames.length - 1);
+        const fallFrame = frames[fallFrameIndex];
         if (fallFrame && this.imageCache?.[fallFrame]) {
             this.img = this.imageCache[fallFrame];
         }
@@ -246,8 +228,10 @@ class Bat extends MoveableObject {
     }
 
     holdDeathFallPose() {
-        const fallFrameIndex = Math.min(1, this.IMAGES_DEAD.length - 1);
-        const fallFrame = this.IMAGES_DEAD[fallFrameIndex];
+        const frames = this.frames.DEAD || [];
+        if (!frames.length) return;
+        const fallFrameIndex = Math.min(1, frames.length - 1);
+        const fallFrame = frames[fallFrameIndex];
         if (fallFrame && this.imageCache?.[fallFrame]) {
             this.img = this.imageCache[fallFrame];
         }
@@ -260,28 +244,30 @@ class Bat extends MoveableObject {
         return 340;
     }
 
-    hit(amount = this.damageOnCollision) {
-        if (this.isDead) return;
-        super.hit(amount);
-
-        if (this.isDead) {
-            AudioHub.playOne(AudioHub.BAT_DEAD);
-            this.clearHurtTimeout();
-            this.startDeathFall();
-            return;
-        }
-
-        AudioHub.playOne(AudioHub.BAT_HURT);
-        this.isHurt = true;
-        this.clearHurtTimeout();
-        const hurtDuration = (this.IMAGES_HURT.length / 12) * 1000;
-        this.hurtTimeout = setTimeout(() => {
-            this.isHurt = false;
-        }, hurtDuration);
-    }
+	hit(amount = this.damageOnCollision) {
+		const hurtFrames = this.frames.HURT?.length ?? 0;
+		const handled = this.handleHit(amount, {
+			deadSound: AudioHub.BAT_DEAD,
+			hurtSound: AudioHub.BAT_HURT,
+			hurtFps: 12,
+			hurtFrameCount: hurtFrames,
+			onDeath: () => {
+				this.clearHurtTimeout();
+				this.startDeathFall();
+			},
+			onHurtStart: () => {
+				this.clearHurtTimeout();
+				this.isHurt = true;
+			},
+			onHurtEnd: () => {
+				this.isHurt = false;
+			},
+		});
+		if (!handled) return;
+	}
 
     holdDormantPose() {
-        const idleFrame = this.IMAGES_WALK[0];
+        const idleFrame = this.frames.WALK?.[0];
         if (this.imageCache && this.imageCache[idleFrame]) {
             this.img = this.imageCache[idleFrame];
         }
@@ -299,8 +285,9 @@ class Bat extends MoveableObject {
     }
 
     getAnimationName(images) {
-        for (const key in this) {
-            if (Object.prototype.hasOwnProperty.call(this, key) && this[key] === images && key.startsWith('IMAGES_')) {
+        const catalog = this.frames || {};
+        for (const [key, frames] of Object.entries(catalog)) {
+            if (frames === images) {
                 return key;
             }
         }

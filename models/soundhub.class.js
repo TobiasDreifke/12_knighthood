@@ -50,14 +50,44 @@ class AudioHub {
     static BAT_HURT = AudioHub.createAudio('./01_assets/00_audio/hurt/goblin-death-6729 (mp3cut.net).mp3', 1);
     static BAT_DEAD = AudioHub.createAudio('./01_assets/00_audio/sword/violent-sword-slice-2-393841.mp3', 0.8);
 
-    static activeClones = new Set();
-    static masterVolume = 0.2;
-    static previousVolume = 0.2;
-    static muteRestoreVolume = 0.2;
-    static isMuted = false;
-    static currentMusic = null;
-    static heroIdleLoopActive = false;
+	static activeClones = new Set();
+	static masterVolume = 0.2;
+	static previousVolume = 0.2;
+	static muteRestoreVolume = 0.2;
+	static isMuted = false;
+	static currentMusic = null;
+	static heroIdleLoopActive = false;
     static pendingHeroIdleResume = false;
+    static isUnlocked = false;
+    static unlockHandlersAttached = false;
+    static pendingMusic = null;
+
+    static ensureInteractionUnlock() {
+        if (this.isUnlocked || this.unlockHandlersAttached) return;
+        if (typeof window === "undefined") return;
+        const unlockHandler = () => this.unlock();
+        const options = { once: true, capture: true };
+        ['pointerdown', 'keydown', 'touchstart'].forEach(event => {
+            window.addEventListener(event, unlockHandler, options);
+        });
+        this.unlockHandlersAttached = true;
+    }
+
+    static unlock() {
+        if (this.isUnlocked) return;
+        this.isUnlocked = true;
+        this.unlockHandlersAttached = false;
+        if (this.pendingMusic) {
+            const music = this.pendingMusic;
+            this.pendingMusic = null;
+            this.playMusicTrack(music);
+        } else {
+            this.resumeCurrentMusic();
+        }
+        if (this.pendingHeroIdleResume) {
+            this.playHeroIdleLoop(true);
+        }
+    }
 
     static allSounds = [
         AudioHub.START_SCREEN_MUSIC,
@@ -118,10 +148,11 @@ class AudioHub {
 		{ animation: 'CAST_HOLY', frames: [2], sound: AudioHub.CAST_HOLY },
 		{ animation: 'CAST_DARK', frames: [2], sound: AudioHub.CAST_DARK },
 
-        { animation: 'GOBLIN_IMAGES_WALK', frames: [0], sound: AudioHub.GOBLIN_WALK },
-        { animation: 'SKELETON_IMAGES_WALK', frames: [1], sound: AudioHub.SKELETON_WALK },
-        { animation: 'BAT_IMAGES_WALK', frames: [0], sound: AudioHub.BAT_WALK },
-        { animation: 'MUSHROOM_IMAGES_WALK', frames: [1], sound: AudioHub.MUSHROOM_WALK },
+		{ animation: 'GOBLIN_WALK', frames: [0], sound: AudioHub.GOBLIN_WALK },
+		{ animation: 'SKELETON_ATTACK', frames: [3], sound: AudioHub.SKELETON_ATTACK },
+		{ animation: 'SKELETON_WALK', frames: [1], sound: AudioHub.SKELETON_WALK },
+		{ animation: 'BAT_WALK', frames: [0], sound: AudioHub.BAT_WALK },
+		{ animation: 'MUSHROOM_WALK', frames: [1], sound: AudioHub.MUSHROOM_WALK },
     ];
 
     static syncSound(animationName, frameIndex) {
@@ -132,12 +163,16 @@ class AudioHub {
         }
     }
 
-    static playOne(sound) {
-        const audio = sound.cloneNode();
-        audio._baseVolume = this.getBaseVolume(sound);
-        audio.volume = this.getBaseVolume(audio) * this.getEffectiveVolume();
-        audio.currentTime = 0;
-        AudioHub.activeClones.add(audio);
+	static playOne(sound) {
+        if (!this.isUnlocked) {
+            this.ensureInteractionUnlock();
+            return;
+        }
+		const audio = sound.cloneNode();
+		audio._baseVolume = this.getBaseVolume(sound);
+		audio.volume = this.getBaseVolume(audio) * this.getEffectiveVolume();
+		audio.currentTime = 0;
+		AudioHub.activeClones.add(audio);
         audio.addEventListener('ended', () => AudioHub.activeClones.delete(audio));
         audio.addEventListener('pause', () => {
             if (audio.currentTime === 0 || audio.ended) {
@@ -240,39 +275,58 @@ class AudioHub {
         await this.playMusicTrack(this.GAMEPLAY_MUSIC);
     }
 
-    static async playMusicTrack(audio) {
-        if (!audio) return;
+	static async playMusicTrack(audio) {
+		if (!audio) return;
         this.currentMusic = audio;
-        audio.volume = this.getBaseVolume(audio) * this.getEffectiveVolume();
-        if (this.isMuted || this.getEffectiveVolume() === 0) {
-            audio.pause();
-            audio.currentTime = 0;
+        if (!this.isUnlocked) {
+            this.pendingMusic = audio;
+            this.ensureInteractionUnlock();
+            return;
+        }
+		audio.volume = this.getBaseVolume(audio) * this.getEffectiveVolume();
+		if (this.isMuted || this.getEffectiveVolume() === 0) {
+			audio.pause();
+			audio.currentTime = 0;
             return;
         }
         if (!audio.loop) audio.loop = true;
-        try {
+		try {
             if (audio.paused) {
                 audio.currentTime = 0;
                 await audio.play();
             }
         } catch (error) {
+            if (error?.name === 'AbortError') {
+                return;
+            }
+            if (error?.name === 'NotAllowedError') {
+                this.pendingMusic = audio;
+                this.ensureInteractionUnlock();
+                return;
+            }
             console.warn('Music playback blocked:', error);
         }
     }
 
-    static stopStartScreenMusic() {
+	static stopStartScreenMusic() {
         this.stopMusic(this.START_SCREEN_MUSIC);
         if (this.currentMusic === this.START_SCREEN_MUSIC) {
             this.currentMusic = null;
         }
-    }
+        if (!this.isUnlocked && this.pendingMusic === this.START_SCREEN_MUSIC) {
+            this.pendingMusic = null;
+        }
+	}
 
-    static stopGameplayMusic() {
+	static stopGameplayMusic() {
         this.stopMusic(this.GAMEPLAY_MUSIC);
         if (this.currentMusic === this.GAMEPLAY_MUSIC) {
             this.currentMusic = null;
         }
-    }
+        if (!this.isUnlocked && this.pendingMusic === this.GAMEPLAY_MUSIC) {
+            this.pendingMusic = null;
+        }
+	}
 
     static stopMusic(audio) {
         if (!audio) return;
@@ -299,24 +353,39 @@ class AudioHub {
         this.currentMusic = null;
     }
 
-    static playHeroIdleLoop(force = false) {
-        if (!this.IDLE_HERO) return;
-        if (this.isMuted || this.getEffectiveVolume() === 0) {
-            this.stopHeroIdleLoop();
+	static playHeroIdleLoop(force = false) {
+		if (!this.IDLE_HERO) return;
+        if (!this.isUnlocked && !force) {
+            this.pendingHeroIdleResume = true;
+            this.ensureInteractionUnlock();
             return;
         }
+        this.pendingHeroIdleResume = false;
+		if (this.isMuted || this.getEffectiveVolume() === 0) {
+			this.stopHeroIdleLoop();
+			return;
+		}
         if (this.heroIdleLoopActive && !force) return;
         const audio = this.IDLE_HERO;
         audio.loop = true;
         audio.volume = this.getBaseVolume(audio) * this.getEffectiveVolume();
         try {
-            this.heroIdleLoopActive = true;
+			this.heroIdleLoopActive = true;
             audio.currentTime = 0;
             const playPromise = audio.play();
             if (playPromise instanceof Promise) {
                 playPromise.then(() => {
                     this.heroIdleLoopActive = true;
                 }).catch(err => {
+                    if (err?.name === 'AbortError') {
+                        return;
+                    }
+                    if (err?.name === 'NotAllowedError') {
+                        this.pendingHeroIdleResume = true;
+                        this.ensureInteractionUnlock();
+                        this.heroIdleLoopActive = false;
+                        return;
+                    }
                     this.heroIdleLoopActive = false;
                     console.warn('Idle loop playback blocked:', err);
                 });
@@ -325,6 +394,12 @@ class AudioHub {
             }
         } catch (error) {
             this.heroIdleLoopActive = false;
+            if (error?.name === 'AbortError') return;
+            if (error?.name === 'NotAllowedError') {
+                this.pendingHeroIdleResume = true;
+                this.ensureInteractionUnlock();
+                return;
+            }
             console.warn('Idle loop playback failed:', error);
         }
     }

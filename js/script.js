@@ -8,6 +8,7 @@ let touchControlsManager = null;
 function init() {
     canvas = document.getElementById("canvas");
     const initialLevelIndex = 0;
+    AudioHub.ensureInteractionUnlock();
     world = new World(canvas, keyboard, initialLevelIndex);
 
     console.log("my char is", world.heroCharacter);
@@ -35,6 +36,7 @@ function setupStartButton() {
     const startButton = document.getElementById("start-button");
 
     startButton.addEventListener("click", () => {
+        AudioHub.unlock();
         AudioHub.playGameplayMusic();
         startScreen.style.opacity = 0;
 

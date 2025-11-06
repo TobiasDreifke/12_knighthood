@@ -137,8 +137,19 @@ class MoveableObject extends DrawableObject {
 		this.speedY = 30;
 	} ddd
 
-	hit(amount = this.damageOnCollision) {
-		if (this.isDead) return;
+	handleHit(amount = this.damageOnCollision, options = {}) {
+		const {
+			deadSound = null,
+			hurtSound = null,
+			hurtFps = 14,
+			hurtFrameCount = null,
+			onDeath = null,
+			onHurtStart = null,
+			onHurtEnd = null,
+		} = options;
+
+		if (this.isDead) return false;
+
 		this.health -= amount;
 		console.log(`[${this.constructor.name}] is hit with [${amount}]`);
 
@@ -149,6 +160,30 @@ class MoveableObject extends DrawableObject {
 		} else {
 			this.isHurt = true;
 		}
+
+		if (this.isDead) {
+			if (deadSound) AudioHub.playOne(deadSound);
+			if (typeof onDeath === "function") onDeath();
+			return true;
+		}
+
+		if (hurtSound) AudioHub.playOne(hurtSound);
+		if (typeof onHurtStart === "function") onHurtStart();
+
+		const defaultFrames = Array.isArray(this.frames?.HURT) ? this.frames.HURT.length : this.IMAGES_HURT?.length ?? 0;
+		const frames = typeof hurtFrameCount === "number" ? hurtFrameCount : defaultFrames;
+		const duration = frames > 0 ? (frames / hurtFps) * 1000 : 1000;
+		if (this.hurtTimeout) clearTimeout(this.hurtTimeout);
+		this.hurtTimeout = setTimeout(() => {
+			if (typeof onHurtEnd === "function") {
+				onHurtEnd();
+			}
+		}, duration);
+		return true;
+	}
+
+	hit(amount = this.damageOnCollision) {
+		this.handleHit(amount);
 	}
 
 	// isDead() {
