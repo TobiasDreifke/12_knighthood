@@ -3,11 +3,11 @@ const createGoblinAnimationConfig = enemy => ({
     fps: { loop: 25, walk: 12, hurt: 14, dead: 12 },
     dormant: {
         condition: () => enemy.isDormant,
-        action: () => enemy.holdDormantPose?.(),
+        action: () => enemy.holdDormantPose(enemy.frames.WALK, 0),
     },
     onActive: () => {
-        enemy.updateFacingDirection();
-        enemy.walkTowardPlayer();
+        enemy.moveTowardPlayer({ speed: enemy.speed, flipThreshold: 10 });
+        enemy.playAnimationWithSpeed(enemy.frames.WALK, 12);
     },
 });
 
@@ -54,33 +54,10 @@ class Goblin extends MoveableObject {
         this.animationController = controller;
     }
 
-    updateFacingDirection() {
-        if (!this.player) return;
-        const goblinCenter = this.x + this.width / 2;
-        const heroCenter = this.player.x + this.player.width / 2;
-        const delta = heroCenter - goblinCenter;
-        const flipThreshold = 10;
-
-        if (delta < -flipThreshold) {
-            this.otherDirection = true;
-        } else if (delta > flipThreshold) {
-            this.otherDirection = false;
-        }
+    ensureAnimationController() {
+        if (this.animationController) return;
+        this.setupAnimationController();
     }
-
-	walkTowardPlayer() {
-        if (this.player) {
-            if (this.otherDirection) {
-                this.moveLeft();
-            } else {
-                this.moveRight();
-            }
-        } else {
-            this.moveLeft();
-        }
-
-		this.playAnimationWithSpeed(this.frames.WALK, 12);
-	}
 
 	hit(amount = this.damageOnCollision) {
 		const frames = this.frames.HURT?.length ?? 0;
@@ -94,14 +71,6 @@ class Goblin extends MoveableObject {
 			onHurtEnd: () => { this.isHurt = false; },
 		});
 	}
-
-
-    holdDormantPose() {
-        const idleFrame = this.frames.WALK[0];
-        if (this.imageCache && this.imageCache[idleFrame]) {
-            this.img = this.imageCache[idleFrame];
-        }
-    }
 
     activate() {
         this.isDormant = false;

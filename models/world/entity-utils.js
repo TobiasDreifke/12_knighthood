@@ -44,6 +44,7 @@ class EntityUtils {
 		if (!hero) return;
 		if (EntityUtils.requiresPlayerAssignment(enemy)) {
 			enemy.player = hero;
+			enemy.ensureAnimationController?.();
 		}
 	}
 
@@ -55,6 +56,10 @@ class EntityUtils {
 	}
 
 	static startEnemyAnimation(enemy) {
+		if (typeof enemy?.ensureAnimationController === "function") {
+			enemy.ensureAnimationController();
+			return;
+		}
 		if (typeof enemy?.animation === "function") {
 			enemy.animation();
 		}

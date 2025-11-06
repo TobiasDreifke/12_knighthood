@@ -62,17 +62,22 @@ class SkeletonBoss extends MoveableObject {
         this.hitboxOffsetLeft = 0;
         this.hitboxOffsetRight = 0;
 
-        if (this.player) this.initAnimationController();
+        if (this.player) this.setupAnimationController();
     }
 
     loadAllImages() {
         Object.values(this.frames).forEach(group => this.loadImages(group));
     }
 
-    initAnimationController() {
+    setupAnimationController() {
         const controller = new EnemyAnimationController(this, createSkeletonAnimationConfig(this));
         controller.start();
         this.animationController = controller;
+    }
+
+    ensureAnimationController() {
+        if (this.animationController) return;
+        this.setupAnimationController();
     }
 
     distanceToPlayer() {
@@ -149,17 +154,7 @@ class SkeletonBoss extends MoveableObject {
 
     runBossBehaviour() {
         if (!this.player) return;
-        const bossCenter = this.x + this.width / 2;
-        const heroCenter = this.player.x + this.player.width / 2;
-        const centerDelta = heroCenter - bossCenter;
-        const flipThreshold = 20;
-
-        if (centerDelta < -flipThreshold) {
-            this.otherDirection = true;
-        } else if (centerDelta > flipThreshold) {
-            this.otherDirection = false;
-        }
-
+        this.updateFacingTowardPlayer({ player: this.player, flipThreshold: 20 });
         if (this.handleAttackLogic()) return;
         if (this.handleWalkingLogic()) return;
         this.playIdleAnimation();

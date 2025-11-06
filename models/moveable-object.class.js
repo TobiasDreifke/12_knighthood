@@ -186,6 +186,69 @@ class MoveableObject extends DrawableObject {
 		this.handleHit(amount);
 	}
 
+	moveTowardPlayer(options = {}) {
+		const {
+			player = this.player,
+			flipThreshold = 10,
+			speed = this.speed,
+			onMoveLeft,
+			onMoveRight,
+		} = options;
+		if (!player) return false;
+		const targetBox = typeof player.getHurtbox === "function" ? player.getHurtbox() : null;
+		const targetCenter = targetBox ? (targetBox.left + targetBox.right) / 2 : player.x ?? this.x;
+		const actorCenter = this.x + (this.width ?? 0) / 2;
+		const delta = targetCenter - actorCenter;
+
+		if (delta < -flipThreshold) {
+			this.otherDirection = true;
+			onMoveLeft?.(this);
+			this.x -= speed;
+			return true;
+		}
+		if (delta > flipThreshold) {
+			this.otherDirection = false;
+			onMoveRight?.(this);
+			this.x += speed;
+			return true;
+		}
+		return false;
+	}
+
+	updateFacingTowardPlayer(options = {}) {
+		const { player = this.player, flipThreshold = 10 } = options;
+		if (!player) return false;
+		const targetBox = typeof player.getHurtbox === "function" ? player.getHurtbox() : null;
+		const targetCenter = targetBox ? (targetBox.left + targetBox.right) / 2 : player.x ?? this.x;
+		const actorCenter = this.x + (this.width ?? 0) / 2;
+		const delta = targetCenter - actorCenter;
+		if (delta < -flipThreshold) {
+			this.otherDirection = true;
+			return true;
+		}
+		if (delta > flipThreshold) {
+			this.otherDirection = false;
+			return true;
+		}
+		return false;
+	}
+
+	holdPose(frames, index = 0) {
+		const frameList = Array.isArray(frames) ? frames : null;
+		if (!frameList || !frameList.length) return;
+		const safeIndex = Math.min(Math.max(index, 0), frameList.length - 1);
+		const frame = frameList[safeIndex];
+		if (frame && this.imageCache?.[frame]) {
+			this.img = this.imageCache[frame];
+		}
+	}
+
+	holdDormantPose(frames = null, index = 0) {
+		const fallback = this.frames?.IDLE || this.frames?.WALK || this.frames?.idle || this.frames?.walk;
+		const frameList = frames ?? fallback;
+		this.holdPose(frameList, index);
+	}
+
 	// isDead() {
 	// 	return this.health === 0;
 	// }

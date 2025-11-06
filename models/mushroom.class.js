@@ -3,11 +3,11 @@ const createMushroomAnimationConfig = enemy => ({
     fps: { loop: 25, walk: 11, hurt: 12, dead: 10 },
     dormant: {
         condition: () => enemy.isDormant,
-        action: () => enemy.holdDormantPose?.(),
+        action: () => enemy.holdDormantPose(enemy.frames.WALK, 0),
     },
     onActive: () => {
-        enemy.updateFacingDirection();
-        enemy.wanderTowardPlayer();
+        enemy.moveTowardPlayer({ speed: enemy.speed, flipThreshold: 5 });
+        enemy.playAnimationWithSpeed(enemy.frames.WALK, 11);
     },
 });
 
@@ -69,33 +69,9 @@ class Mushroom extends MoveableObject {
         this.animationController = controller;
     }
 
-    updateFacingDirection() {
-        if (!this.player) return;
-
-        const mushroomCenter = this.x + this.width / 2;
-        const heroCenter = this.player.x + this.player.width / 2;
-        const delta = heroCenter - mushroomCenter;
-        const flipThreshold = 5;
-
-        if (delta < -flipThreshold) {
-            this.otherDirection = true;
-        } else if (delta > flipThreshold) {
-            this.otherDirection = false;
-        }
-    }
-
-    wanderTowardPlayer() {
-        if (this.player) {
-            if (this.otherDirection) {
-                this.moveLeft();
-            } else {
-                this.moveRight();
-            }
-        } else {
-            this.moveLeft();
-        }
-
-        this.playAnimationWithSpeed(this.frames.WALK, 11);
+    ensureAnimationController() {
+        if (this.animationController) return;
+        this.setupAnimationController();
     }
 
 	hit(amount = this.damageOnCollision) {
@@ -116,14 +92,6 @@ class Mushroom extends MoveableObject {
 		});
 		if (!handled) return;
 	}
-
-    holdDormantPose() {
-        const idleFrame = this.frames.WALK?.[0];
-        if (this.imageCache && this.imageCache[idleFrame]) {
-            this.img = this.imageCache[idleFrame];
-        }
-    }
-
     activate() {
         this.isDormant = false;
         this.activationTriggered = true;

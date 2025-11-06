@@ -2,7 +2,7 @@ const createBatAnimationConfig = enemy => ({
     resolveWorld: () => enemy.player?.world || enemy.world,
     animationKeys: { walk: 'WALK', hurt: 'HURT', dead: 'DEAD' },
     fps: { loop: 25, walk: 14, hurt: 12, dead: 10 },
-    dormant: { condition: () => enemy.isDormant, action: () => enemy.holdDormantPose?.() },
+    dormant: { condition: () => enemy.isDormant, action: () => enemy.holdDormantPose(enemy.frames.WALK, 0) },
     states: [
         {
             condition: () => enemy.isDead,
@@ -18,7 +18,7 @@ const createBatAnimationConfig = enemy => ({
         },
     ],
     onActive: () => {
-        enemy.updateFacingDirection();
+        enemy.updateFacingTowardPlayer({ player: enemy.player, flipThreshold: 10 });
         enemy.performDivePattern();
     },
 });
@@ -77,18 +77,13 @@ class Bat extends MoveableObject {
         this.animationController = controller;
     }
 
-    updateFacingDirection() {
-        if (!this.player) return;
-        const batCenter = this.x + this.width / 2;
-        const heroCenter = this.player.x + this.player.width / 2;
-        const delta = heroCenter - batCenter;
-        const flipThreshold = 10;
+    ensureAnimationController() {
+        if (this.animationController) return;
+        this.setupAnimationController();
+    }
 
-        if (delta < -flipThreshold) {
-            this.otherDirection = true;
-        } else if (delta > flipThreshold) {
-            this.otherDirection = false;
-        }
+	updateFacingDirection() {
+        this.updateFacingTowardPlayer({ player: this.player, flipThreshold: 10 });
     }
 
     performDivePattern() {
