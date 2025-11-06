@@ -21,7 +21,7 @@ class HeroCombatController {
 		const hasSword = hero.hasSword;
 		hero.currentImpactSound = hasSword ? AudioHub.SWORD_IMPACT : AudioHub.PUNCH_IMPACT;
 		hero.attackImpactFrames = hasSword ? [0] : [1, 5];
-		hero.attackImpactAnimation = hasSword ? "IMAGES_ATTACK_SWORD" : "IMAGES_ATTACK";
+		hero.attackImpactAnimation = hasSword ? "ATTACK_SWORD" : "ATTACK";
 		hero.triggeredImpactFrames.clear();
 		hero.impactFramesPlayed.clear();
 		this.configureAttackHitbox(hasSword);
@@ -36,7 +36,7 @@ class HeroCombatController {
 
 	scheduleAttackEnd() {
 		const hero = this.hero;
-		const frames = hero.hasSword ? hero.IMAGES_ATTACK_SWORD : hero.IMAGES_ATTACK;
+		const frames = hero.hasSword ? hero.frames.ATTACK_SWORD : hero.frames.ATTACK;
 		const fps = 20;
 		const duration = frames.length * (1000 / fps);
 
@@ -89,7 +89,7 @@ class HeroCombatController {
 		hero.castPressed = true;
 		hero.castType = type;
 		hero.frameIndex = 0;
-		const frames = type === "DARK" ? hero.IMAGES_CAST_DARK : hero.IMAGES_CAST_HOLY;
+		const frames = type === "DARK" ? hero.frames.CAST_DARK : hero.frames.CAST_HOLY;
 		hero.playAnimationWithSpeed(frames, 20, false);
 		return frames;
 	}

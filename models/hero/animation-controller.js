@@ -72,7 +72,7 @@ class HeroAnimationController {
 			AudioHub.playHeroDeath();
 			hero.deathSoundPlayed = true;
 		}
-		const frames = hero.hasSword ? hero.IMAGES_DEAD_SWORD : hero.IMAGES_DEAD;
+		const frames = hero.hasSword ? hero.frames.DEAD_SWORD : hero.frames.DEAD;
 		hero.playAnimationWithSpeed(frames, 14, false);
 		return true;
 	}
@@ -82,7 +82,7 @@ class HeroAnimationController {
 		if (!hero.isHurt) return false;
 		AudioHub.stopHeroIdleLoop();
 		AudioHub.playHeroHurt();
-		hero.playAnimationWithSpeed(hero.IMAGES_HURT, 16, false);
+		hero.playAnimationWithSpeed(hero.frames.HURT, 16, false);
 		hero.isHurt = false;
 		return true;
 	}
@@ -92,7 +92,7 @@ class HeroAnimationController {
 		if (!hero.isAttacking) return false;
 		AudioHub.stopHeroIdleLoop();
 		hero.setCrouchHurtBox();
-		const frames = hero.hasSword ? hero.IMAGES_ATTACK_SWORD : hero.IMAGES_ATTACK;
+		const frames = hero.hasSword ? hero.frames.ATTACK_SWORD : hero.frames.ATTACK;
 		hero.playAnimationWithSpeed(frames, 20, false);
 		return true;
 	}
@@ -101,7 +101,7 @@ class HeroAnimationController {
 		const hero = this.hero;
 		if (!hero.isCasting || !hero.castType) return false;
 		AudioHub.stopHeroIdleLoop();
-		const frames = hero.castType === "DARK" ? hero.IMAGES_CAST_DARK : hero.IMAGES_CAST_HOLY;
+		const frames = hero.castType === "DARK" ? hero.frames.CAST_DARK : hero.frames.CAST_HOLY;
 		hero.playAnimationWithSpeed(frames, 20, false);
 		return true;
 	}
@@ -122,7 +122,7 @@ class HeroAnimationController {
 		const hero = this.hero;
 		AudioHub.stopHeroIdleLoop();
 		hero.setSlideHurtBox();
-		hero.playAnimationWithSpeed(hero.IMAGES_SLIDE, 18);
+		hero.playAnimationWithSpeed(hero.frames.SLIDE, 18);
 		return true;
 	}
 
@@ -139,7 +139,7 @@ class HeroAnimationController {
 		AudioHub.stopHeroIdleLoop();
 		hero.crouch();
 		hero.setCrouchHurtBox();
-		hero.playAnimationWithSpeed(hero.IMAGES_CROUCH, 12);
+		hero.playAnimationWithSpeed(hero.frames.CROUCH, 12);
 		return true;
 	}
 
@@ -147,7 +147,7 @@ class HeroAnimationController {
 		const hero = this.hero;
 		if (!hero.isAboveGround()) return false;
 		AudioHub.stopHeroIdleLoop();
-		const frames = hero.speedY > 0 ? hero.IMAGES_JUMP : hero.IMAGES_FALL;
+		const frames = hero.speedY > 0 ? hero.frames.JUMP : hero.frames.FALL;
 		hero.playAnimationWithSpeed(frames, 14);
 		return true;
 	}
@@ -156,7 +156,7 @@ class HeroAnimationController {
 		if (!keyboard.RIGHT && !keyboard.LEFT) return false;
 		const hero = this.hero;
 		AudioHub.stopHeroIdleLoop();
-		const frames = hero.hasSword ? hero.IMAGES_WALK_SWORD : hero.IMAGES_WALK;
+		const frames = hero.hasSword ? hero.frames.WALK_SWORD : hero.frames.WALK;
 		hero.playAnimationWithSpeed(frames, 16);
 		return true;
 	}
@@ -164,7 +164,7 @@ class HeroAnimationController {
 	playIdle() {
 		const hero = this.hero;
 		AudioHub.playHeroIdleLoop();
-		const frames = hero.hasSword ? hero.IMAGES_IDLE_SWORD : hero.IMAGES_IDLE;
+		const frames = hero.hasSword ? hero.frames.IDLE_SWORD : hero.frames.IDLE;
 		hero.playAnimationWithSpeed(frames, 12);
 	}
 
@@ -172,7 +172,7 @@ class HeroAnimationController {
 		if (!this.canStartSwordDraw()) return;
 		const hero = this.hero;
 		hero.isDrawingSword = true;
-		const frames = hero.IMAGES_DRAW_SWORD;
+		const frames = hero.frames.DRAW_SWORD;
 		const step = this.createSwordDrawStep(frames);
 		const intervalId = setInterval(step, 1000 / 12);
 		step.intervalId = intervalId;
@@ -216,10 +216,10 @@ class HeroAnimationController {
 		const elapsed = Date.now() - hero.celebrationStart;
 		this.ensureCelebrationSound(hero);
 		if (elapsed < hero.celebrationSheathDuration) {
-			hero.playAnimationWithSpeed(hero.IMAGES_SHEATHE_SWORD, hero.celebrationSheathFps, false);
+			hero.playAnimationWithSpeed(hero.frames.SHEATHE_SWORD, hero.celebrationSheathFps, false);
 			return;
 		}
-		hero.playAnimationWithSpeed(hero.IMAGES_IDLE, 1);
+		hero.playAnimationWithSpeed(hero.frames.IDLE, 1);
 		if (elapsed >= hero.celebrationTotalDuration) {
 			hero.isCelebrating = false;
 		}
@@ -251,11 +251,9 @@ class HeroAnimationController {
 	}
 
 	getAnimationName(images) {
-		const hero = this.hero;
-		for (const key in hero) {
-			if (!Object.prototype.hasOwnProperty.call(hero, key)) continue;
-			if (!key.startsWith("IMAGES_")) continue;
-			if (hero[key] === images) return key;
+		const catalog = this.hero.frames || {};
+		for (const [key, frames] of Object.entries(catalog)) {
+			if (frames === images) return key;
 		}
 		console.log("Animation name not found");
 		return null;

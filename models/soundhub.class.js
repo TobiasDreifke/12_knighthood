@@ -109,14 +109,14 @@ class AudioHub {
     ];
 
     static animationSoundSync = [
-        { animation: 'IMAGES_DRAW_SWORD', frames: [0], sound: AudioHub.SWORD_DRAW },
-        { animation: 'IMAGES_SHEATHE_SWORD', frames: [0], sound: AudioHub.SWORD_SHEATHE },
-        { animation: 'IMAGES_ATTACK', frames: [0, 4], sound: AudioHub.PUNCH_HERO },
-        { animation: 'IMAGES_ATTACK_SWORD', frames: [1], sound: AudioHub.SWORD_SLICE },
-        { animation: 'IMAGES_WALK', frames: [2, 5], sound: AudioHub.WALK_HERO },
-        { animation: 'IMAGES_WALK_SWORD', frames: [2, 5], sound: AudioHub.WALK_HERO },
-        { animation: 'IMAGES_CAST_HOLY', frames: [2], sound: AudioHub.CAST_HOLY },
-        { animation: 'IMAGES_CAST_DARK', frames: [2], sound: AudioHub.CAST_DARK },
+		{ animation: 'DRAW_SWORD', frames: [0], sound: AudioHub.SWORD_DRAW },
+		{ animation: 'SHEATHE_SWORD', frames: [0], sound: AudioHub.SWORD_SHEATHE },
+		{ animation: 'ATTACK', frames: [0, 4], sound: AudioHub.PUNCH_HERO },
+		{ animation: 'ATTACK_SWORD', frames: [1], sound: AudioHub.SWORD_SLICE },
+		{ animation: 'WALK', frames: [2, 5], sound: AudioHub.WALK_HERO },
+		{ animation: 'WALK_SWORD', frames: [2, 5], sound: AudioHub.WALK_HERO },
+		{ animation: 'CAST_HOLY', frames: [2], sound: AudioHub.CAST_HOLY },
+		{ animation: 'CAST_DARK', frames: [2], sound: AudioHub.CAST_DARK },
 
         { animation: 'GOBLIN_IMAGES_WALK', frames: [0], sound: AudioHub.GOBLIN_WALK },
         { animation: 'SKELETON_IMAGES_WALK', frames: [1], sound: AudioHub.SKELETON_WALK },
