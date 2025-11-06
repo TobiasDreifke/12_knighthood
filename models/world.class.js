@@ -139,13 +139,6 @@ class World {
 		return true;
 	}
 
-	togglePause() {
-		if (this.isPaused) {
-			return this.resumeGame();
-		}
-		return this.pauseGame();
-	}
-
 	updateAmmoBars() {
 		if (this.StatusbarDark?.setAmmoCount) {
 			this.StatusbarDark.setAmmoCount(this.darkAmmo.length);
@@ -169,13 +162,6 @@ class World {
 
 	canThrowHoly() {
 		return this.throwController.canThrowHoly(this);
-	}
-
-
-
-	checkInventory() {
-		CurrentInventory = this.heroinventory;
-		console.log("current inventory list" + CurrentInventory);
 	}
 
 	checkCollisions() {

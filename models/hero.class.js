@@ -168,8 +168,12 @@ class Hero extends MoveableObject {
     constructor(isDead = false) {
         super().loadImage("./01_assets/2_character_hero/7_fall/adventurer-fall-00.png")
         this.loadAllImages();
-        this.animation();
         this.applyGravity();
+        this.initState(isDead);
+        this.initControllers();
+    }
+
+    initState(isDead) {
         this.isDead = isDead;
         this.controlsLocked = false;
         this.isCelebrating = false;
@@ -179,228 +183,37 @@ class Hero extends MoveableObject {
         this.celebrationSoundPlayed = false;
         this.deathSoundPlayed = false;
         this.audioHooks = new HeroAudioHooks(this);
+    }
+
+    initControllers() {
         this.animationController = new HeroAnimationController(this);
         this.movementController = new HeroMovementController(this);
         this.combatController = new HeroCombatController(this);
-    }
-
-    startDrawSwordAnimation() {
-        if (!this.hasSword || this.isDrawingSword) return;
-        this.isDrawingSword = true;
-        let frameDuration = 1000 / 12;
-        let currentFrame = 0;
-
-        const drawInterval = setInterval(() => {
-            if (this.world?.isPaused) return;
-            if (currentFrame < this.IMAGES_DRAW_SWORD.length) {
-                const path = this.IMAGES_DRAW_SWORD[currentFrame];
-                this.img = this.imageCache[path];
-                if (this.onAnimationFrame) {
-                    this.onAnimationFrame(this.IMAGES_DRAW_SWORD, currentFrame);
-                }
-                currentFrame++;
-            } else {
-                this.isDrawingSword = false;
-                clearInterval(drawInterval);
-            }
-        }, frameDuration);
+        this.onAnimationFrame = (images, frameIndex) => {
+            this.animationController.handleAnimationFrame(images, frameIndex);
+        };
+        this.animationController.start();
     }
 
 
     loadAllImages() {
-        this.loadImages(this.IMAGES_IDLE);
-        this.loadImages(this.IMAGES_WALK);
-        this.loadImages(this.IMAGES_JUMP);
-        this.loadImages(this.IMAGES_HURT);
-        this.loadImages(this.IMAGES_DEAD);
-        this.loadImages(this.IMAGES_FALL);
-        this.loadImages(this.IMAGES_CAST_HOLY);
-        this.loadImages(this.IMAGES_CAST_DARK);
-        this.loadImages(this.IMAGES_SLIDE);
-        this.loadImages(this.IMAGES_ATTACK);
-        this.loadImages(this.IMAGES_ATTACK_SWORD);
-        this.loadImages(this.IMAGES_DEAD_SWORD);
-        this.loadImages(this.IMAGES_CROUCH);
-        this.loadImages(this.IMAGES_DRAW_SWORD);
-        this.loadImages(this.IMAGES_IDLE_SWORD);
-        this.loadImages(this.IMAGES_SHEATHE_SWORD);
-        this.loadImages(this.IMAGES_WALK_SWORD);
+        const groups = [
+            this.IMAGES_IDLE, this.IMAGES_WALK, this.IMAGES_JUMP,
+            this.IMAGES_HURT, this.IMAGES_DEAD, this.IMAGES_FALL,
+            this.IMAGES_CAST_HOLY, this.IMAGES_CAST_DARK, this.IMAGES_SLIDE,
+            this.IMAGES_ATTACK, this.IMAGES_ATTACK_SWORD, this.IMAGES_DEAD_SWORD,
+            this.IMAGES_CROUCH, this.IMAGES_DRAW_SWORD, this.IMAGES_IDLE_SWORD,
+            this.IMAGES_SHEATHE_SWORD, this.IMAGES_WALK_SWORD,
+        ];
+        groups.forEach(images => this.loadImages(images));
     }
 
-    onAnimationFrame(images, frameIndex) {
-
-
-        const animationName = this.getAnimationName(images);
-
-        AudioHub.syncSound(animationName, frameIndex);
-
-        if (
-            this.isAttacking &&
-            animationName === this.attackImpactAnimation &&
-            Array.isArray(this.attackImpactFrames) &&
-            this.attackImpactFrames.includes(frameIndex) &&
-            !this.triggeredImpactFrames.has(frameIndex)
-        ) {
-            this.triggeredImpactFrames.add(frameIndex);
-            this.dealDamageToEnemies(frameIndex);
-        }
-    }
-
-    getAnimationName(images) { // for SoundSynching
-        for (let key in this) {
-            if (this[key] === images && key.startsWith('IMAGES_')) {
-                return key;
-            }
-        }
-        console.log("Animation name not found");
-        return null;
-    }
-
-
-
-    animation() {
-        setInterval(() => {
-            if (this.shouldSkipAnimation()) return;
-
-            const keyboard = this.world.keyboard;
-            const wasGrounded = this.wasOnGround;
-            const movementState = this.applyMovementInput(keyboard);
-            const isGrounded = !this.isAboveGround();
-            if (!wasGrounded && isGrounded) {
-                AudioHub.playOne(AudioHub.FALL_HERO);
-            }
-            this.wasOnGround = isGrounded;
-
-            const animationHandled = this.playPriorityAnimation(keyboard, movementState);
-            if (!animationHandled) {
-                this.playMovementAnimation(keyboard);
-            }
-
-            this.updateCameraPosition();
-        }, 1000 / 25);
-    }
-
-    shouldSkipAnimation() {
-        if (this.world?.isPaused) return true;
-        return this.isDrawingSword;
+    startDrawSwordAnimation() {
+        this.animationController.startDrawSwordAnimation();
     }
 
     applyMovementInput(keyboard) {
-        if (this.controlsLocked || this.isCelebrating) {
-            return { slidePressed: false };
-        }
-
-        const jumpPressed = keyboard.UP || keyboard.JUMP;
-        const canJump = jumpPressed && !this.isAboveGround();
-        AudioHub.playOncePerKey(this.jumpSoundFlag, AudioHub.JUMP_HERO, jumpPressed, canJump);
-        if (canJump) this.jump();
-
-        const slideRightPressed = keyboard.RIGHT && keyboard.DOWN;
-        const slideLeftPressed = keyboard.LEFT && keyboard.DOWN;
-        const slidePressed = slideRightPressed || slideLeftPressed;
-        const canSlideSound = slidePressed;
-        AudioHub.playOncePerKey(this.slideSoundFlag, AudioHub.SLIDE_HERO, slidePressed, canSlideSound);
-
-        if (keyboard.RIGHT && this.x < this.world.level.level_end_x) this.moveRight();
-        if (keyboard.LEFT && this.x > 0) this.moveLeft();
-        if (slideRightPressed) this.slideRight();
-        if (slideLeftPressed) this.slideLeft();
-
-        return { slidePressed };
-    }
-
-    playPriorityAnimation(keyboard, movementState) {
-        this.resetHurtBox();
-        if (this.isCelebrating) {
-            AudioHub.stopHeroIdleLoop();
-            this.handleCelebration();
-            return true;
-        }
-
-        if (this.isDead) {
-            AudioHub.stopHeroIdleLoop();
-            if (!this.deathSoundPlayed) {
-                AudioHub.playHeroDeath();
-                this.deathSoundPlayed = true;
-            }
-            const deadImages = this.hasSword ? this.IMAGES_DEAD_SWORD : this.IMAGES_DEAD;
-            this.playAnimationWithSpeed(deadImages, 14, false);
-            return true;
-        }
-        this.deathSoundPlayed = false;
-
-        if (this.isHurt) {
-            AudioHub.stopHeroIdleLoop();
-            AudioHub.playHeroHurt();
-            this.playAnimationWithSpeed(this.IMAGES_HURT, 16, false);
-            this.isHurt = false;
-            return true;
-        }
-
-        if (this.isAttacking) {
-            AudioHub.stopHeroIdleLoop();
-            this.setCrouchHurtBox();
-            const attackImages = this.hasSword ? this.IMAGES_ATTACK_SWORD : this.IMAGES_ATTACK;
-            this.playAnimationWithSpeed(attackImages, 20, false);
-            return true;
-        }
-
-        if (this.isCasting && this.castType) {
-            AudioHub.stopHeroIdleLoop();
-            const castImages = this.castType === 'DARK' ? this.IMAGES_CAST_DARK : this.IMAGES_CAST_HOLY;
-            this.playAnimationWithSpeed(castImages, 20, false);
-            return true;
-        }
-
-        if (keyboard.ATTACK) {
-            AudioHub.stopHeroIdleLoop();
-            if (!this.attackPressed) {
-                this.attackPressed = true;
-                this.playAttackAnimationOnce();
-            }
-            return true;
-        }
-
-        if (movementState.slidePressed) {
-            AudioHub.stopHeroIdleLoop();
-            this.setSlideHurtBox();
-            this.playAnimationWithSpeed(this.IMAGES_SLIDE, 18);
-            return true;
-        }
-
-        return false;
-    }
-
-
-    playMovementAnimation(keyboard) {
-        if (keyboard.DOWN) {
-            AudioHub.stopHeroIdleLoop();
-            this.crouch();
-            this.setCrouchHurtBox();
-            this.playAnimationWithSpeed(this.IMAGES_CROUCH, 12);
-            return;
-        }
-
-        if (this.isAboveGround()) {
-            AudioHub.stopHeroIdleLoop();
-            if (this.speedY > 0) {
-                this.playAnimationWithSpeed(this.IMAGES_JUMP, 14);
-            } else if (this.speedY < 0) {
-                this.playAnimationWithSpeed(this.IMAGES_FALL, 14);
-            }
-            return;
-        }
-
-        if (keyboard.RIGHT || keyboard.LEFT) {
-            AudioHub.stopHeroIdleLoop();
-            const walkImages = this.hasSword ? this.IMAGES_WALK_SWORD : this.IMAGES_WALK;
-            this.playAnimationWithSpeed(walkImages, 16);
-            return;
-        }
-
-        AudioHub.playHeroIdleLoop();
-        const idleImages = this.hasSword ? this.IMAGES_IDLE_SWORD : this.IMAGES_IDLE;
-        this.playAnimationWithSpeed(idleImages, 12);
+        return this.movementController.applyMovementInput(keyboard);
     }
 
     updateCameraPosition() {
@@ -412,71 +225,15 @@ class Hero extends MoveableObject {
         }
     }
     playAttackAnimationOnce() {
-        if (this.isAttacking) return; // avoid re-trigger
-
-        this.isAttacking = true;
-        this.frameIndex = 0; // reset animation
-        this.attackPressed = true;
-        this.currentImpactSound = this.hasSword ? AudioHub.SWORD_IMPACT : AudioHub.PUNCH_IMPACT;
-        this.attackImpactFrames = this.hasSword ? [0] : [1, 5];
-        this.attackImpactAnimation = this.hasSword ? 'IMAGES_ATTACK_SWORD' : 'IMAGES_ATTACK';
-        this.triggeredImpactFrames.clear();
-        this.impactFramesPlayed.clear();
-
-        // hitbox setup
-        this.hitboxOffsetTop = this.hasSword ? -30 : 10;
-        this.hitboxOffsetBottom = this.hasSword ? 10 : 20;
-        this.hitboxWidth = this.hasSword ? 40 : 30;
-
-        // animation timing
-        const attackImages = this.hasSword ? this.IMAGES_ATTACK_SWORD : this.IMAGES_ATTACK;
-        const fps = 20;
-        const frameDuration = 1000 / fps;
-
-        // end attack after full animation
-        const totalDuration = attackImages.length * frameDuration;
-        setTimeout(() => {
-            this.isAttacking = false;
-            this.attackPressed = false;
-            this.attackImpactAnimation = null;
-            this.attackImpactFrames = [];
-            this.currentImpactSound = null;
-            this.triggeredImpactFrames.clear();
-            this.impactFramesPlayed.clear();
-        }, totalDuration);
+        this.combatController.playAttackAnimationOnce();
     }
 
-    PlayCastAnimationOnce(type, force = false) { // type = 'HOLY' or 'DARK'
-        const noAmmo =
-            (type === 'DARK' && this.world.darkAmmo.length === 0) ||
-            (type === 'HOLY' && this.world.holyAmmo.length === 0);
-
-        if (this.isCasting || (!force && noAmmo)) {
-            if (!force && noAmmo) console.log("No ammo left or already casting!");
-            return;
-        }
-
-        this.isCasting = true;
-        this.castPressed = true;
-        this.castType = type; // track which cast is active
-        this.frameIndex = 0;
-
-        const castImages = type === 'DARK' ? this.IMAGES_CAST_DARK : this.IMAGES_CAST_HOLY;
-        const fps = 20;
-        const frameDuration = 1000 / fps;
-
-        this.playAnimationWithSpeed(castImages, fps, false);
-
-        const totalDuration = castImages.length * frameDuration;
-        setTimeout(() => {
-            this.isCasting = false;
-            this.castPressed = false;
-            this.castType = null;
-        }, totalDuration);
+    PlayCastAnimationOnce(type, force = false) {
+        this.combatController.playCastAnimationOnce(type, force);
     }
 
     triggerCastAnimation(type) {
-        this.PlayCastAnimationOnce(type, true);
+        this.combatController.triggerCastAnimation(type);
     }
 
     setControlsLocked(lock = true) {
@@ -489,14 +246,31 @@ class Hero extends MoveableObject {
     startWinCelebration() {
         if (this.isCelebrating) return;
         this.setControlsLocked(true);
+        this.configureCelebrationState();
+    }
+
+    configureCelebrationState() {
         this.isCelebrating = true;
         this.celebrationSoundPlayed = false;
         this.celebrationStart = Date.now();
-        this.celebrationSheathDuration = (this.IMAGES_SHEATHE_SWORD.length / this.celebrationSheathFps) * 1000;
+        this.updateCelebrationTiming();
+        this.resetCelebrationAnimationState();
+        this.resetCelebrationCombatState();
+    }
+
+    updateCelebrationTiming() {
+        const sheatheFrames = this.IMAGES_SHEATHE_SWORD.length;
+        this.celebrationSheathDuration = (sheatheFrames / this.celebrationSheathFps) * 1000;
         this.celebrationTotalDuration = this.celebrationSheathDuration + this.celebrationHoldDuration;
+    }
+
+    resetCelebrationAnimationState() {
         this.frameIndex = 0;
         this.lastFrameTime = 0;
         this.speedY = 0;
+    }
+
+    resetCelebrationCombatState() {
         this.castType = null;
         this.isCasting = false;
         this.hasSword = false;
@@ -504,21 +278,7 @@ class Hero extends MoveableObject {
     }
 
     handleCelebration() {
-        if (!this.isCelebrating) return;
-        const elapsed = Date.now() - this.celebrationStart;
-        if (!this.celebrationSoundPlayed) {
-            AudioHub.playOne(AudioHub.SWORD_SHEATHE);
-            this.celebrationSoundPlayed = true;
-        }
-
-        if (elapsed < this.celebrationSheathDuration) {
-            this.playAnimationWithSpeed(this.IMAGES_SHEATHE_SWORD, this.celebrationSheathFps, false);
-        } else {
-            this.playAnimationWithSpeed(this.IMAGES_IDLE, 1);
-            if (elapsed >= this.celebrationTotalDuration) {
-                this.isCelebrating = false;
-            }
-        }
+        this.animationController.handleCelebration();
     }
 
     getCelebrationDuration() {
@@ -526,32 +286,7 @@ class Hero extends MoveableObject {
     }
 
     dealDamageToEnemies(impactFrame = null) {
-        if (this.world?.isPaused) return;
-        let hitSomething = false;
-        this.world.level.enemies.forEach(enemy => {
-            if (enemy?.isDead) return;
-            const hitbox = this.getHitbox();
-            const enemyHurtbox = enemy.getHurtbox();
-
-            const isHit =
-                hitbox.right > enemyHurtbox.left &&
-                hitbox.left < enemyHurtbox.right &&
-                hitbox.bottom > enemyHurtbox.top &&
-                hitbox.top < enemyHurtbox.bottom;
-
-            if (isHit) {
-                console.log("HERO hit ENEMY!");
-                enemy.hit(this.hasSword ? this.swordDamage : this.punchDamage);
-                hitSomething = true;
-            }
-        });
-        if (!hitSomething || !this.currentImpactSound) return;
-
-        const frameKey = impactFrame ?? 'default';
-        if (!this.impactFramesPlayed.has(frameKey)) {
-            AudioHub.playOne(this.currentImpactSound);
-            this.impactFramesPlayed.add(frameKey);
-        }
+        this.combatController.dealDamageToEnemies(impactFrame);
     }
 
     hit(amount = this.damageOnCollision) {
