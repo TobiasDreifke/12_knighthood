@@ -1,3 +1,28 @@
+const createBatAnimationConfig = enemy => ({
+    resolveWorld: () => enemy.player?.world || enemy.world,
+    animationKeys: { walk: 'WALK', hurt: 'HURT', dead: 'DEAD' },
+    fps: { loop: 25, walk: 14, hurt: 12, dead: 10 },
+    dormant: { condition: () => enemy.isDormant, action: () => enemy.holdDormantPose?.() },
+    states: [
+        {
+            condition: () => enemy.isDead,
+            action: (_, ctrl) => {
+                if (enemy.isDeathFalling) enemy.holdDeathFallPose?.();
+                else ctrl.playAnimationKey('dead', ctrl.config.fps?.dead ?? 10, false);
+                return true;
+            },
+        },
+        {
+            condition: () => enemy.isHurt,
+            action: (_, ctrl) => (ctrl.playAnimationKey('hurt', ctrl.config.fps?.hurt ?? 12, false), true),
+        },
+    ],
+    onActive: () => {
+        enemy.updateFacingDirection();
+        enemy.performDivePattern();
+    },
+});
+
 class Bat extends MoveableObject {
     frames = {};
     width = 120;
@@ -37,58 +62,19 @@ class Bat extends MoveableObject {
         this.loadAllImages();
         this.x = 400 + Math.random() * 1000;
 
-        this.player = player;
-        this.speed = 0.45 + Math.random() * 0.2;
-        this.baseHorizontalSpeed = this.speed;
-        this.verticalClimbSpeed = 2.2 + Math.random();
-        this.currentDiveSpeed = this.baseHorizontalSpeed * 2.4;
-        this.diveAcceleration = 0.2 + Math.random() * 0.15;
-        this.diveSpeedCapMultiplier = 5.5 + Math.random() * 1.2;
-        this.otherDirection = true;
-        this.isHurt = isHurt;
-        this.isDead = isDead;
-
-        this.spawnX = this.x;
-        this.spawnY = typeof this.spawnY === "number" ? this.spawnY : 100;
-        this.y = this.spawnY;
-
-        this.animation();
+        this.initializeState(player, isHurt, isDead);
+        this.initializeSpawn();
+        this.setupAnimationController();
     }
 
     loadAllImages() {
         Object.values(this.frames).forEach(group => this.loadImages(group));
     }
 
-    animation() {
-        if (this.animationInterval) {
-            return;
-        }
-        this.animationInterval = setInterval(() => {
-            const world = this.player?.world || this.world;
-            if (world && world.isPaused) return;
-
-            if (this.isDormant) {
-                this.holdDormantPose();
-                return;
-            }
-
-            if (this.isDead) {
-                if (this.isDeathFalling) {
-                    this.holdDeathFallPose();
-                } else {
-                    this.playAnimationWithSpeed(this.frames.DEAD, 10, false);
-                }
-                return;
-            }
-
-            if (this.isHurt) {
-                this.playAnimationWithSpeed(this.frames.HURT, 12, false);
-                return;
-            }
-
-            this.updateFacingDirection();
-            this.performDivePattern();
-        }, 1000 / 25);
+    setupAnimationController() {
+        const controller = new EnemyAnimationController(this, createBatAnimationConfig(this));
+        controller.start();
+        this.animationController = controller;
     }
 
     updateFacingDirection() {
@@ -301,11 +287,8 @@ class Bat extends MoveableObject {
         }
     }
 
-    stopAllActivity() {
-        if (this.animationInterval) {
-            clearInterval(this.animationInterval);
-            this.animationInterval = null;
-        }
+	stopAllActivity() {
+        this.animationController?.stop();
         if (this.deathFallInterval) {
             clearInterval(this.deathFallInterval);
             this.deathFallInterval = null;
@@ -314,5 +297,24 @@ class Bat extends MoveableObject {
         this.player = null;
         this.frameIndex = 0;
         this.lastFrameTime = 0;
+    }
+
+    initializeState(player, isHurt, isDead) {
+        this.player = player;
+        this.speed = 0.45 + Math.random() * 0.2;
+        this.baseHorizontalSpeed = this.speed;
+        this.verticalClimbSpeed = 2.2 + Math.random();
+        this.currentDiveSpeed = this.baseHorizontalSpeed * 2.4;
+        this.diveAcceleration = 0.2 + Math.random() * 0.15;
+        this.diveSpeedCapMultiplier = 5.5 + Math.random() * 1.2;
+        this.otherDirection = true;
+        this.isHurt = isHurt;
+        this.isDead = isDead;
+    }
+
+    initializeSpawn() {
+        this.spawnX = this.x;
+        this.spawnY = typeof this.spawnY === "number" ? this.spawnY : 100;
+        this.y = this.spawnY;
     }
 }

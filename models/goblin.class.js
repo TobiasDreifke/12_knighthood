@@ -1,3 +1,16 @@
+const createGoblinAnimationConfig = enemy => ({
+    animationKeys: { walk: 'WALK', hurt: 'HURT', dead: 'DEAD' },
+    fps: { loop: 25, walk: 12, hurt: 14, dead: 12 },
+    dormant: {
+        condition: () => enemy.isDormant,
+        action: () => enemy.holdDormantPose?.(),
+    },
+    onActive: () => {
+        enemy.updateFacingDirection();
+        enemy.walkTowardPlayer();
+    },
+});
+
 class Goblin extends MoveableObject {
     frames = {};
     offsetLeft = 35;
@@ -28,39 +41,17 @@ class Goblin extends MoveableObject {
         this.isHurt = isHurt;
         this.isDead = isDead;
 
-        this.animation();
+        this.setupAnimationController();
     }
 
     loadAllImages() {
         Object.values(this.frames).forEach(group => this.loadImages(group));
     }
 
-    animation() {
-        if (this.animationInterval) {
-            return;
-        }
-        this.animationInterval = setInterval(() => {
-            const world = this.player?.world || this.world;
-            if (world && world.isPaused) return;
-
-            if (this.isDormant) {
-                this.holdDormantPose();
-                return;
-            }
-
-            if (this.isDead) {
-                this.playAnimationWithSpeed(this.frames.DEAD, 12, false);
-                return;
-            }
-
-            if (this.isHurt) {
-                this.playAnimationWithSpeed(this.frames.HURT, 14, false);
-                return;
-            }
-
-            this.updateFacingDirection();
-            this.walkTowardPlayer();
-        }, 1000 / 25);
+    setupAnimationController() {
+        const controller = new EnemyAnimationController(this, createGoblinAnimationConfig(this));
+        controller.start();
+        this.animationController = controller;
     }
 
     updateFacingDirection() {
@@ -141,10 +132,7 @@ class Goblin extends MoveableObject {
     }
 
     stopAllActivity() {
-        if (this.animationInterval) {
-            clearInterval(this.animationInterval);
-            this.animationInterval = null;
-        }
+        this.animationController?.stop();
         this.clearHurtTimeout();
         this.player = null;
         this.frameIndex = 0;

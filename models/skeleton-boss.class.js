@@ -1,3 +1,25 @@
+const createSkeletonAnimationConfig = enemy => ({
+    resolveWorld: () => enemy.player?.world || enemy.world,
+    animationKeys: { walk: 'WALK', hurt: 'HURT', dead: 'DEAD', idle: 'IDLE', attack: 'ATTACK' },
+    fps: { loop: 25, walk: 8, hurt: 12, dead: 6, attack: 10 },
+    dormant: { condition: () => enemy.isDormant, action: () => enemy.playIdleAnimation() },
+    states: [
+        {
+            condition: () => enemy.isDead,
+            action: (_, ctrl) => (ctrl.playAnimationKey('dead', ctrl.config.fps?.dead ?? 6, false), true),
+        },
+        {
+            condition: () => enemy.isHurt,
+            action: (_, ctrl) => (ctrl.playAnimationKey('hurt', ctrl.config.fps?.hurt ?? 12, false), true),
+        },
+        {
+            condition: () => enemy.isAttacking,
+            action: (_, ctrl) => (ctrl.playAnimationKey('attack', ctrl.config.fps?.attack ?? 10, false), true),
+        },
+    ],
+    onActive: () => enemy.runBossBehaviour(),
+});
+
 class SkeletonBoss extends MoveableObject {
     frames = {};
     width = 250;
@@ -40,11 +62,17 @@ class SkeletonBoss extends MoveableObject {
         this.hitboxOffsetLeft = 0;
         this.hitboxOffsetRight = 0;
 
-        if (this.player) this.animation();
+        if (this.player) this.initAnimationController();
     }
 
     loadAllImages() {
         Object.values(this.frames).forEach(group => this.loadImages(group));
+    }
+
+    initAnimationController() {
+        const controller = new EnemyAnimationController(this, createSkeletonAnimationConfig(this));
+        controller.start();
+        this.animationController = controller;
     }
 
     distanceToPlayer() {
@@ -73,51 +101,6 @@ class SkeletonBoss extends MoveableObject {
         const bossBox = this.getHurtbox();
         const playerBox = this.player.getHurtbox();
         return bossBox.bottom > playerBox.top && bossBox.top < playerBox.bottom;
-    }
-
-    animation() {
-        if (this.animationInterval) return;
-        this.animationInterval = setInterval(() => {
-            const world = this.player?.world || this.world;
-            if (world && world.isPaused) return;
-            if (!this.player) return;
-
-            if (this.isDormant) {
-                this.playIdleAnimation();
-                return;
-            }
-
-            if (this.isDead) {
-                this.playAnimationWithSpeed(this.frames.DEAD, 6, false);
-                return;
-            }
-
-            if (this.isHurt) {
-                this.playAnimationWithSpeed(this.frames.HURT, 12, false);
-                return;
-            }
-
-            const bossCenter = this.x + this.width / 2;
-            const heroCenter = this.player.x + this.player.width / 2;
-            const centerDelta = heroCenter - bossCenter;
-            const flipThreshold = 20;
-
-            if (centerDelta < -flipThreshold) {
-                this.otherDirection = true;
-            } else if (centerDelta > flipThreshold) {
-                this.otherDirection = false;
-            }
-
-            if (this.isAttacking) {
-                this.playAnimationWithSpeed(this.frames.ATTACK, 10, false);
-                return;
-            }
-
-            if (this.handleAttackLogic()) return;
-            if (this.handleWalkingLogic()) return;
-
-            this.playIdleAnimation();
-        }, 1000 / 25);
     }
 
     handleAttackLogic() {
@@ -162,6 +145,24 @@ class SkeletonBoss extends MoveableObject {
 
     playIdleAnimation() {
         this.playAnimationWithSpeed(this.frames.IDLE, 6);
+    }
+
+    runBossBehaviour() {
+        if (!this.player) return;
+        const bossCenter = this.x + this.width / 2;
+        const heroCenter = this.player.x + this.player.width / 2;
+        const centerDelta = heroCenter - bossCenter;
+        const flipThreshold = 20;
+
+        if (centerDelta < -flipThreshold) {
+            this.otherDirection = true;
+        } else if (centerDelta > flipThreshold) {
+            this.otherDirection = false;
+        }
+
+        if (this.handleAttackLogic()) return;
+        if (this.handleWalkingLogic()) return;
+        this.playIdleAnimation();
     }
 
     activate() {
@@ -268,10 +269,7 @@ class SkeletonBoss extends MoveableObject {
     }
 
     stopAllActivity() {
-        if (this.animationInterval) {
-            clearInterval(this.animationInterval);
-            this.animationInterval = null;
-        }
+        this.animationController?.stop();
         this.clearAttackTimers();
         if (this.hurtTimeout) {
             clearTimeout(this.hurtTimeout);

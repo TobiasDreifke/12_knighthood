@@ -1,3 +1,16 @@
+const createMushroomAnimationConfig = enemy => ({
+    animationKeys: { walk: 'WALK', hurt: 'HURT', dead: 'DEAD' },
+    fps: { loop: 25, walk: 11, hurt: 12, dead: 10 },
+    dormant: {
+        condition: () => enemy.isDormant,
+        action: () => enemy.holdDormantPose?.(),
+    },
+    onActive: () => {
+        enemy.updateFacingDirection();
+        enemy.wanderTowardPlayer();
+    },
+});
+
 class Mushroom extends MoveableObject {
     frames = {};
     width = 120;
@@ -34,46 +47,26 @@ class Mushroom extends MoveableObject {
         this.otherDirection = true;
         this.isHurt = isHurt;
         this.isDead = isDead;
-
-        this.hitboxWidth = 70;
-        this.hitboxOffsetTop = 20;
-        this.hitboxOffsetBottom = 30;
-        this.hitboxOffsetLeft = 0;
-        this.hitboxOffsetRight = 0;
-        this.animation();
+        this.configureHitbox();
+        this.setupAnimationController();
     }
 
     loadAllImages() {
         Object.values(this.frames).forEach(group => this.loadImages(group));
     }
 
-    animation() {
-        if (this.animationInterval) {
-            return;
-        }
+    configureHitbox() {
+        this.hitboxWidth = 70;
+        this.hitboxOffsetTop = 20;
+        this.hitboxOffsetBottom = 30;
+        this.hitboxOffsetLeft = 0;
+        this.hitboxOffsetRight = 0;
+    }
 
-        this.animationInterval = setInterval(() => {
-            const world = this.player?.world || this.world;
-            if (world && world.isPaused) return;
-
-            if (this.isDormant) {
-                this.holdDormantPose();
-                return;
-            }
-
-            if (this.isDead) {
-                this.playAnimationWithSpeed(this.frames.DEAD, 10, false);
-                return;
-            }
-
-            if (this.isHurt) {
-                this.playAnimationWithSpeed(this.frames.HURT, 12, false);
-                return;
-            }
-
-            this.updateFacingDirection();
-            this.wanderTowardPlayer();
-        }, 1000 / 25);
+    setupAnimationController() {
+        const controller = new EnemyAnimationController(this, createMushroomAnimationConfig(this));
+        controller.start();
+        this.animationController = controller;
     }
 
     updateFacingDirection() {
@@ -160,10 +153,7 @@ class Mushroom extends MoveableObject {
     }
 
     stopAllActivity() {
-        if (this.animationInterval) {
-            clearInterval(this.animationInterval);
-            this.animationInterval = null;
-        }
+        this.animationController?.stop();
         this.clearHurtTimeout();
         this.player = null;
         this.frameIndex = 0;
