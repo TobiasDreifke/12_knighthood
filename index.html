@@ -6,46 +6,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
 
-    <script src="./models/soundhub.class.js"></script>
-    <script src="./models/drawable-object.class.js"></script>
-    <script src="./models/moveable-object.class.js"></script>
+    <!-- Shared base classes -->
+    <script src="./models/shared/soundhub.class.js"></script>
+    <script src="./models/shared/drawable-object.class.js"></script>
+    <script src="./models/shared/moveable-object.class.js"></script>
+    <script src="./models/shared/keyboard-mapping.class.js"></script>
 
-    <script src="./models/status-bar-health.class.js"></script>
-    <script src="./models/status-bar-dark.class.js"></script>
-    <script src="./models/status-bar-holy.class.js"></script>
+    <!-- UI components -->
+    <script src="./models/ui/status-bar-health.class.js"></script>
+    <script src="./models/ui/status-bar-dark.class.js"></script>
+    <script src="./models/ui/status-bar-holy.class.js"></script>
+    <script src="./models/ui/tooltip-text.class.js"></script>
 
+    <!-- Hero -->
     <script src="./models/hero/animation-frames-assembler.js"></script>
     <script src="./models/hero/audio-hooks.js"></script>
     <script src="./models/hero/animation-controller.js"></script>
     <script src="./models/hero/movement-controller.js"></script>
     <script src="./models/hero/combat-controller.js"></script>
-    <script src="./models/hero.class.js"></script>
+    <script src="./models/hero/hero.class.js"></script>
+    <script src="./models/hero/hero-inventory.class.js"></script>
+
+    <!-- Enemies -->
     <script src="./models/enemies/enemy-animation-controller.js"></script>
     <script src="./models/enemies/goblin-frames.js"></script>
-    <script src="./models/goblin.class.js"></script>
+    <script src="./models/enemies/goblin.class.js"></script>
     <script src="./models/enemies/mushroom-frames.js"></script>
-    <script src="./models/mushroom.class.js"></script>
+    <script src="./models/enemies/mushroom.class.js"></script>
     <script src="./models/enemies/bat-frames.js"></script>
-    <script src="./models/bat.class.js"></script>
+    <script src="./models/enemies/bat.class.js"></script>
     <script src="./models/enemies/skeleton-boss-frames.js"></script>
-    <script src="./models/skeleton-boss.class.js"></script>
+    <script src="./models/enemies/skeleton-boss.class.js"></script>
 
-    <script src="./models/hero-inventory.class.js"></script>
-    <script src="./models/throwableDark.class.js"></script>
-    <script src="./models/throwableHoly.class.js"></script>
-    <script src="./models/pickupSword.class.js"></script>
+    <!-- Projectiles & items -->
+    <script src="./models/world/projectiles/throwableDark.class.js"></script>
+    <script src="./models/world/projectiles/throwableHoly.class.js"></script>
+    <script src="./models/world/items/pickupSword.class.js"></script>
 
-    <script src="./models/bg-object.class.js"></script>
-    <script src="./models/bg-clouds.class.js"></script>
-    <script src="./models/bg-firstlayer.class.js"></script>
-    <script src="./models/bg-secondlayer.class.js"></script>
-    <script src="./models/bg-thirdlayer.class.js"></script>
-    <script src="./models/keyboard-mapping.class.js"></script>
-    <script src="./models/tooltip-text.class.js"></script>
-    <script src="./models/cloud-factory.js"></script>
-    <script src="./models/background-factory.js"></script>
+    <!-- Background systems -->
+    <script src="./models/world/backgrounds/bg-object.class.js"></script>
+    <script src="./models/world/backgrounds/bg-clouds.class.js"></script>
+    <script src="./models/world/backgrounds/bg-firstlayer.class.js"></script>
+    <script src="./models/world/backgrounds/bg-secondlayer.class.js"></script>
+    <script src="./models/world/backgrounds/bg-thirdlayer.class.js"></script>
+    <script src="./models/world/backgrounds/cloud-factory.js"></script>
+    <script src="./models/world/backgrounds/background-factory.js"></script>
 
-    <script src="./models/level.js"></script>
+    <!-- Levels -->
+    <script src="./models/world/level.js"></script>
     <script src="./levels/level_01.js"></script>
     <script src="./levels/level_02.js"></script>
     <script src="./levels/level_03.js"></script>
@@ -61,7 +69,7 @@
     <script src="./models/world/enemy-activation.js"></script>
     <script src="./models/world/interval-manager.js"></script>
     <script src="./ui/game-state-ui.js"></script>
-    <script src="./models/world.class.js"></script>
+    <script src="./models/world/world.class.js"></script>
 
     <script src="./js/script.js"></script>
 
@@ -73,9 +81,9 @@
 <body onload="init()">
     <header></header>
     <main>
-        
+
         <div class="game_screen_wrapper">
-<h1>KNIGHTHOOD</h1>
+            <h1>KNIGHTHOOD</h1>
             <!-- Canvas for the game -->
             <canvas id="canvas" width="720" height="480"></canvas>
 
@@ -153,11 +161,84 @@
                 <h2>Impressum</h2>
                 <button id="impressum-close-button" class="modal-close" aria-label="Close Impressum">✕</button>
             </header>
+
             <div class="modal-body">
-                <p>Content coming soon…</p>
+
+                <h3>Angaben gemäß § 5 TMG</h3>
+                <p>
+                    <strong>Tobias Dreifke</strong><br>
+                    Musterstraße 12<br>
+                    12345 Berlin<br>
+                    Deutschland
+                </p>
+
+                <p>
+                    <strong>Kontakt</strong><br>
+                    E-Mail: <a href="mailto:contact@tobiasdreifke.de">contact@tobiasdreifke.de</a><br>
+                    Telefon: +49 (0)123 456789
+                </p>
+
+                <p>
+                    <strong>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</strong><br>
+                    Tobias Dreifke<br>
+                    (Musterstraße 12, 12345 Berlin)
+                </p>
+
+                <h3>Haftungsausschluss</h3>
+                <p>
+                    Trotz sorgfältiger inhaltlicher Kontrolle übernehme ich keine Haftung für die Inhalte externer
+                    Links.
+                    Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.
+                </p>
+
+                <h3>Urheberrecht</h3>
+                <p>
+                    Alle Inhalte dieser Website, insbesondere Grafiken, Texte, Soundeffekte und Musik, unterliegen dem
+                    Urheberrecht.
+                    Die Verwendung, Vervielfältigung oder Verbreitung ohne ausdrückliche Genehmigung ist nicht
+                    gestattet.
+                </p>
+
+                <hr style="margin: 1.5em 0; border: none; border-top: 1px solid #555;">
+
+                <h2>Credits / Assets & Lizenzen</h2>
+
+                <h3>Sprites & Grafiken</h3>
+                <ul>
+                    <li>Icons: <a href="https://shikashipx.itch.io/shikashis-fantasy-icons-pack"
+                            target="_blank">Shikashi’s Fantasy Icons Pack</a> – by Shikashi</li>
+                    <li>Clouds & Backgrounds: <a href="https://talhagulbahar.itch.io/clouds-and-backgrounds"
+                            target="_blank">Clouds and Backgrounds Pack</a> – by Talha Gulbahar</li>
+                    <li>Holy Spell Effects: <a href="https://pimen.itch.io/holy-spell-effect" target="_blank">Holy Spell
+                            Effect Pack</a> – by Pimen</li>
+                    <li>Dark Spell Effects: <a href="https://pimen.itch.io/dark-spell-effect" target="_blank">Dark Spell
+                            Effect Pack</a> – by Pimen</li>
+                    <li>Background Environment: <a href="https://aethrall.itch.io/demon-woods-parallax-background"
+                            target="_blank">Demon Woods Parallax Background</a> – by Aethrall</li>
+                    <li>Main Hero Sprite: <a href="https://rvros.itch.io/animated-pixel-hero" target="_blank">Animated
+                            Pixel Hero</a> – by RVROS</li>
+                    <li>Enemies / Monsters: <a href="https://luizmelo.itch.io/monsters-creatures-fantasy"
+                            target="_blank">Monsters Creatures Fantasy Pack</a> – by Luiz Melo</li>
+                </ul>
+
+                <h3>Soundeffekte</h3>
+                <ul>
+                    <li>Verschiedene Soundeffekte von <a href="https://pixabay.com/sound-effects/"
+                            target="_blank">Pixabay Sound Effects</a> (freie Nutzung, Urheber teilweise unbekannt)</li>
+                    <li>Einige Sounds wurden mit <a href="https://mp3cut.net/de/" target="_blank">mp3cut.net</a>
+                        bearbeitet oder gekürzt</li>
+                </ul>
+
+                <h3>Musik / Soundtrack</h3>
+                <ul>
+                    <li>Soundtrack erstellt mit <strong>Suno AI</strong> und anschließend von mir nachbearbeitet (gemäß
+                        Nutzungsbedingungen für nichtkommerzielle Projekte)</li>
+                </ul>
+
             </div>
         </div>
     </div>
+
 </body>
 
 </html>
