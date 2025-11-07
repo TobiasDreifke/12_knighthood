@@ -1,3 +1,7 @@
+/**
+ * Extends `DrawableObject` with physics helpers, animation playback, AI movement,
+ * and reusable hit/damage handling used across the hero and enemy classes.
+ */
 class MoveableObject extends DrawableObject {
 
 	health = 100;
@@ -15,6 +19,12 @@ class MoveableObject extends DrawableObject {
 	damageOnCollision = 10;
 
 
+	/**
+	 * Axis-aligned hurtbox collision check between this object and another.
+	 *
+	 * @param {MoveableObject} mo
+	 * @returns {boolean}
+	 */
 	isColliding(mo) {
 		if (this.isDead || mo.isDead) return false;
 
@@ -27,6 +37,12 @@ class MoveableObject extends DrawableObject {
 			a.top < b.bottom;
 	}
 
+	/**
+	 * Collision check that uses this object's hitbox against another object's hurtbox.
+	 *
+	 * @param {MoveableObject} mo
+	 * @returns {boolean}
+	 */
 	isHitting(mo) {
 		if (this.isDead || mo.isDead) return false;
 
@@ -40,6 +56,13 @@ class MoveableObject extends DrawableObject {
 	}
 
 
+	/**
+	 * Plays an animation array at the requested FPS, optionally looping.
+	 *
+	 * @param {string[]} images
+	 * @param {number} fps
+	 * @param {boolean} [loop=true]
+	 */
 	playAnimationWithSpeed(images, fps, loop = true) {
 		if (!Array.isArray(images) || !images.length) return;
 		this.initializeFrameState();
@@ -49,21 +72,37 @@ class MoveableObject extends DrawableObject {
 		this.renderNextFrame(images, loop);
 	}
 
+	/**
+	 * Ensures `frameIndex`/`lastFrameTime` exist before iterating an animation.
+	 */
 	initializeFrameState() {
 		if (typeof this.frameIndex !== "number") this.frameIndex = 0;
 		if (typeof this.lastFrameTime !== "number") this.lastFrameTime = 0;
 	}
 
+	/**
+	 * @param {number} fps
+	 * @returns {number} Frame duration in milliseconds.
+	 */
 	calculateFrameDuration(fps) {
 		return 1000 / fps;
 	}
 
+	/**
+	 * Invokes a consumer-provided `onAnimationFrame` hook if present.
+	 *
+	 * @param {string[]} images
+	 */
 	handleAnimationCallback(images) {
 		if (typeof this.onAnimationFrame === "function") {
 			this.onAnimationFrame(images, this.frameIndex);
 		}
 	}
 
+	/**
+	 * @param {number} frameDuration
+	 * @returns {boolean} True when enough time has passed to advance frames.
+	 */
 	readyForNextFrame(frameDuration) {
 		const now = Date.now();
 		if (now - this.lastFrameTime <= frameDuration) return false;
@@ -71,6 +110,12 @@ class MoveableObject extends DrawableObject {
 		return true;
 	}
 
+	/**
+	 * Switches to the next frame and updates `img`, wrapping if needed.
+	 *
+	 * @param {string[]} images
+	 * @param {boolean} loop
+	 */
 	renderNextFrame(images, loop) {
 		if (this.frameIndex >= images.length) {
 			this.frameIndex = loop ? 0 : images.length - 1;
@@ -121,6 +166,9 @@ class MoveableObject extends DrawableObject {
 		}
 	}
 
+	/**
+	 * @returns {World|null} Best-effort lookup for the owning world reference.
+	 */
 	getWorld() {
 		if (this.world) return this.world;
 		if (this.player && this.player.world) return this.player.world;
@@ -149,6 +197,13 @@ class MoveableObject extends DrawableObject {
 		this.speedY = 30;
 	}
 
+	/**
+	 * Shared damage handler that plays hurt/death SFX and invokes callbacks.
+	 *
+	 * @param {number} [amount=this.damageOnCollision]
+	 * @param {Object} [options]
+	 * @returns {boolean}
+	 */
 	handleHit(amount = this.damageOnCollision, options = {}) {
 		if (this.isDead) return false;
 		const config = this.normalizeHitOptions(options);
@@ -158,6 +213,12 @@ class MoveableObject extends DrawableObject {
 		return true;
 	}
 
+	/**
+	 * Applies defaults to the hit handler options.
+	 *
+	 * @param {Object} options
+	 * @returns {{deadSound:string|null,hurtSound:string|null,hurtFps:number,frames:number,onDeath:Function?,onHurtStart:Function?,onHurtEnd:Function?}}
+	 */
 	normalizeHitOptions(options) {
 		const defaultFrames = Array.isArray(this.frames?.HURT) ? this.frames.HURT.length : this.IMAGES_HURT?.length ?? 0;
 		const {
@@ -173,6 +234,12 @@ class MoveableObject extends DrawableObject {
 		return { deadSound, hurtSound, hurtFps, frames, onDeath, onHurtStart, onHurtEnd };
 	}
 
+	/**
+	 * Mutates health and returns whether the hit was fatal.
+	 *
+	 * @param {number} amount
+	 * @returns {{wasFatal:boolean}}
+	 */
 	applyDamage(amount) {
 		this.health -= amount;
 		console.log(`[${this.constructor.name}] is hit with [${amount}]`);
@@ -186,18 +253,35 @@ class MoveableObject extends DrawableObject {
 		return { wasFatal: false };
 	}
 
+	/**
+	 * Handles death-specific audio/callbacks.
+	 *
+	 * @param {ReturnType<MoveableObject["normalizeHitOptions"]>} config
+	 */
 	processFatalHit(config) {
 		if (config.deadSound) AudioHub.playOne(config.deadSound);
 		if (typeof config.onDeath === "function") config.onDeath();
 		return true;
 	}
 
+	/**
+	 * Plays hurt audio, triggers callbacks, and schedules recovery.
+	 *
+	 * @param {ReturnType<MoveableObject["normalizeHitOptions"]>} config
+	 */
 	processHurtState(config) {
 		if (config.hurtSound) AudioHub.playOne(config.hurtSound);
 		if (typeof config.onHurtStart === "function") config.onHurtStart();
 		this.scheduleHurtRecovery(config.frames, config.hurtFps, config.onHurtEnd);
 	}
 
+	/**
+	 * Delays the `onHurtEnd` callback by the animation length so states reset cleanly.
+	 *
+	 * @param {number} frames
+	 * @param {number} fps
+	 * @param {Function} onHurtEnd
+	 */
 	scheduleHurtRecovery(frames, fps, onHurtEnd) {
 		const duration = frames > 0 ? (frames / fps) * 1000 : 1000;
 		if (this.hurtTimeout) clearTimeout(this.hurtTimeout);
@@ -208,6 +292,12 @@ class MoveableObject extends DrawableObject {
 		this.handleHit(amount);
 	}
 
+	/**
+	 * Moves the object horizontally toward a target player using simple steering logic.
+	 *
+	 * @param {Object} [options]
+	 * @returns {boolean} True if movement occurred.
+	 */
 	moveTowardPlayer(options = {}) {
 		const {
 			player = this.player,
@@ -233,6 +323,12 @@ class MoveableObject extends DrawableObject {
 		return false;
 	}
 
+	/**
+	 * Flips the sprite toward the player without applying movement.
+	 *
+	 * @param {Object} [options]
+	 * @returns {boolean}
+	 */
 	updateFacingTowardPlayer(options = {}) {
 		const { player = this.player, flipThreshold = 10 } = options;
 		const delta = this.resolveTargetDelta(player);
@@ -248,6 +344,10 @@ class MoveableObject extends DrawableObject {
 		return false;
 	}
 
+	/**
+	 * @param {MoveableObject} [player=this.player]
+	 * @returns {number|null} Horizontal distance between centers (positive → target on right).
+	 */
 	resolveTargetDelta(player = this.player) {
 		if (!player) return null;
 		const targetBox = typeof player.getHurtbox === "function" ? player.getHurtbox() : null;
@@ -256,6 +356,12 @@ class MoveableObject extends DrawableObject {
 		return targetCenter - actorCenter;
 	}
 
+	/**
+	 * Forces the sprite to display a single frame from a provided list.
+	 *
+	 * @param {string[]} frames
+	 * @param {number} [index=0]
+	 */
 	holdPose(frames, index = 0) {
 		const frameList = Array.isArray(frames) ? frames : null;
 		if (!frameList || !frameList.length) return;
@@ -266,6 +372,9 @@ class MoveableObject extends DrawableObject {
 		}
 	}
 
+	/**
+	 * Helper for dormant states that picks a safe idle frame if none is provided.
+	 */
 	holdDormantPose(frames = null, index = 0) {
 		const fallback = this.frames?.IDLE || this.frames?.WALK || this.frames?.idle || this.frames?.walk;
 		const frameList = frames ?? fallback;

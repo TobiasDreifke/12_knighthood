@@ -1,3 +1,7 @@
+/**
+ * Base sprite that knows how to preload images and expose collision/hitbox helpers
+ * used by both the hero and enemies.
+ */
 class DrawableObject {
     x = 120;
     y = 300;
@@ -22,12 +26,22 @@ class DrawableObject {
     width = 100;
     height = 100;
 
+    /**
+     * Loads a single sprite frame and stores it as the active image on this object.
+     *
+     * @param {string} path
+     */
     loadImage(path) {
         this.img = new Image();
         this.img.src = path
     }
 
 
+    /**
+     * Loads a batch of frames and caches them by file path.
+     *
+     * @param {string[]} arr
+     */
     loadImages(arr) {
         arr.forEach((path) => {
             let img = new Image();
@@ -36,6 +50,11 @@ class DrawableObject {
         });
     };
 
+    /**
+     * Draws the debug bounding rectangle when `debugColor` is set.
+     *
+     * @param {CanvasRenderingContext2D} ctx
+     */
     drawRectangle(ctx) {
         if (!this.debugColor) return;  // skip if no color set
 
@@ -47,6 +66,11 @@ class DrawableObject {
     }
 
 
+    /**
+     * Renders the hurtbox outline for debugging if the object is collidable.
+     *
+     * @param {CanvasRenderingContext2D} ctx
+     */
     drawCollisionBox(ctx) {
         const box = this.getCollisionBox();
         if (!box) return;
@@ -57,6 +81,11 @@ class DrawableObject {
         ctx.stroke();
     }
 
+    /**
+     * Resolves the current hurtbox rectangle in world coordinates.
+     *
+     * @returns {{left:number,top:number,width:number,height:number,color:string}|null}
+     */
     getCollisionBox() {
         if (!this.collidingObject) return null;
         const left = this.x + (this.offsetLeft || 0);
@@ -66,6 +95,11 @@ class DrawableObject {
         return { left, top, width, height, color: this.collisionColor || "yellow" };
     }
 
+    /**
+     * Renders the object's hitbox (used for attacks) if one is active.
+     *
+     * @param {CanvasRenderingContext2D} ctx
+     */
     drawHitbox(ctx) {
         if (!this.isAttacking) return;
 
@@ -77,6 +111,9 @@ class DrawableObject {
         ctx.stroke();
     }
 
+    /**
+     * @returns {{left:number,top:number,right:number,bottom:number}} Hurtbox bounds.
+     */
     getHurtbox() {
         return {
             left: this.x + this.offsetLeft,
@@ -86,6 +123,11 @@ class DrawableObject {
         };
     }
 
+    /**
+     * Computes the attack hitbox, mirroring offsets when `otherDirection` is true.
+     *
+     * @returns {{left:number,top:number,right:number,bottom:number}}
+     */
     getHitbox() {
         const hurtbox = this.getHurtbox();
 

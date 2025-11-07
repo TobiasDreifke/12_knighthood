@@ -1,3 +1,6 @@
+/**
+ * Central registry for default keyboard bindings plus helpers for describing or resolving actions.
+ */
 class KeyboardMapping {
     static DEFAULT_BINDINGS = {
         LEFT: { keys: ["arrowleft", "a"], display: "A" },
@@ -11,11 +14,24 @@ class KeyboardMapping {
         PAUSE: { keys: ["p"], display: "P" },
     };
 
+    /**
+     * Returns the default binding metadata for a given action name.
+     *
+     * @param {string} action
+     * @returns {{keys?:string[],codes?:string[],display?:string}|null}
+     */
     static getBinding(action) {
         if (!action) return null;
         return KeyboardMapping.DEFAULT_BINDINGS[action.toUpperCase()] || null;
     }
 
+    /**
+     * Human-readable representation for an action (used in tooltips/UI).
+     *
+     * @param {string} action
+     * @param {string} [fallback=""]
+     * @returns {string}
+     */
     static getDisplayKey(action, fallback = "") {
         const binding = KeyboardMapping.getBinding(action);
         if (!binding) return fallback || action;
@@ -26,6 +42,12 @@ class KeyboardMapping {
         return typeof key === "string" ? key.toUpperCase() : fallback || action;
     }
 
+    /**
+     * Resolves which actions an incoming keyboard event maps to.
+     *
+     * @param {KeyboardEvent} event
+     * @returns {string[]}
+     */
     static getActionsForEvent(event) {
         if (!event) return [];
         const key = typeof event.key === "string" ? event.key.toLowerCase() : null;
@@ -45,6 +67,11 @@ class KeyboardMapping {
         }, []);
     }
 
+    /**
+     * Iterates every binding tuple and forwards it to the provided callback.
+     *
+     * @param {(action:string, binding:object) => void} callback
+     */
     static forEachBinding(callback) {
         if (typeof callback !== "function") return;
         Object.entries(KeyboardMapping.DEFAULT_BINDINGS).forEach(([action, binding]) => callback(action, binding));

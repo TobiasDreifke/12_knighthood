@@ -1,22 +1,38 @@
+/**
+ * Runs the hero's animation finite-state machine, syncing sprite playback with movement,
+ * combat, casting, celebration, and accompanying AudioHub cues.
+ */
 class HeroAnimationController {
+	/**
+	 * @param {Hero} hero - Instance whose animation state should be orchestrated.
+	 */
 	constructor(hero) {
 		this.hero = hero;
 		this.intervalId = null;
 		this.animationFps = 25;
 	}
 
+	/**
+	 * Starts the animation polling loop, ensuring any previous interval is cleared first.
+	 */
 	start() {
 		this.stop();
 		const frameMs = 1000 / this.animationFps;
 		this.intervalId = setInterval(() => this.updateFrame(), frameMs);
 	}
 
+	/**
+	 * Stops the polling loop if one is currently active.
+	 */
 	stop() {
 		if (!this.intervalId) return;
 		clearInterval(this.intervalId);
 		this.intervalId = null;
 	}
 
+	/**
+	 * Evaluates keyboard input, updates movement state, and selects the highest-priority animation.
+	 */
 	updateFrame() {
 		if (this.shouldSkipAnimation()) return;
 		const hero = this.hero;
@@ -29,12 +45,20 @@ class HeroAnimationController {
 		hero.updateCameraPosition();
 	}
 
+	/**
+	 * @returns {boolean} Whether animation should be paused (e.g., sword draw or paused world).
+	 */
 	shouldSkipAnimation() {
 		const hero = this.hero;
 		if (hero.world?.isPaused) return true;
 		return hero.isDrawingSword;
 	}
 
+	/**
+	 * Syncs grounded state transitions and emits a land sound when touching down.
+	 *
+	 * @param {Hero} hero
+	 */
 	updateGroundState(hero) {
 		const wasGrounded = hero.wasOnGround;
 		const isGrounded = !hero.isAboveGround();
@@ -44,6 +68,13 @@ class HeroAnimationController {
 		hero.wasOnGround = isGrounded;
 	}
 
+	/**
+	 * Checks animation states in descending priority order (celebration → slide) and runs the first match.
+	 *
+	 * @param {Keyboard} keyboard
+	 * @param {{slidePressed?: boolean}} movementState
+	 * @returns {boolean} True when a priority animation consumed the frame.
+	 */
 	playPriorityAnimation(keyboard, movementState) {
 		const hero = this.hero;
 		hero.resetHurtBox();
@@ -57,6 +88,11 @@ class HeroAnimationController {
 		return this.handleSlideState(movementState);
 	}
 
+	/**
+	 * Plays the celebration sequence if the win routine is active.
+	 *
+	 * @returns {boolean}
+	 */
 	handleCelebrationState() {
 		if (!this.hero.isCelebrating) return false;
 		AudioHub.stopHeroIdleLoop();
@@ -64,6 +100,9 @@ class HeroAnimationController {
 		return true;
 	}
 
+	/**
+	 * Handles hero death animation, including one-shot SFX playback.
+	 */
 	handleDeathState() {
 		const hero = this.hero;
 		if (!hero.isDead) return false;
@@ -77,6 +116,9 @@ class HeroAnimationController {
 		return true;
 	}
 
+	/**
+	 * Plays the hurt animation and SFX once before returning to idle or walk.
+	 */
 	handleHurtState() {
 		const hero = this.hero;
 		if (!hero.isHurt) return false;
@@ -87,6 +129,9 @@ class HeroAnimationController {
 		return true;
 	}
 
+	/**
+	 * Continues the attack animation if the combat controller already marked the hero as attacking.
+	 */
 	handleAttackState() {
 		const hero = this.hero;
 		if (!hero.isAttacking) return false;
@@ -97,6 +142,9 @@ class HeroAnimationController {
 		return true;
 	}
 
+	/**
+	 * Plays the currently queued cast animation (dark vs holy) while casting is active.
+	 */
 	handleCastState() {
 		const hero = this.hero;
 		if (!hero.isCasting || !hero.castType) return false;
@@ -106,6 +154,9 @@ class HeroAnimationController {
 		return true;
 	}
 
+	/**
+	 * Reacts to a fresh ATTACK key press by delegating to the combat controller.
+	 */
 	handleAttackInput(keyboard) {
 		const hero = this.hero;
 		if (!keyboard.ATTACK) return false;
@@ -117,6 +168,11 @@ class HeroAnimationController {
 		return true;
 	}
 
+	/**
+	 * Plays the slide animation whenever the movement controller reports a slide input.
+	 *
+	 * @param {{slidePressed?: boolean}} movementState
+	 */
 	handleSlideState(movementState) {
 		if (!movementState?.slidePressed) return false;
 		const hero = this.hero;
@@ -126,6 +182,9 @@ class HeroAnimationController {
 		return true;
 	}
 
+	/**
+	 * Chooses between crouch, air, walk, or idle animations based on the latest keyboard state.
+	 */
 	playMovementAnimation(keyboard) {
 		if (this.handleCrouch(keyboard)) return;
 		if (this.handleAirState()) return;
@@ -133,6 +192,11 @@ class HeroAnimationController {
 		this.playIdle();
 	}
 
+	/**
+	 * Plays the crouch animation and adjusts the hurtbox when DOWN is held.
+	 *
+	 * @returns {boolean}
+	 */
 	handleCrouch(keyboard) {
 		if (!keyboard.DOWN) return false;
 		const hero = this.hero;
@@ -143,6 +207,11 @@ class HeroAnimationController {
 		return true;
 	}
 
+	/**
+	 * Handles jump/fall animations when the hero leaves the ground.
+	 *
+	 * @returns {boolean}
+	 */
 	handleAirState() {
 		const hero = this.hero;
 		if (!hero.isAboveGround()) return false;
@@ -152,6 +221,9 @@ class HeroAnimationController {
 		return true;
 	}
 
+	/**
+	 * Plays the walking animation (sword or fists) when moving left/right.
+	 */
 	handleWalk(keyboard) {
 		if (!keyboard.RIGHT && !keyboard.LEFT) return false;
 		const hero = this.hero;
@@ -161,6 +233,9 @@ class HeroAnimationController {
 		return true;
 	}
 
+	/**
+	 * Plays the idle animation and decides whether the idle looped SFX should run.
+	 */
 	playIdle() {
 		const hero = this.hero;
 		if (this.shouldPlayIdleLoop()) {
@@ -172,6 +247,9 @@ class HeroAnimationController {
 		hero.playAnimationWithSpeed(frames, 12);
 	}
 
+	/**
+	 * @returns {boolean} True when the hero should emit the idle breathing loop.
+	 */
 	shouldPlayIdleLoop() {
 		const world = this.hero.world;
 		if (!world) return !this.hero.isDead;
@@ -181,6 +259,9 @@ class HeroAnimationController {
 		return true;
 	}
 
+	/**
+	 * Begins the manual sword draw animation if one is not already running.
+	 */
 	startDrawSwordAnimation() {
 		if (!this.canStartSwordDraw()) return;
 		const hero = this.hero;
@@ -191,11 +272,20 @@ class HeroAnimationController {
 		step.intervalId = intervalId;
 	}
 
+	/**
+	 * @returns {boolean} Whether the hero can start the sword draw sequence.
+	 */
 	canStartSwordDraw() {
 		const hero = this.hero;
 		return hero.hasSword && !hero.isDrawingSword;
 	}
 
+	/**
+	 * Builds the interval callback for the sword draw animation, advancing frames until completion.
+	 *
+	 * @param {string[]} frames
+	 * @returns {() => void}
+	 */
 	createSwordDrawStep(frames) {
 		const hero = this.hero;
 		let frameIndex = 0;
@@ -210,6 +300,9 @@ class HeroAnimationController {
 		return step;
 	}
 
+	/**
+	 * Applies a single sword draw frame and forwards the callback to any animation listeners.
+	 */
 	applySwordDrawFrame(frames, frameIndex) {
 		const hero = this.hero;
 		const path = frames[frameIndex];
@@ -217,12 +310,18 @@ class HeroAnimationController {
 		hero.onAnimationFrame?.(frames, frameIndex);
 	}
 
+	/**
+	 * Cleans up the sword draw interval and unlocks normal animation flow.
+	 */
 	finishSwordDraw(intervalId) {
 		const hero = this.hero;
 		hero.isDrawingSword = false;
 		clearInterval(intervalId);
 	}
 
+	/**
+	 * Drives the celebration sheath/idle sequence until its configured duration elapses.
+	 */
 	handleCelebration() {
 		const hero = this.hero;
 		if (!hero.isCelebrating) return;
@@ -238,12 +337,20 @@ class HeroAnimationController {
 		}
 	}
 
+	/**
+	 * Plays the sword sheathe sound once per celebration.
+	 *
+	 * @param {Hero} hero
+	 */
 	ensureCelebrationSound(hero) {
 		if (hero.celebrationSoundPlayed) return;
 		AudioHub.playOne(AudioHub.SWORD_SHEATHE);
 		hero.celebrationSoundPlayed = true;
 	}
 
+	/**
+	 * Global animation callback that syncs sounds and routes attack impact frames to the combat logic.
+	 */
 	handleAnimationFrame(images, frameIndex) {
 		const animationName = this.getAnimationName(images);
 		if (animationName) {
@@ -254,6 +361,11 @@ class HeroAnimationController {
 		this.hero.dealDamageToEnemies(frameIndex);
 	}
 
+	/**
+	 * Determines whether the given animation/frame index should trigger a combat hit check.
+	 *
+	 * @returns {boolean}
+	 */
 	shouldTriggerImpact(animationName, frameIndex) {
 		const hero = this.hero;
 		if (!hero.isAttacking) return false;
@@ -263,6 +375,12 @@ class HeroAnimationController {
 		return !hero.triggeredImpactFrames.has(frameIndex);
 	}
 
+	/**
+	 * Looks up the catalog key that matches a given frame array reference.
+	 *
+	 * @param {string[]} images
+	 * @returns {string|null}
+	 */
 	getAnimationName(images) {
 		const catalog = this.hero.frames || {};
 		for (const [key, frames] of Object.entries(catalog)) {

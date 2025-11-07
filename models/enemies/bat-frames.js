@@ -1,6 +1,10 @@
 (() => {
 	if (typeof globalThis.BatFrameCatalog !== "undefined") return;
 
+	/**
+	 * Immutable mapping of bat animation names to their sprite frame file paths.
+	 * @type {Readonly<Record<string, string[]>>}
+	 */
 	const BAT_FRAME_SETS = Object.freeze({
 		WALK: [
 			"./01_assets/3_enemies_mobs/bat/1_walk/bat_walk_01.png",
@@ -25,18 +29,37 @@
 		],
 	});
 
+	/**
+	 * Utility helpers for working with bat sprite frame sets without exposing the frozen source arrays.
+	 */
 	class BatFrameCatalog {
+		/**
+		 * Creates a shallow copy of the catalog keyed by animation name.
+		 *
+		 * @returns {Record<string, string[]>}
+		 */
 		static createCatalog() {
 			return Object.fromEntries(
 				Object.entries(BAT_FRAME_SETS).map(([key, frames]) => [key, [...frames]])
 			);
 		}
 
+		/**
+		 * Returns a cloned array for a specific animation or an empty array if missing.
+		 *
+		 * @param {string} key
+		 * @returns {string[]}
+		 */
 		static getFrameSet(key) {
 			const frames = BAT_FRAME_SETS[key];
 			return frames ? [...frames] : [];
 		}
 
+		/**
+		 * Returns copies of every frame array, useful for eager preloading.
+		 *
+		 * @returns {string[][]}
+		 */
 		static getAllFrameSets() {
 			return Object.values(BAT_FRAME_SETS).map(frames => [...frames]);
 		}

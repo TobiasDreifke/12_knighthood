@@ -1,8 +1,20 @@
+/**
+ * Translates keyboard input into hero movement commands, slide/jump SFX, and camera-friendly state.
+ */
 class HeroMovementController {
+	/**
+	 * @param {Hero} hero
+	 */
 	constructor(hero) {
 		this.hero = hero;
 	}
 
+	/**
+	 * Main entry point for hero movement – handles jumps, slides, and horizontal motion.
+	 *
+	 * @param {Keyboard} keyboard
+	 * @returns {{slidePressed: boolean}}
+	 */
 	applyMovementInput(keyboard) {
 		if (this.isMovementLocked()) {
 			return { slidePressed: false };
@@ -14,11 +26,17 @@ class HeroMovementController {
 		return slideState;
 	}
 
+	/**
+	 * @returns {boolean} True when controls are temporarily disabled.
+	 */
 	isMovementLocked() {
 		const hero = this.hero;
 		return hero.controlsLocked || hero.isCelebrating;
 	}
 
+	/**
+	 * Triggers a jump and plays the one-shot jump SFX when the player presses UP/JUMP from the ground.
+	 */
 	handleJumpInput(keyboard) {
 		const hero = this.hero;
 		const jumpPressed = keyboard.UP || keyboard.JUMP;
@@ -27,6 +45,11 @@ class HeroMovementController {
 		if (canJump) hero.jump();
 	}
 
+	/**
+	 * Detects slide combos (DOWN + direction), moves the hero, and emits the slide SFX.
+	 *
+	 * @returns {{slidePressed: boolean}}
+	 */
 	handleSlideInput(keyboard) {
 		const hero = this.hero;
 		const slideRight = keyboard.RIGHT && keyboard.DOWN;
@@ -38,6 +61,9 @@ class HeroMovementController {
 		return { slidePressed };
 	}
 
+	/**
+	 * Applies left/right input while clamping movement to the level bounds.
+	 */
 	handleHorizontalMovement(keyboard) {
 		const hero = this.hero;
 		const maxX = hero.world?.level?.level_end_x ?? Infinity;

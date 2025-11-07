@@ -1,3 +1,9 @@
+/**
+ * Creates the animation controller config for walking mushrooms so they can share driver logic.
+ *
+ * @param {Mushroom} enemy
+ * @returns {import("./enemy-animation-controller").EnemyAnimationConfig}
+ */
 const createMushroomAnimationConfig = enemy => ({
     animationKeys: { walk: 'WALK', hurt: 'HURT', dead: 'DEAD' },
     fps: { loop: 25, walk: 11, hurt: 12, dead: 10 },
@@ -11,6 +17,9 @@ const createMushroomAnimationConfig = enemy => ({
     },
 });
 
+/**
+ * Heavier ground mob that shuffles toward the hero with a chunky hitbox and damage on contact.
+ */
 class Mushroom extends MoveableObject {
     frames = {};
     width = 120;
@@ -35,6 +44,11 @@ class Mushroom extends MoveableObject {
     isDormant = false;
     activationTriggered = false;
 
+    /**
+     * @param {MoveableObject|null} [player]
+     * @param {boolean} [isHurt=false]
+     * @param {boolean} [isDead=false]
+     */
     constructor(player = null, isHurt = false, isDead = false) {
         super().loadImage(MushroomFrameCatalog.getFrameSet("WALK")[0]);
         this.frames = MushroomFrameCatalog.createCatalog();
@@ -51,10 +65,16 @@ class Mushroom extends MoveableObject {
         this.setupAnimationController();
     }
 
+    /**
+     * Preloads every sprite strip referenced by this enemy to avoid runtime hitches.
+     */
     loadAllImages() {
         Object.values(this.frames).forEach(group => this.loadImages(group));
     }
 
+    /**
+     * Tightens the collision box so the wide sprite still yields fair contact detection.
+     */
     configureHitbox() {
         this.hitboxWidth = 70;
         this.hitboxOffsetTop = 20;
@@ -63,17 +83,28 @@ class Mushroom extends MoveableObject {
         this.hitboxOffsetRight = 0;
     }
 
+    /**
+     * Builds and starts the EnemyAnimationController for this mushroom mob.
+     */
     setupAnimationController() {
         const controller = new EnemyAnimationController(this, createMushroomAnimationConfig(this));
         controller.start();
         this.animationController = controller;
     }
 
+    /**
+     * Restores the animation controller if it was stopped or removed externally.
+     */
     ensureAnimationController() {
         if (this.animationController) return;
         this.setupAnimationController();
     }
 
+	/**
+	 * Handles incoming hero damage, coordinating sounds, timers, and death cleanup.
+	 *
+	 * @param {number} [amount=this.damageOnCollision]
+	 */
 	hit(amount = this.damageOnCollision) {
 		const frames = this.frames.HURT?.length ?? 0;
 		const handled = this.handleHit(amount, {
@@ -92,17 +123,32 @@ class Mushroom extends MoveableObject {
 		});
 		if (!handled) return;
 	}
+    /**
+     * Wakes the mushroom once the hero crosses its activation line.
+     */
     activate() {
         this.isDormant = false;
         this.activationTriggered = true;
     }
 
+    /**
+     * Keeps AudioHub effects in sync with the animation currently being played.
+     *
+     * @param {string[]} images
+     * @param {number} frameIndex
+     */
     onAnimationFrame(images, frameIndex) {
         const animationName = this.getAnimationName(images);
         if (!animationName) return;
         AudioHub.syncSound(`MUSHROOM_${animationName}`, frameIndex);
     }
 
+    /**
+     * Resolves the catalog key for the provided frame array so the correct sound prefix can be used.
+     *
+     * @param {string[]} images
+     * @returns {string|null}
+     */
     getAnimationName(images) {
         const catalog = this.frames || {};
         for (const [key, frames] of Object.entries(catalog)) {
@@ -113,6 +159,9 @@ class Mushroom extends MoveableObject {
         return null;
     }
 
+    /**
+     * Cancels any pending hurt animation timeout.
+     */
     clearHurtTimeout() {
         if (this.hurtTimeout) {
             clearTimeout(this.hurtTimeout);
@@ -120,6 +169,9 @@ class Mushroom extends MoveableObject {
         }
     }
 
+    /**
+     * Completely halts the mushroom's animation/timer activity and drops references to the world/player.
+     */
     stopAllActivity() {
         this.animationController?.stop();
         this.clearHurtTimeout();

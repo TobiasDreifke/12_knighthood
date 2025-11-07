@@ -1,3 +1,7 @@
+/**
+ * Immutable catalog of hero animation names mapped to the sprite assets they use.
+ * @type {Readonly<Record<string, string[]>>}
+ */
 const HERO_FRAME_SETS = Object.freeze({
 	IDLE: [
 		"./01_assets/2_character_hero/1_idle/idle/adventurer-idle-00.png",
@@ -118,18 +122,35 @@ const HERO_FRAME_SETS = Object.freeze({
 	],
 });
 
+/**
+ * Provides safe helper methods for cloning hero animation frame lists.
+ */
 class HeroAnimationFramesAssembler {
+	/**
+	 * @returns {Record<string, string[]>} Mutable copy of the hero frame catalog.
+	 */
 	static createCatalog() {
 		return Object.fromEntries(
 			Object.entries(HERO_FRAME_SETS).map(([key, frames]) => [key, [...frames]])
 		);
 	}
 
+	/**
+	 * Returns a duplicate of the requested animation's frames, or an empty array if unknown.
+	 *
+	 * @param {string} key
+	 * @returns {string[]}
+	 */
 	static getFrameSet(key) {
 		const frames = HERO_FRAME_SETS[key];
 		return frames ? [...frames] : [];
 	}
 
+	/**
+	 * Returns copies of every animation strip, ideal for eager preloading.
+	 *
+	 * @returns {string[][]}
+	 */
 	static getAllFrameSets() {
 		return Object.values(HERO_FRAME_SETS).map(frames => [...frames]);
 	}

@@ -1,3 +1,11 @@
+/**
+ * Builds the animation controller configuration for a Bat enemy so the shared
+ * EnemyAnimationController knows which animation keys, frame rates, and state
+ * guards to use.
+ *
+ * @param {Bat} enemy - Bat instance the controller will drive.
+ * @returns {import("./enemy-animation-controller").EnemyAnimationConfig}
+ */
 const createBatAnimationConfig = enemy => ({
     resolveWorld: () => enemy.player?.world || enemy.world,
     animationKeys: { walk: 'WALK', hurt: 'HURT', dead: 'DEAD' },
@@ -23,6 +31,20 @@ const createBatAnimationConfig = enemy => ({
     },
 });
 
+/**
+ * @typedef {Object} DiveMetrics
+ * @property {number} heroCenterX
+ * @property {number} heroBottom
+ * @property {number} heroCenterY
+ * @property {number} topAltitude
+ */
+
+/**
+ * Flying dive-bomber enemy that tracks the hero, dives toward their hurtbox, then ascends
+ * back to its spawn altitude. Handles animation state, collision damage, and death fall logic.
+ *
+ * @extends MoveableObject
+ */
 class Bat extends MoveableObject {
     frames = {};
     width = 120;
@@ -86,6 +108,10 @@ class Bat extends MoveableObject {
         this.updateFacingTowardPlayer({ player: this.player, flipThreshold: 10 });
     }
 
+    /**
+     * Ensures the sprite orientation matches the dive target or falls back to the player so
+     * horizontal mirroring always reflects the bat's current travel direction.
+     */
     updateFacingForDive() {
         if (this.hasDiveTarget()) {
             const centerX = this.x + this.width / 2;
@@ -95,6 +121,10 @@ class Bat extends MoveableObject {
         this.updateFacingTowardPlayer({ player: this.player, flipThreshold: 10 });
     }
 
+    /**
+     * Runs the dive routine: descends toward the hero when attacking and climbs back up when done,
+     * ensuring the animation stays synced with the current phase.
+     */
     performDivePattern() {
         const metrics = this.resolveDiveMetrics();
         if (this.flightPhase === "descend") {
@@ -106,6 +136,12 @@ class Bat extends MoveableObject {
         this.playDiveAnimation();
     }
 
+    /**
+     * Samples the hero hurtbox (or fallback world values) so the bat knows where to dive and
+     * which altitude to return to afterwards.
+     *
+     * @returns {DiveMetrics}
+     */
     resolveDiveMetrics() {
         const box = this.getHeroHurtbox();
         const heroCenterX = box ? (box.left + box.right) / 2 : this.player ? this.player.x : this.x;
@@ -115,15 +151,32 @@ class Bat extends MoveableObject {
         return { heroCenterX, heroBottom, heroCenterY, topAltitude };
     }
 
+    /**
+     * Locks in a dive target using the latest hero metrics and begins accelerating toward it.
+     *
+     * @param {DiveMetrics} metrics
+     */
     prepareDive(metrics) {
         this.ensureDiveTarget(metrics);
         this.diveTowardTarget();
     }
 
+    /**
+     * Keeps the wing-flap animation speed aligned with the current dive motion for visual feedback.
+     */
     playDiveAnimation() {
         this.playAnimationWithSpeed(this.frames.WALK, 14);
     }
 
+    /**
+     * Computes a safe X/Y dive target centered on the hero while clamping the Y position against
+     * the ground, then boosts horizontal speed so the bat fully commits to the dive.
+     *
+     * @param {DiveMetrics} param0
+     * @param {number} param0.heroCenterX
+     * @param {number} param0.heroBottom
+     * @param {number} param0.heroCenterY
+     */
     ensureDiveTarget({ heroCenterX, heroBottom, heroCenterY }) {
         if (this.diveTargetX !== null && this.diveTargetY !== null) return;
         const halfWidth = this.width / 2;

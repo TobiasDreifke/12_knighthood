@@ -3,7 +3,34 @@
 
 	const PROXY_FLAG = "__enemyAnimationProxy";
 
+	/**
+	 * @typedef {Object} EnemyAnimationState
+	 * @property {(enemy: MoveableObject, controller: EnemyAnimationController) => boolean|void} [action]
+	 * @property {(enemy: MoveableObject, controller: EnemyAnimationController) => boolean|boolean} [condition]
+	 */
+
+	/**
+	 * @typedef {Object} EnemyAnimationConfig
+	 * @property {() => any} [resolveWorld] - Optional resolver for the MoveableWorld so pause states can be read.
+	 * @property {Object<string,string>} [animationKeys] - Mapping from logical state names to catalog keys.
+	 * @property {Object<string,number>} [fps] - Per-animation FPS overrides plus a loop default.
+	 * @property {{condition?: (enemy: MoveableObject, controller: EnemyAnimationController) => boolean, action?: (enemy: MoveableObject, controller: EnemyAnimationController) => void}} [dormant]
+	 * @property {EnemyAnimationState[]} [states] - Ordered state machine that can short-circuit further processing.
+	 * @property {(enemy: MoveableObject, controller: EnemyAnimationController) => void|boolean} [onBeforeFrame]
+	 * @property {(enemy: MoveableObject, controller: EnemyAnimationController) => void|boolean} [onActive]
+	 * @property {(enemy: MoveableObject, controller: EnemyAnimationController) => void} [onAfterFrame]
+	 * @property {Object<string, string[]>} [frameMap] - Optional explicit frame arrays keyed by logical name.
+	 */
+
+	/**
+	 * Drives a MoveableObject's sprite animation by polling a simple state machine and
+	 * delegating to `playAnimationWithSpeed` when a state becomes active.
+	 */
 	class EnemyAnimationController {
+		/**
+		 * @param {MoveableObject} enemy - Instance whose animation API should be controlled.
+		 * @param {EnemyAnimationConfig} [config] - Declarative state machine configuration.
+		 */
 		constructor(enemy, config = {}) {
 			this.enemy = enemy;
 			this.config = config;
@@ -15,6 +42,10 @@
 			this.ensureAnimationIntervalProxy();
 		}
 
+		/**
+		 * Lazily installs a getter/setter on the enemy so existing code that manages
+		 * `animationInterval` continues to work while still letting the controller clean up timers.
+		 */
 		ensureAnimationIntervalProxy() {
 			const enemy = this.enemy;
 			if (enemy[PROXY_FLAG]) return;
@@ -38,18 +69,28 @@
 			});
 		}
 
+		/**
+		 * Starts polling animation state using `setInterval` if not already active.
+		 */
 		start() {
 			if (this._intervalId) return;
 			const handle = setInterval(() => this.updateFrame(), 1000 / this.fps);
 			this.enemy.animationInterval = handle;
 		}
 
+		/**
+		 * Stops the active polling interval and clears controller bookkeeping.
+		 */
 		stop() {
 			if (!this._intervalId) return;
 			clearInterval(this._intervalId);
 			this._intervalId = null;
 		}
 
+		/**
+		 * Evaluates the animation state machine once, honoring pause/dormant hooks and
+		 * executing `onActive`/`onAfterFrame` callbacks when appropriate.
+		 */
 		updateFrame() {
 			const enemy = this.enemy;
 			const resolver = this.config.resolveWorld;
@@ -85,6 +126,11 @@
 			}
 		}
 
+		/**
+		 * Provides a minimal default set of states (hurt/dead) when no custom ones are supplied.
+		 *
+		 * @returns {EnemyAnimationState[]}
+		 */
 		createDefaultStates() {
 			const deadFps = this.config.fps?.dead ?? 10;
 			const hurtFps = this.config.fps?.hurt ?? 12;
@@ -106,6 +152,12 @@
 			];
 		}
 
+		/**
+		 * Resolves the actual frame catalog for a logical animation key, honoring config overrides.
+		 *
+		 * @param {string} key
+		 * @returns {string[]|null}
+		 */
 		getFrames(key) {
 			const keyMap = this.config.animationKeys || {};
 			const resolvedKey = keyMap[key] || key;
@@ -116,6 +168,13 @@
 			return Array.isArray(catalogFrames) ? catalogFrames : null;
 		}
 
+		/**
+		 * Plays the resolved animation on the enemy with the requested FPS and loop behavior.
+		 *
+		 * @param {string} key
+		 * @param {number} [fps]
+		 * @param {boolean} [loop=true]
+		 */
 		playAnimationKey(key, fps, loop = true) {
 			const frames = this.getFrames(key);
 			if (!frames || !frames.length) return;
