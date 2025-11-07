@@ -20,7 +20,7 @@ function createLevel07() {
 
     const batPositions = [
         { spawn: 2.9, activation: 1.5, facingLeft: true },
-        { spawn: 3.3, activation: 1.5, facingLeft: false },
+        { spawn: 3.3, activation: 1, facingLeft: false },
     ];
 
     batPositions.forEach(config => {
