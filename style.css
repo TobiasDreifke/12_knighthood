@@ -7,22 +7,62 @@ h1 {
     text-align: center;
 }
 
+/* === Responsive site background === */
 body {
+    margin: 0;
+    min-height: 100dvh;
+
+    /* keeps your layout as-is */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* height: 100svh; */
 
-    /* position: relative; */
-    /* height: 100svh;
-    width: 100%; */
-    /* background-image: url("./01_assets/5_background/layers/parallax-demon-woods-bg.png");
-    background-image: url("./01_assets/5_background/layers/3_third_layer/parallax-demon-woods-far-trees.png");
-    background-image: url("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png");
-    background-image: url("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png"); */
-    background-size: cover;
+    /* fallback color if images fail */
+    background: radial-gradient(1200px 800px at 50% 45%, #0b1116 0%, #070b0f 55%, #05070a 100%);
+    position: relative;
+    overflow-x: hidden;
 }
+
+/* Multi-layer forest backdrop, blurred & darkened, always full-viewport */
+body::before {
+    content: "";
+    position: fixed;
+    /* sticks to viewport, not content */
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    /* back-to-front stacking order: BG → far → mid → close */
+    background-image:
+        url("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png"),
+        url("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png"),
+        url("./01_assets/5_background/layers/3_third_layer/parallax-demon-woods-far-trees.png"),
+        url("./01_assets/5_background/layers/parallax-demon-woods-bg.png");
+
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+    background-position: center bottom, center bottom, center bottom, center bottom;
+    background-size: cover, cover, cover, cover;
+
+    /* soften + keep it subtle behind the game */
+    filter: blur(6px) brightness(0.55) saturate(0.9);
+    transform: scale(1.08);
+    /* hides blur edges on small screens */
+}
+
+/* Soft vignette to focus the eye on the canvas */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(70% 55% at 50% 50%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.25) 60%, rgba(0, 0, 0, 0.6) 100%);
+    mix-blend-mode: multiply;
+}
+
+/* Keep your existing layout rules below as-is */
 
 main {
     /* height: 100%;
@@ -73,6 +113,14 @@ canvas {
     padding: 0; */
     /* height: 100%;
     width: 100%; */
+}
+
+canvas {
+    background-color: #2b2b2b;
+    /* you had rgb(87,87,87); darker helps contrast */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    border-radius: 12px;
+    /* already set in mobile media query; add for desktop too if you like */
 }
 
 .toggle_button_wrapper {
@@ -378,7 +426,10 @@ canvas {
 }
 
 @media (max-width: 900px) {
-    body, main, .game_screen_wrapper {
+
+    body,
+    main,
+    .game_screen_wrapper {
         width: 100vw;
     }
 
