@@ -24,7 +24,7 @@ class Mushroom extends MoveableObject {
 
     collidingObject = true;
     debugColor = "purple";
-    health = 18;
+    health = 30;
     damageOnCollision = 12;
 
     encounterSoundPlayed = false;

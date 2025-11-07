@@ -36,7 +36,7 @@ class Bat extends MoveableObject {
 
     collidingObject = true;
     debugColor = "green";
-    health = 16;
+    health = 12;
     damageOnCollision = 12;
 
     encounterSoundPlayed = false;

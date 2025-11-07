@@ -51,12 +51,12 @@ class ThrowHoly extends MoveableObject {
         "./01_assets/6_salsa_bottle/bottle_rotation/impact_02/holy_impact_7.png",
     ];
 
-    constructor(x, y, isThrown = false, damage = 20) {
+    constructor(x, y, isThrown = false, damage = 10) {
         super();
         this.x = x;
         this.y = y;
         this.isThrown = isThrown;
-        this.damage = Number.isFinite(damage) ? damage : 20;
+        this.damage = Number.isFinite(damage) ? damage : 10;
         this.maxDistance = 720;
         this.originX = x;
 

@@ -1,8 +1,28 @@
-const GAME_LEVEL_BUILDERS = [
-    createLevel01,
-    createLevel02,
-    createLevel03,
-    createLevel04,
-];
+(function initializeGameLevels() {
+    const registerLevels = () => {
+        const builders = [
+            createLevel01,
+            createLevel02,
+            createLevel03,
+            createLevel04,
+            createLevel05,
+            createLevel06,
+            createLevel07,
+            createLevel08,
+            createLevel09,
+            createLevel10,
+        ].filter(fn => typeof fn === "function");
 
-const GAME_LEVELS = GAME_LEVEL_BUILDERS.map(builder => builder());
+        window.GAME_LEVEL_BUILDERS = builders;
+        window.GAME_LEVELS = builders.map(builder => builder());
+    };
+
+    const readiness = window.LEVEL_FACTORY_READY;
+    if (readiness && typeof readiness.then === "function") {
+        readiness.then(registerLevels).catch(error => {
+            console.error("[LevelFactory] Unable to initialize levels", error);
+        });
+    } else {
+        registerLevels();
+    }
+})();

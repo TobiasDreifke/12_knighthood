@@ -33,7 +33,7 @@ class SkeletonBoss extends MoveableObject {
 
     collidingObject = true;
     debugColor = "green";
-
+    health = 240;
     encounterSoundPlayed = false;
     attackTimers = [];
     hurtTimeout = null;

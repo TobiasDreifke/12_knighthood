@@ -1,57 +1,54 @@
-function createLevel04() {
+function createLevel05() {
     const tile = 720;
 
     const enemies = [];
 
-    const goblinPositions = [1.5, 1.9, 2.3, 2.7, 3.1];
-    goblinPositions.forEach((mult, index) => {
+    const goblinPositions = [
+        { spawn: 1.8, activation: 1.2, facingLeft: true },
+        { spawn: 2.6, activation: 2.0, facingLeft: false },
+    ];
+
+    goblinPositions.forEach(config => {
         const goblin = new Goblin();
-        goblin.spawnX = tile * mult;
+        goblin.spawnX = tile * config.spawn;
         goblin.x = goblin.spawnX;
-        goblin.activationX = tile * (1.1 + index * 0.3);
+        goblin.activationX = tile * config.activation;
         goblin.isDormant = true;
-        goblin.otherDirection = true;
+        goblin.otherDirection = config.facingLeft;
         enemies.push(goblin);
     });
 
-    const boss = new SkeletonBoss();
-        boss.spawnX = tile * 4.2;
-        boss.x = boss.spawnX;
-        boss.activationX = tile * 3.6;
-        boss.isDormant = true;
-        enemies.push(boss);
+    const mushroom = new Mushroom();
+    mushroom.spawnX = tile * 3.1;
+    mushroom.x = mushroom.spawnX;
+    mushroom.activationX = tile * 2.5;
+    mushroom.isDormant = true;
+    mushroom.otherDirection = true;
+    enemies.push(mushroom);
 
     const throwables = [];
-    const dark1 = new ThrowDark(tile * 0.8, 350, false, 20);
-    dark1.spawnX = dark1.x;
-    dark1.spawnY = dark1.y;
-    throwables.push(dark1);
-    const dark2 = new ThrowDark(tile * 1.0, 350, false, 20);
-    dark2.spawnX = dark2.x;
-    dark2.spawnY = dark2.y;
-    throwables.push(dark2);
-    const holy1 = new ThrowHoly(tile * 1.2, 350, false, 24);
-    holy1.spawnX = holy1.x;
-    holy1.spawnY = holy1.y;
-    throwables.push(holy1);
+    const holyPositions = [0.7, 1.05];
+    holyPositions.forEach((mult, index) => {
+        const holyPickup = new ThrowHoly(tile * mult, 360, false, 22 + index * 2);
+        holyPickup.spawnX = holyPickup.x;
+        holyPickup.spawnY = holyPickup.y;
+        throwables.push(holyPickup);
+    });
 
     const pickables = [];
-    const sword = new Sword(tile * 0.4, 340);
-    sword.spawnX = sword.x;
-    sword.spawnY = sword.y;
-    pickables.push(sword);
+    const overlays = [];
 
     const level = new Level(
         enemies,
-        generateClouds(100),
+        generateClouds(70),
         createBackgroundObjects(),
         throwables,
         pickables,
+        overlays,
     );
 
-    level.level_end_x = tile * 5;
-    level.projectileBarrierX = level.level_end_x - tile * 0.1;
+    level.level_end_x = tile * 4;
     return level;
 }
 
-const level_04 = createLevel04();
+const level_05 = createLevel05();

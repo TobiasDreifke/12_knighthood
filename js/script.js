@@ -6,28 +6,39 @@ let orientationPauseActive = false;
 let touchControlsManager = null;
 
 function init() {
-    canvas = document.getElementById("canvas");
-    const initialLevelIndex = 0;
-    AudioHub.ensureInteractionUnlock();
-    world = new World(canvas, keyboard, initialLevelIndex);
+    const startGame = () => {
+        canvas = document.getElementById("canvas");
+        const initialLevelIndex = 0;
+        AudioHub.ensureInteractionUnlock();
+        world = new World(canvas, keyboard, initialLevelIndex);
 
-    console.log("my char is", world.heroCharacter);
-    setupStartButton();
-    setupSoundControls();
-    setupPauseMenu();
-    setupFullscreenToggle();
-    touchControlsManager = setupTouchControls();
-    setupOrientationGuard();
-    setupImpressumModal();
+        console.log("my char is", world.heroCharacter);
+        setupStartButton();
+        setupSoundControls();
+        setupPauseMenu();
+        setupFullscreenToggle();
+        touchControlsManager = setupTouchControls();
+        setupOrientationGuard();
+        setupImpressumModal();
 
-    const restartButton = document.getElementById("restart-button");
-    restartButton.addEventListener("click", () => {
-        location.reload();
-    });
+        const restartButton = document.getElementById("restart-button");
+        restartButton.addEventListener("click", () => {
+            location.reload();
+        });
 
-    const gameoverRestartButton = document.getElementById("gameover-restart-button");
-    if (gameoverRestartButton) {
-        gameoverRestartButton.addEventListener("click", () => location.reload());
+        const gameoverRestartButton = document.getElementById("gameover-restart-button");
+        if (gameoverRestartButton) {
+            gameoverRestartButton.addEventListener("click", () => location.reload());
+        }
+    };
+
+    const readiness = window.LEVEL_FACTORY_READY;
+    if (readiness && typeof readiness.then === "function") {
+        readiness.then(startGame).catch(error => {
+            console.error("[LevelFactory] Unable to bootstrap game", error);
+        });
+    } else {
+        startGame();
     }
 }
 

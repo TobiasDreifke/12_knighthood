@@ -19,34 +19,11 @@ function createLevel01() {
     goblin2.otherDirection = true;
     enemies.push(goblin2);
 
-    const mushroom1 = new Mushroom();
-    goblin1.spawnX = tile * 2.75;
-    goblin1.x = goblin1.spawnX;
-    goblin1.activationX = tile * 2;
-    goblin1.isDormant = true;
-    goblin1.otherDirection = true;
-    enemies.push(mushroom1);
 
-       const bat1 = new Bat();
-    goblin1.spawnX = tile * 2.75;
-    goblin1.x = goblin1.spawnX;
-    goblin1.activationX = tile * 2;
-    goblin1.isDormant = true;
-    goblin1.otherDirection = true;
-    enemies.push(bat1);
+
 
     const throwables = [];
-    const holy1 = new ThrowHoly(tile * 0.6, 350, false, 22);
-    holy1.spawnX = holy1.x;
-    holy1.spawnY = holy1.y;
-    throwables.push(holy1);
-    const holy2 = new ThrowHoly(tile * 0.85, 350, false, 22);
-    holy2.spawnX = holy2.x;
-    holy2.spawnY = holy2.y;
-    throwables.push(holy2);
-
     const pickables = [];
-
     const overlays = [];
 
 
