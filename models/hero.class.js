@@ -79,12 +79,12 @@ class Hero extends MoveableObject {
     }
 
     updateCameraPosition() {
-        if (this.world && this.world.isWinSequenceActive) {
+        if (this.world && (this.world.isWinSequenceActive || this.world.isLoseSequenceActive)) {
             const target = -this.x + (this.world.canvas.width / 2) - (this.width / 2);
             this.world.camera_x += (target - this.world.camera_x) * 0.05;
-        } else {
-            this.world.camera_x = -this.x + 100;
+            return;
         }
+        this.world.camera_x = -this.x + 100;
     }
     
     playAttackAnimationOnce() {
@@ -146,6 +146,14 @@ class Hero extends MoveableObject {
 
     getCelebrationDuration() {
         return this.celebrationTotalDuration;
+    }
+
+    getDeathAnimationDuration() {
+        const frames = this.hasSword ? this.frames.DEAD_SWORD : this.frames.DEAD;
+        const frameCount = Array.isArray(frames) ? frames.length : 0;
+        const fps = 14;
+        if (!frameCount) return 1500;
+        return (frameCount / fps) * 1000;
     }
 
     dealDamageToEnemies(impactFrame = null) {

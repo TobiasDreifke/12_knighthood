@@ -20,7 +20,7 @@ class CollisionSystem {
 				world.statusBarHealth.setPercentage(heroCharacter.health);
 				if (heroCharacter.isDead) world.startGameOverSequence();
 			}
-			if (enemy instanceof SkeletonBoss && enemy.isDead) world.startWinSequence();
+			if (enemy instanceof SkeletonBoss && enemy.isDead) world.startWinSequence(enemy);
 		}
 	}
 

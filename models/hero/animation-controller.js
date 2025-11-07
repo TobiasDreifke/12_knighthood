@@ -163,9 +163,22 @@ class HeroAnimationController {
 
 	playIdle() {
 		const hero = this.hero;
-		AudioHub.playHeroIdleLoop();
+		if (this.shouldPlayIdleLoop()) {
+			AudioHub.playHeroIdleLoop();
+		} else {
+			AudioHub.stopHeroIdleLoop();
+		}
 		const frames = hero.hasSword ? hero.frames.IDLE_SWORD : hero.frames.IDLE;
 		hero.playAnimationWithSpeed(frames, 12);
+	}
+
+	shouldPlayIdleLoop() {
+		const world = this.hero.world;
+		if (!world) return !this.hero.isDead;
+		if (world.isWinSequenceActive || world.winSequenceStarted) return false;
+		if (world.gameOverSequenceStarted) return false;
+		if (this.hero.isDead || this.hero.isCelebrating) return false;
+		return true;
 	}
 
 	startDrawSwordAnimation() {

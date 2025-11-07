@@ -18,7 +18,7 @@ const createBatAnimationConfig = enemy => ({
         },
     ],
     onActive: () => {
-        enemy.updateFacingTowardPlayer({ player: enemy.player, flipThreshold: 10 });
+        enemy.updateFacingForDive();
         enemy.performDivePattern();
     },
 });
@@ -86,6 +86,15 @@ class Bat extends MoveableObject {
         this.updateFacingTowardPlayer({ player: this.player, flipThreshold: 10 });
     }
 
+    updateFacingForDive() {
+        if (this.hasDiveTarget()) {
+            const centerX = this.x + this.width / 2;
+            this.otherDirection = centerX > this.diveTargetX;
+            return;
+        }
+        this.updateFacingTowardPlayer({ player: this.player, flipThreshold: 10 });
+    }
+
     performDivePattern() {
         const metrics = this.resolveDiveMetrics();
         if (this.flightPhase === "descend") {
@@ -98,15 +107,16 @@ class Bat extends MoveableObject {
     }
 
     resolveDiveMetrics() {
-        const box = typeof this.player?.getHurtbox === "function" ? this.player.getHurtbox() : null;
+        const box = this.getHeroHurtbox();
         const heroCenterX = box ? (box.left + box.right) / 2 : this.player ? this.player.x : this.x;
         const heroBottom = box ? box.bottom : (this.player ? this.player.y + (this.player.height ?? 120) : this.y + this.height);
+        const heroCenterY = box ? (box.top + box.bottom) / 2 : heroBottom - (this.player?.height ?? this.height) / 2;
         const topAltitude = this.spawnY ?? 100;
-        return { heroCenterX, heroBottom, topAltitude };
+        return { heroCenterX, heroBottom, heroCenterY, topAltitude };
     }
 
-    prepareDive({ heroCenterX, heroBottom }) {
-        this.ensureDiveTarget(heroCenterX, heroBottom);
+    prepareDive(metrics) {
+        this.ensureDiveTarget(metrics);
         this.diveTowardTarget();
     }
 
@@ -114,19 +124,19 @@ class Bat extends MoveableObject {
         this.playAnimationWithSpeed(this.frames.WALK, 14);
     }
 
-    ensureDiveTarget(heroCenterX, heroBottom) {
+    ensureDiveTarget({ heroCenterX, heroBottom, heroCenterY }) {
         if (this.diveTargetX !== null && this.diveTargetY !== null) return;
         const halfWidth = this.width / 2;
         const targetX = heroCenterX;
         const groundFromWorld = this.world?.heroCharacter?.groundY ?? this.groundY ?? (heroBottom + 700);
         const safeGround = groundFromWorld - 6;
-        const desiredY = heroBottom - this.height * 0.25;
+        const desiredY = heroBottom - this.height * 0.1;
         const targetY = Math.min(desiredY, safeGround);
 
         this.diveTargetX = targetX;
         this.diveTargetY = targetY;
         this.currentDiveSpeed = Math.max(this.currentDiveSpeed, this.baseHorizontalSpeed * 2.2);
-        this.otherDirection = (this.x + halfWidth) > heroCenterX;
+        this.otherDirection = (this.x + halfWidth) > this.diveTargetX;
     }
 
     diveTowardTarget() {
@@ -146,6 +156,10 @@ class Bat extends MoveableObject {
 
     hasDiveTarget() {
         return this.diveTargetX !== null && this.diveTargetY !== null;
+    }
+
+    getHeroHurtbox() {
+        return typeof this.player?.getHurtbox === "function" ? this.player.getHurtbox() : null;
     }
 
     getCenterPosition() {
@@ -184,8 +198,8 @@ class Bat extends MoveableObject {
     reachedDiveTarget() {
         const { centerX, centerY } = this.getCenterPosition();
         const closeHorizontally = Math.abs(centerX - this.diveTargetX) <= 12;
-        const reachedVertical = centerY >= this.diveTargetY - 8;
-        const touchedGround = this.y >= this.diveTargetY - 2;
+        const reachedVertical = centerY >= this.diveTargetY - 4;
+        const touchedGround = centerY >= this.diveTargetY;
         return closeHorizontally && (reachedVertical || touchedGround);
     }
 

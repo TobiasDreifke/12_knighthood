@@ -29,6 +29,7 @@ class World {
 	gameOverSequenceStarted = false;
 	inputLocked = false;
 	isWinSequenceActive = false;
+	isLoseSequenceActive = false;
 	isPaused = false;
 	hasStarted = false;
 
@@ -90,10 +91,13 @@ class World {
 		this.intervalManager.stopAll();
 	}
 
-	stopAllEnemyActivity() {
+	stopAllEnemyActivity(excludePredicate = null) {
 		if (!this.level || !Array.isArray(this.level.enemies)) return;
 		this.level.enemies.forEach(enemy => {
 			if (!enemy) return;
+			if (typeof excludePredicate === 'function' && excludePredicate(enemy)) {
+				return;
+			}
 			if (typeof enemy.stopAllActivity === 'function') {
 				enemy.stopAllActivity();
 			} else if (enemy.animationInterval) {
@@ -176,16 +180,18 @@ class World {
 		this.enemyActivationSystem.update(this);
 	}
 
-	startWinSequence() {
+	startWinSequence(finalEnemy = null) {
 		if (this.winSequenceStarted) return;
 		this.winSequenceStarted = true;
 		this.lockInput();
 		this.stopAllIntervals();
-		this.stopAllEnemyActivity();
+		this.stopAllEnemyActivity(enemy => enemy?.constructor?.name === 'SkeletonBoss');
 		this.isWinSequenceActive = true;
 		this.heroCharacter.setControlsLocked(true);
 		this.heroCharacter.startWinCelebration();
 		AudioHub.stopAll();
+		this.playFinalEnemyDeathSound(finalEnemy);
+		AudioHub.playGameplayMusic();
 		const celebrationDuration = (this.heroCharacter.getCelebrationDuration() || 0) + 500;
 		this.gameStateUI.scheduleWinScreen(this, celebrationDuration);
 	}
@@ -194,11 +200,32 @@ class World {
 		if (this.gameOverSequenceStarted) return;
 		this.gameOverSequenceStarted = true;
 		this.lockInput();
+		this.heroCharacter.setControlsLocked(true);
+		this.isLoseSequenceActive = true;
+		const loseDelay = Math.max(
+			1000,
+			this.heroCharacter?.getDeathAnimationDuration?.() ?? 0
+		);
+		setTimeout(() => this.finishGameOverSequence(), loseDelay);
+	}
+
+	finishGameOverSequence() {
 		this.stopAllIntervals();
 		this.stopAllEnemyActivity();
-		this.heroCharacter.setControlsLocked(true);
+		this.isLoseSequenceActive = false;
 		AudioHub.stopAll();
 		this.gameStateUI.showGameOverScreen(this);
 	}
-}
 
+	playFinalEnemyDeathSound(enemy) {
+		if (!enemy) return;
+		const soundMap = {
+			SkeletonBoss: AudioHub.SKELETON_DEAD,
+		};
+		const key = enemy.constructor?.name;
+		const sound = key ? soundMap[key] : null;
+		if (sound) {
+			AudioHub.playOne(sound);
+		}
+	}
+}

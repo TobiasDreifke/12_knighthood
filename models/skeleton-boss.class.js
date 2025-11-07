@@ -1,7 +1,7 @@
 const createSkeletonAnimationConfig = enemy => ({
     resolveWorld: () => enemy.player?.world || enemy.world,
     animationKeys: { walk: 'WALK', hurt: 'HURT', dead: 'DEAD', idle: 'IDLE', attack: 'ATTACK' },
-    fps: { loop: 25, walk: 8, hurt: 12, dead: 6, attack: 10 },
+    fps: { loop: 25, walk: 8, hurt: 12, dead: 1, attack: 10 },
     dormant: { condition: () => enemy.isDormant, action: () => enemy.playIdleAnimation() },
     states: [
         {
@@ -247,7 +247,10 @@ class SkeletonBoss extends MoveableObject {
             hurtSound: AudioHub.SKELETON_HURT,
             hurtFps: 12,
             hurtFrameCount: frameCount,
-            onDeath: () => this.clearAttackTimers(),
+            onDeath: () => {
+                this.clearAttackTimers();
+                this.beginDeathAnimation();
+            },
             onHurtStart: () => this.startHurtState(),
             onHurtEnd: () => this.endHurtState(),
         };
@@ -260,6 +263,12 @@ class SkeletonBoss extends MoveableObject {
 
     endHurtState() {
         this.isHurt = false;
+    }
+
+    beginDeathAnimation() {
+        this.isHurt = false;
+        this.frameIndex = 0;
+        this.lastFrameTime = 0;
     }
 
     onAnimationFrame(images, frameIndex) {
@@ -279,6 +288,9 @@ class SkeletonBoss extends MoveableObject {
     }
 
     stopAllActivity() {
+        if (this.world?.isWinSequenceActive && this.isDead) {
+            return;
+        }
         this.animationController?.stop();
         this.clearAttackTimers();
         if (this.hurtTimeout) {
