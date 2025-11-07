@@ -4,8 +4,8 @@ function createLevel07() {
     const enemies = [];
 
     const goblinPositions = [
-        { spawn: 1.7, activation: 1.2, facingLeft: true },
-        { spawn: 2.6, activation: 2.0, facingLeft: false },
+        { spawn: 1.7, activation: 1, facingLeft: true },
+        { spawn: 2.6, activation: 1, facingLeft: false },
     ];
 
     goblinPositions.forEach(config => {
@@ -19,8 +19,8 @@ function createLevel07() {
     });
 
     const batPositions = [
-        { spawn: 2.9, activation: 2.3, facingLeft: true },
-        { spawn: 3.3, activation: 2.7, facingLeft: false },
+        { spawn: 2.9, activation: 1.5, facingLeft: true },
+        { spawn: 3.3, activation: 1.5, facingLeft: false },
     ];
 
     batPositions.forEach(config => {

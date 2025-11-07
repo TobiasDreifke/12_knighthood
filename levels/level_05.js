@@ -4,8 +4,8 @@ function createLevel05() {
     const enemies = [];
 
     const goblinPositions = [
-        { spawn: 1.8, activation: 1.2, facingLeft: true },
-        { spawn: 2.6, activation: 2.0, facingLeft: false },
+        { spawn: 1.8, activation: 1, facingLeft: true },
+        { spawn: 2.6, activation: 1.2, facingLeft: false },
     ];
 
     goblinPositions.forEach(config => {
@@ -21,7 +21,7 @@ function createLevel05() {
     const mushroom = new Mushroom();
     mushroom.spawnX = tile * 3.1;
     mushroom.x = mushroom.spawnX;
-    mushroom.activationX = tile * 2.5;
+    mushroom.activationX = tile * 1.5;
     mushroom.isDormant = true;
     mushroom.otherDirection = true;
     enemies.push(mushroom);

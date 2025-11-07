@@ -4,8 +4,9 @@ function createLevel02() {
     const enemies = [];
 
     const goblinPositions = [
-        { spawn: 2.0, activation: 1.3, facingLeft: true },
-        { spawn: 2.5, activation: 1.9, facingLeft: false },
+        { spawn: 2.0, activation: 1, facingLeft: true },
+        { spawn: 2.25, activation: 1, facingLeft: false },
+        { spawn: 2.5, activation: 1, facingLeft: false },
     ];
 
     goblinPositions.forEach(config => {
@@ -19,7 +20,7 @@ function createLevel02() {
     });
 
     const throwables = [];
-    const holyPositions = [0.65, 0.95];
+    const holyPositions = [0.25, 0.95];
     holyPositions.forEach((mult, index) => {
         const holyPickup = new ThrowHoly(tile * mult, 360, false, 10 + index * 2);
         holyPickup.spawnX = holyPickup.x;
@@ -31,34 +32,32 @@ function createLevel02() {
 
     const overlays = [];
 
-    const movementTips = [
-        {
-            x: 0.25,
-            text: () => `Hold ${KeyboardMapping.getDisplayKey("LEFT", "left")} / ${KeyboardMapping.getDisplayKey("RIGHT", "right")} to move`,
-        },
-        {
-            x: 0.75,
-            text: () => `Jump with ${KeyboardMapping.getDisplayKey("JUMP", "jump")} and punch with ${KeyboardMapping.getDisplayKey("ATTACK", "attack")}`,
-        },
-        {
-            x: 1.25,
-            text: () => `Pick up blessed flasks with ${KeyboardMapping.getDisplayKey("INTERACT", "interact")}`,
-        },
-    ];
-
-    movementTips.forEach(tip => {
-        const tooltip = new TooltipText({
-            x: tile * tip.x,
-            y: 350,
-            textAlign: "center",
-            textBaseline: "top",
-            font: "22px \"Merriweather\", serif",
-            padding: 12,
-            maxWidth: 360,
-            text: tip.text,
-        });
-        overlays.push(tooltip);
+    const HolyTooltip = new TooltipText({
+        x: tile * 0.25,
+        y: 250,
+        textAlign: "center",
+        textBaseline: "top",
+        font: "22px \"Merriweather\", serif",
+        padding: 12,
+        maxWidth: 360,
+        text: () => `A Holy cast has low damage <br> but will pierce through enemies`,
     });
+    overlays.push(HolyTooltip);
+
+    const ThrowHolyTooltip = new TooltipText({
+        x: tile * 1,
+        y: 275,
+        textAlign: "center",
+        textBaseline: "top",
+        font: "22px \"Merriweather\", serif",
+        padding: 12,
+        maxWidth: 360,
+        text: () => `To Cast a Holy press ${KeyboardMapping.getDisplayKey("THROWHOLY", "throwholy")}`,
+    });
+    overlays.push(ThrowHolyTooltip);
+
+    
+
 
     const level = new Level(
         enemies,

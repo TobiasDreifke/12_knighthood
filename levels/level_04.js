@@ -4,9 +4,9 @@ function createLevel04() {
     const enemies = [];
 
     const goblinPositions = [
-        { spawn: 1.6, activation: 1.2, facingLeft: true },
-        { spawn: 2.2, activation: 1.8, facingLeft: false },
-        { spawn: 2.8, activation: 2.3, facingLeft: true },
+        { spawn: 1.6, activation: 1, facingLeft: true },
+        { spawn: 2.2, activation: 1, facingLeft: false },
+        { spawn: 2.8, activation: 1, facingLeft: true },
     ];
 
     goblinPositions.forEach(config => {

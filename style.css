@@ -1,5 +1,56 @@
-* {
-    margin: 0
+/* ========================================
+   1. Base + Layout
+======================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+body {
+    margin: 0;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(1200px 800px at 50% 45%, #0b1116 0%, #070b0f 55%, #05070a 100%);
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        url("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png"),
+        url("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png"),
+        url("./01_assets/5_background/layers/3_third_layer/parallax-demon-woods-far-trees.png"),
+        url("./01_assets/5_background/layers/parallax-demon-woods-bg.png");
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: cover;
+    filter: blur(6px) brightness(0.55) saturate(0.9);
+    transform: scale(1.08);
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(70% 55% at 50% 50%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.25) 60%, rgba(0, 0, 0, 0.6) 100%);
+    mix-blend-mode: multiply;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 h1 {
@@ -7,81 +58,12 @@ h1 {
     text-align: center;
 }
 
-/* === Responsive site background === */
-body {
-    margin: 0;
-    min-height: 100dvh;
-
-    /* keeps your layout as-is */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    /* fallback color if images fail */
-    background: radial-gradient(1200px 800px at 50% 45%, #0b1116 0%, #070b0f 55%, #05070a 100%);
-    position: relative;
-    overflow-x: hidden;
-}
-
-/* Multi-layer forest backdrop, blurred & darkened, always full-viewport */
-body::before {
-    content: "";
-    position: fixed;
-    /* sticks to viewport, not content */
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-
-    /* back-to-front stacking order: BG → far → mid → close */
-    background-image:
-        url("./01_assets/5_background/layers/1_first_layer/parallax-demon-woods-close-trees.png"),
-        url("./01_assets/5_background/layers/2_second_layer/parallax-demon-woods-mid-trees.png"),
-        url("./01_assets/5_background/layers/3_third_layer/parallax-demon-woods-far-trees.png"),
-        url("./01_assets/5_background/layers/parallax-demon-woods-bg.png");
-
-    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
-    background-position: center bottom, center bottom, center bottom, center bottom;
-    background-size: cover, cover, cover, cover;
-
-    /* soften + keep it subtle behind the game */
-    filter: blur(6px) brightness(0.55) saturate(0.9);
-    transform: scale(1.08);
-    /* hides blur edges on small screens */
-}
-
-/* Soft vignette to focus the eye on the canvas */
-body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background:
-        radial-gradient(70% 55% at 50% 50%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.25) 60%, rgba(0, 0, 0, 0.6) 100%);
-    mix-blend-mode: multiply;
-}
-
-/* Keep your existing layout rules below as-is */
-
-main {
-    /* height: 100%;
-    width: 100%; */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
 .game_screen_wrapper {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: relative;
-    /* height: 100%;
-    width: 100%; */
-
     height: calc(100dvh - 2rem);
 }
 
@@ -98,35 +80,22 @@ main {
 }
 
 canvas {
-    background-color: rgb(87, 87, 87);
     position: relative;
     display: block;
     max-width: 100%;
-
-    /* display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center; */
-    /* width: 720px;
-    height: 480px;
-    margin: 0;
-    padding: 0; */
-    /* height: 100%;
-    width: 100%; */
-}
-
-canvas {
     background-color: #2b2b2b;
-    /* you had rgb(87,87,87); darker helps contrast */
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
     border-radius: 12px;
-    /* already set in mobile media query; add for desktop too if you like */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
 }
 
+/* ========================================
+   2. Sound + toggle row
+======================================== */
 .toggle_button_wrapper {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
 }
 
 .sound_container {
@@ -149,12 +118,13 @@ canvas {
 }
 
 .slider_label {
-    color: #fff;
     font-size: 1rem;
+    color: #fff;
 }
 
-
-
+/* ========================================
+   3. Pause overlay
+======================================== */
 #pause-screen {
     position: absolute;
     top: 50%;
@@ -162,14 +132,14 @@ canvas {
     transform: translate(-50%, -50%);
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
     display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 24px;
-    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.8);
     opacity: 0;
+    z-index: 10;
     transition: opacity 0.3s ease;
 }
 
@@ -183,8 +153,8 @@ canvas {
     flex-direction: column;
     align-items: center;
     gap: 24px;
-    color: #fff;
     text-align: center;
+    color: #fff;
 }
 
 .pause_actions {
@@ -192,6 +162,9 @@ canvas {
     gap: 16px;
 }
 
+/* ========================================
+   4. Touch controls
+======================================== */
 .touch-controls {
     position: absolute;
     bottom: 16px;
@@ -247,16 +220,19 @@ canvas {
     outline-offset: 2px;
 }
 
+/* ========================================
+   5. Modal dialog
+======================================== */
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.75);
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 30;
     padding: 24px;
+    background: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(4px);
+    z-index: 30;
 }
 
 .modal-overlay.visible {
@@ -266,13 +242,13 @@ canvas {
 .modal-dialog {
     width: min(600px, 100%);
     max-height: calc(100dvh - 80px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     background: #1b1b1b;
     color: #fff;
     border-radius: 16px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
 }
 
 .modal-header {
@@ -305,10 +281,13 @@ canvas {
 .modal-body {
     padding: 24px;
     overflow-y: auto;
-    line-height: 1.6;
     font-size: 1rem;
+    line-height: 1.6;
 }
 
+/* ========================================
+   6. Orientation guard
+======================================== */
 .orientation-overlay {
     position: absolute;
     top: 50%;
@@ -316,13 +295,13 @@ canvas {
     transform: translate(-50%, -50%);
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
     display: none;
     justify-content: center;
     align-items: center;
     text-align: center;
-    color: #fff;
     padding: 24px;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.9);
     z-index: 20;
 }
 
@@ -345,6 +324,9 @@ canvas {
     font-size: 1.1rem;
 }
 
+/* ========================================
+   7. Game overlays
+======================================== */
 #start-screen {
     position: absolute;
     top: 50%;
@@ -352,22 +334,15 @@ canvas {
     transform: translate(-50%, -50%);
     width: 100%;
     height: 100%;
-
-    background-color: rgba(0, 0, 0, 0.8);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-
-    /* margin-top: 1rem;
-    margin-bottom: 1rem; */
-
+    background-color: rgba(0, 0, 0, 0.8);
     z-index: 10;
     opacity: 1;
     transition: opacity 1s ease;
-    /* fade transition */
 }
-
 
 #start-screen button {
     padding: 20px 40px;
@@ -375,25 +350,7 @@ canvas {
     cursor: pointer;
 }
 
-#end-screen {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-
-    background-color: rgba(0, 0, 0, 0.8);
-    display: none;
-    /* hidden initially */
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    z-index: 10;
-    opacity: 0;
-    transition: opacity 1s ease;
-}
-
+#end-screen,
 #gameover-screen {
     position: absolute;
     top: 50%;
@@ -401,32 +358,34 @@ canvas {
     transform: translate(-50%, -50%);
     width: 100%;
     height: 100%;
-
-    background-color: rgba(0, 0, 0, 0.8);
     display: none;
-    /* hidden initially */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.8);
     z-index: 10;
     opacity: 0;
     transition: opacity 1s ease;
 }
 
+#end-screen h2,
 #gameover-screen h2 {
-    color: white;
     margin-bottom: 20px;
     font-size: 2rem;
+    color: #fff;
 }
 
+#end-screen button,
 #gameover-restart-button {
     padding: 15px 30px;
     font-size: 1.2rem;
     cursor: pointer;
 }
 
+/* ========================================
+   8. Responsive tweaks
+======================================== */
 @media (max-width: 900px) {
-
     body,
     main,
     .game_screen_wrapper {
@@ -454,16 +413,4 @@ canvas {
     #orientation-overlay {
         border-radius: 12px;
     }
-}
-
-#end-screen h2 {
-    color: white;
-    margin-bottom: 20px;
-    font-size: 2rem;
-}
-
-#end-screen button {
-    padding: 15px 30px;
-    font-size: 1.2rem;
-    cursor: pointer;
 }

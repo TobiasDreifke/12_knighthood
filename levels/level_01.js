@@ -29,7 +29,7 @@ function createLevel01() {
 
     const pauseTooltip = new TooltipText({
         x: tile * 0.25,
-        y: 350,
+        y: 275,
         textAlign: "center",
         textBaseline: "top",
         font: "22px \"Merriweather\", serif",
@@ -41,7 +41,7 @@ function createLevel01() {
 
     const jumpTooltip = new TooltipText({
         x: tile * 0.75,
-        y: 350,
+        y: 275,
         textAlign: "center",
         textBaseline: "top",
         font: "22px \"Merriweather\", serif",
@@ -53,7 +53,7 @@ function createLevel01() {
 
     const slideTooltip = new TooltipText({
         x: tile * 1.25,
-        y: 350,
+        y: 275,
         textAlign: "center",
         textBaseline: "top",
         font: "22px \"Merriweather\", serif",

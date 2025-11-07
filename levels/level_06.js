@@ -4,10 +4,10 @@ function createLevel06() {
     const enemies = [];
 
     const goblinPositions = [
-        { spawn: 1.5, activation: 1.1, facingLeft: true },
-        { spawn: 2.0, activation: 1.6, facingLeft: false },
-        { spawn: 2.5, activation: 2.1, facingLeft: true },
-        { spawn: 3.0, activation: 2.6, facingLeft: false },
+        { spawn: 1.5, activation: 1, facingLeft: true },
+        { spawn: 2.0, activation: 1, facingLeft: false },
+        { spawn: 2.5, activation: 2, facingLeft: true },
+        { spawn: 3.0, activation: 2, facingLeft: false },
     ];
 
     goblinPositions.forEach(config => {
@@ -21,8 +21,8 @@ function createLevel06() {
     });
 
     const mushroomPositions = [
-        { spawn: 2.2, activation: 1.7, facingLeft: false },
-        { spawn: 3.2, activation: 2.8, facingLeft: true },
+        { spawn: 2.2, activation: 1, facingLeft: false },
+        { spawn: 3.2, activation: 2, facingLeft: true },
     ];
 
     mushroomPositions.forEach(config => {

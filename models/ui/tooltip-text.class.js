@@ -39,6 +39,11 @@ class TooltipText {
         if (!ctx) return;
         const content = this.getText();
         if (!content) return;
+        const normalizedText = String(content)
+            .replace(/\r\n/g, "\n")
+            .replace(/<br\s*\/?>/gi, "\n");
+        const lines = normalizedText.split("\n");
+        if (!lines.length) return;
 
         ctx.save();
         ctx.globalAlpha *= this.alpha;
@@ -46,11 +51,19 @@ class TooltipText {
         ctx.textAlign = this.textAlign;
         ctx.textBaseline = this.textBaseline;
 
-        const metrics = ctx.measureText(content);
-        const textWidth = metrics.width;
-        const ascent = metrics.actualBoundingBoxAscent ?? 0;
-        const descent = metrics.actualBoundingBoxDescent ?? 0;
-        const textHeight = ascent + descent || parseInt(this.font, 10) || 24;
+        const metricsPerLine = lines.map((line) => ctx.measureText(line || " "));
+        const textWidth = metricsPerLine.reduce((max, metrics) => Math.max(max, metrics.width), 0);
+        const maxAscent = metricsPerLine.reduce(
+            (max, metrics) => Math.max(max, metrics.actualBoundingBoxAscent ?? 0),
+            0
+        );
+        const maxDescent = metricsPerLine.reduce(
+            (max, metrics) => Math.max(max, metrics.actualBoundingBoxDescent ?? 0),
+            0
+        );
+        const fallbackLineHeight = parseInt(this.font, 10) || 24;
+        const lineHeight = maxAscent + maxDescent || fallbackLineHeight;
+        const textHeight = lineHeight * lines.length;
         const padding = typeof this.padding === "number" ? this.padding : 8;
 
         let rectX = this.x;
@@ -64,7 +77,7 @@ class TooltipText {
         if (this.textBaseline === "middle") {
             rectY = this.y - textHeight / 2;
         } else if (this.textBaseline === "alphabetic" || this.textBaseline === "ideographic") {
-            rectY = this.y - ascent;
+            rectY = this.y - maxAscent;
         } else if (this.textBaseline === "bottom") {
             rectY = this.y - textHeight;
         }
@@ -84,12 +97,21 @@ class TooltipText {
         ctx.shadowColor = this.shadowColor;
         ctx.shadowBlur = this.shadowBlur;
         ctx.fillStyle = this.fillStyle;
+        ctx.textBaseline = "top";
+        let lineY = rectY;
         if (this.strokeStyle && this.lineWidth > 0) {
             ctx.lineWidth = this.lineWidth;
             ctx.strokeStyle = this.strokeStyle;
-            ctx.strokeText(content, this.x, this.y, this.maxWidth ?? undefined);
+            lines.forEach((line) => {
+                ctx.strokeText(line, this.x, lineY, this.maxWidth ?? undefined);
+                lineY += lineHeight;
+            });
+            lineY = rectY;
         }
-        ctx.fillText(content, this.x, this.y, this.maxWidth ?? undefined);
+        lines.forEach((line) => {
+            ctx.fillText(line, this.x, lineY, this.maxWidth ?? undefined);
+            lineY += lineHeight;
+        });
         ctx.restore();
     }
 }

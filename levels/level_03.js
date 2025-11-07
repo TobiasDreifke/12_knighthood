@@ -4,8 +4,8 @@ function createLevel03() {
     const enemies = [];
 
     const goblinPositions = [
-        { spawn: 1.7, activation: 1.2, facingLeft: true },
-        { spawn: 2.4, activation: 1.8, facingLeft: false },
+        { spawn: 1.7, activation: 1, facingLeft: true },
+        { spawn: 2.4, activation: 1, facingLeft: false },
     ];
 
     goblinPositions.forEach(config => {
@@ -21,7 +21,7 @@ function createLevel03() {
     const mushroom = new Mushroom();
     mushroom.spawnX = tile * 3.0;
     mushroom.x = mushroom.spawnX;
-    mushroom.activationX = tile * 2.5;
+    mushroom.activationX = tile * 1.5;
     mushroom.isDormant = true;
     mushroom.otherDirection = false;
     enemies.push(mushroom);
@@ -38,6 +38,28 @@ function createLevel03() {
     const pickables = [];
     const overlays = [];
 
+    const DarkTooltip = new TooltipText({
+        x: tile * 0.25,
+        y: 250,
+        textAlign: "center",
+        textBaseline: "top",
+        font: "22px \"Merriweather\", serif",
+        padding: 12,
+        maxWidth: 360,
+        text: () => `A Dark cast has high damage <br> but will explode upon contact`,
+    });
+    overlays.push(DarkTooltip);
+    const ThrowDarkTooltip = new TooltipText({
+        x: tile * 1,
+        y: 275,
+        textAlign: "center",
+        textBaseline: "top",
+        font: "22px \"Merriweather\", serif",
+        padding: 12,
+        maxWidth: 360,
+        text: () => `To Cast a Dark press ${KeyboardMapping.getDisplayKey("THROWDARK", "throwdark")}`,
+    });
+    overlays.push(ThrowDarkTooltip);
     const level = new Level(
         enemies,
         generateClouds(50),
