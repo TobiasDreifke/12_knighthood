@@ -127,30 +127,72 @@ canvas {
 
 }
 
-
-
 .sound_container {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-/* #start-screen .sound_container .toggle_button {
-    padding: 10px 18px;
-} */
-
 .toggle_button.is-muted {
     opacity: 0.7;
 }
 
-.volume_slider {
-    width: 100%;
-}
-
-.slider_label {
+/* .slider_label {
     font-size: 1rem;
     color: #fff;
     text-align: left;
+} */
+
+.volume_slider {
+    -webkit-appearance: none;
+    /* Override default CSS styles */
+    appearance: none;
+    width: 100%;
+    /* Full-width */
+    height: 1rem;
+    /* Specified height */
+    background: #ff9292;
+    /* Grey background */
+    outline: none;
+    /* Remove outline */
+    opacity: 0.7;
+    /* Set transparency (for mouse-over effects on hover) */
+    -webkit-transition: .2s;
+    /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+}
+
+/* Mouse-over effects */
+.volume_slider:hover {
+    opacity: 1;
+    /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.volume_slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    /* Override default look */
+    appearance: none;
+    width: 1rem;
+    /* Set a specific slider handle width */
+    height: 1rem;
+    /* Slider handle height */
+    background: #ff5a5a;
+    /* Green background */
+    cursor: pointer;
+    /* Cursor on hover */
+}
+
+.volume_slider::-moz-range-thumb {
+    width: 1rem;
+    /* Set a specific slider handle width */
+    height: 1rem;
+    /* Slider handle height */
+    background: #ff5a5a;
+
+    /* Green background */
+    cursor: pointer;
+    /* Cursor on hover */
 }
 
 /* ========================================
@@ -254,7 +296,7 @@ canvas {
 
 .touch-button.primary {
     background: rgba(63, 16, 22, 0.7);
-    border-color:rgba(201, 14, 39, 0.7);
+    border-color: rgba(201, 14, 39, 0.7);
 }
 
 .touch-button:active {
@@ -295,6 +337,7 @@ canvas {
     color: #fff;
     border-radius: 16px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
 }
 
 .modal-header {
@@ -309,6 +352,7 @@ canvas {
 .modal-header h2 {
     margin: 0;
     font-size: 1.5rem;
+    color: #ff5a5a;
 }
 
 .modal-close {
@@ -329,6 +373,41 @@ canvas {
     overflow-y: auto;
     font-size: 1rem;
     line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    scrollbar-width: thin;
+    /* for Firefox */
+    scrollbar-color: #ff5a5a #1b1b1b;
+    /* thumb and track */
+}
+
+
+.modal-body a {
+    text-decoration: none;
+    color: #ff5a5a;
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+    /* super thin */
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #1b1b1b;
+    /* match modal background */
+    border-radius: 8px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background-color: #ff5a5a;
+    /* red tone */
+    border-radius: 8px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background-color: #ff7a7a;
+    /* slightly brighter on hover */
 }
 
 /* ========================================
