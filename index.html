@@ -91,7 +91,7 @@
                     <div class="toggle_button_wrapper">
                         <div class="sound_container">
                             <button id="pause-mute-button" class="toggle_button sound_mute">Mute</button>
-                            <!-- <label class="slider_label" for="pause-volume">Volume</label> --> 
+                            <!-- <label class="slider_label" for="pause-volume">Volume</label> -->
                             <input id="pause-volume" class="volume_slider sound_volume" type="range" min="0" max="1"
                                 step="0.01" value="0.2">
                         </div>
@@ -142,9 +142,13 @@
             <!-- RESPONSIVE -->
             <div id="touch-controls" class="touch_controls">
                 <div class="touch_controls__group touch_controls__movement">
-                    <button class="touch_button" data-control="left" aria-label="Move Left">â—€</button>
-                    <button class="touch_button" data-control="right" aria-label="Move Right">â–¶</button>
+                    <button class="touch_button" data-control="left" aria-label="Move Left">&#8592;</button>
+                    <button class="touch_button" data-control="down" aria-label="Crouch">&#8595;</button>
+                    <button class="touch_button" data-control="right" aria-label="Move Right">&#8594;</button>
+
                 </div>
+                <div class="touch_controls__group touch_controls__movement"> <button class="touch_button"
+                        data-control="pause" aria-label="Pause">Pause</button></div>
                 <div class="touch_controls__group touch_controls__actions">
                     <button class="touch_button  primary" data-control="jump" aria-label="Jump">Jump</button>
                     <button class="touch_button  primary" data-control="attack" aria-label="Attack">Attack</button>
@@ -239,7 +243,8 @@
 
                 <h3>Musik / Soundtrack</h3>
                 <ul>
-                    <li>Soundtrack erstellt mit <strong>Suno AI</strong> und anschlieÃŸend von mir nachbearbeitet (gemÃ¤ÃŸ
+                    <li>Soundtrack erstellt mit <strong>Suno AI</strong> und anschlieÃŸend von mir nachbearbeitet
+                        (gemÃ¤ÃŸ
                         Nutzungsbedingungen fÃ¼r nichtkommerzielle Projekte)</li>
                 </ul>
 
@@ -250,4 +255,3 @@
 </body>
 
 </html>
-

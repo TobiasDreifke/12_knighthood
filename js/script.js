@@ -188,6 +188,8 @@ function setupTouchControls() {
     if (!container) return null;
 
     const controlBindings = {
+        pause: "PAUSE",
+        down: "DOWN",
         left: "LEFT",
         right: "RIGHT",
         jump: "JUMP",
@@ -215,6 +217,10 @@ function setupTouchControls() {
         const button = event.currentTarget;
         const control = button.dataset.control;
         if (!control) return;
+        if (control === "pause") {
+            togglePause();
+            return;
+        }
         activeControls.add(control);
         setKeyState(control, true);
         if (button.setPointerCapture) {
@@ -225,7 +231,7 @@ function setupTouchControls() {
     const handleDeactivate = (event) => {
         const button = event.currentTarget;
         const control = button.dataset.control;
-        if (!control) return;
+        if (!control || control === "pause") return;
         activeControls.delete(control);
         setKeyState(control, false);
         if (button.releasePointerCapture) {
@@ -428,5 +434,4 @@ window.addEventListener("keyup", (event) => {
     if (!actions.length) return;
     setKeyboardActionsState(actions, false);
 });
-
 
