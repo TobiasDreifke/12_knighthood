@@ -658,7 +658,7 @@ class AudioHub {
      * @param {number} value
      */
     static resetVolumeSliders(value) {
-        document.querySelectorAll('.sound-volume').forEach(element => {
+        document.querySelectorAll('.sound_volume').forEach(element => {
             if (element instanceof HTMLInputElement) {
                 element.value = value;
             }
@@ -669,7 +669,7 @@ class AudioHub {
      * Updates mute button data attributes/styles so UI reflects the actual mute state.
      */
     static resetMuteButtons() {
-        document.querySelectorAll('.sound-mute').forEach(button => {
+        document.querySelectorAll('.sound_mute').forEach(button => {
             button.textContent = 'Mute';
             button.setAttribute('aria-pressed', 'false');
             button.classList.remove('is-muted');

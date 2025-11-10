@@ -1,4 +1,4 @@
-let canvas;
+﻿let canvas;
 let world;
 let keyboard = new KeyboardMapping()
 let pressedKey = [];
@@ -74,8 +74,8 @@ function setupSoundControls() {
 }
 
 function collectSoundControls() {
-    const volumeSliders = Array.from(document.querySelectorAll(".sound-volume"));
-    const muteButtons = Array.from(document.querySelectorAll(".sound-mute"));
+    const volumeSliders = Array.from(document.querySelectorAll(".sound_volume"));
+    const muteButtons = Array.from(document.querySelectorAll(".sound_mute"));
     if (!volumeSliders.length && !muteButtons.length) return null;
     return { volumeSliders, muteButtons };
 }
@@ -137,7 +137,7 @@ function setupFullscreenToggle() {
 }
 
 function collectFullscreenContext() {
-    const buttons = Array.from(document.querySelectorAll(".fullscreen-toggle"));
+    const buttons = Array.from(document.querySelectorAll(".fullscreen_toggle"));
     const wrapper = document.querySelector(".game_screen_wrapper");
     if (!buttons.length || !wrapper) return null;
     return { buttons, wrapper };
@@ -268,14 +268,16 @@ function setupImpressumModal() {
         modal.setAttribute("aria-hidden", "false");
     };
 
-    const hideModal = () => {
+    const hideModal = (returnFocus = true) => {
         modal.classList.remove("visible");
         modal.setAttribute("aria-hidden", "true");
-        openButton.focus();
+        if (returnFocus) {
+            openButton.focus();
+        }
     };
 
     openButton.addEventListener("click", showModal);
-    closeButton.addEventListener("click", hideModal);
+    closeButton.addEventListener("click", () => hideModal());
 
     modal.addEventListener("click", event => {
         if (event.target === modal) {
@@ -289,7 +291,7 @@ function setupImpressumModal() {
         }
     });
 
-    hideModal();
+    hideModal(false);
 }
 
 function setupOrientationGuard() {
@@ -426,3 +428,5 @@ window.addEventListener("keyup", (event) => {
     if (!actions.length) return;
     setKeyboardActionsState(actions, false);
 });
+
+
