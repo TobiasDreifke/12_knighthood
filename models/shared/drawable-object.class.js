@@ -3,6 +3,8 @@
  * used by both the hero and enemies.
  */
 class DrawableObject {
+    static debugVisualsEnabled = false;
+
     x = 120;
     y = 300;
 
@@ -56,6 +58,7 @@ class DrawableObject {
      * @param {CanvasRenderingContext2D} ctx
      */
     drawRectangle(ctx) {
+        if (!DrawableObject.debugVisualsEnabled) return;
         if (!this.debugColor) return;  // skip if no color set
 
         ctx.beginPath();
@@ -72,6 +75,7 @@ class DrawableObject {
      * @param {CanvasRenderingContext2D} ctx
      */
     drawCollisionBox(ctx) {
+        if (!DrawableObject.debugVisualsEnabled) return;
         const box = this.getCollisionBox();
         if (!box) return;
         ctx.beginPath();
@@ -101,6 +105,7 @@ class DrawableObject {
      * @param {CanvasRenderingContext2D} ctx
      */
     drawHitbox(ctx) {
+        if (!DrawableObject.debugVisualsEnabled) return;
         if (!this.isAttacking) return;
 
         const hb = this.getHitbox();
