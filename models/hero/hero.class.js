@@ -33,6 +33,9 @@ class Hero extends MoveableObject {
     slideSoundFlag = { value: false };
     jumpSoundFlag = { value: false };
     wasOnGround = true;
+    isIntroDropping = false;
+    introDropOffset = 520;
+    introDropVelocity = 18;
 
     swordDamage = 15;
     punchDamage = 5;
@@ -136,6 +139,39 @@ class Hero extends MoveableObject {
      */
     triggerCastAnimation(type) {
         this.combatController.triggerCastAnimation(type);
+    }
+
+    /**
+     * Repositions the hero above the playfield and locks controls until landing.
+     */
+    startIntroDrop() {
+        if (this.isIntroDropping) return;
+        this.isIntroDropping = true;
+        this.wasOnGround = false;
+        const offset = Math.max(this.introDropOffset, this.height * 2);
+        const dropStartY = Math.min(this.groundY - offset, -offset / 2);
+        this.y = dropStartY;
+        this.speedY = -Math.abs(this.introDropVelocity);
+        this.setControlsLocked(true);
+    }
+
+    /**
+     * Unlocks controls once the intro fall has completed.
+     */
+    completeIntroDrop() {
+        if (!this.isIntroDropping) return;
+        this.isIntroDropping = false;
+        this.speedY = 0;
+        this.setControlsLocked(false);
+    }
+
+    /**
+     * Called after landing to finish any intro sequences.
+     */
+    handleLanding() {
+        if (this.isIntroDropping) {
+            this.completeIntroDrop();
+        }
     }
 
     /**

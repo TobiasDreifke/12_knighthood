@@ -53,6 +53,7 @@ function setupStartButton() {
 
         setTimeout(() => {
             startScreen.style.display = "none";
+            world?.heroCharacter?.startIntroDrop();
             world.start();
         }, 10);
     });

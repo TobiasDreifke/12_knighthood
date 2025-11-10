@@ -64,6 +64,9 @@ class HeroAnimationController {
 		const isGrounded = !hero.isAboveGround();
 		if (!wasGrounded && isGrounded) {
 			AudioHub.playOne(AudioHub.FALL_HERO);
+			if (typeof hero.handleLanding === "function") {
+				hero.handleLanding();
+			}
 		}
 		hero.wasOnGround = isGrounded;
 	}

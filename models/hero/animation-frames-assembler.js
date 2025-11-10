@@ -24,12 +24,12 @@ const HERO_FRAME_SETS = Object.freeze({
 		"./01_assets/2_character_hero/19_walk_no_sword/adventurer-run2-05.png",
 	],
 	WALK_SWORD: [
-		"./01_assets/2_character_hero/2_walk/adventurer-run-00-1.3.png",
-		"./01_assets/2_character_hero/2_walk/adventurer-run-01-1.3.png",
-		"./01_assets/2_character_hero/2_walk/adventurer-run-02-1.3.png",
-		"./01_assets/2_character_hero/2_walk/adventurer-run-03-1.3.png",
-		"./01_assets/2_character_hero/2_walk/adventurer-run-04-1.3.png",
-		"./01_assets/2_character_hero/2_walk/adventurer-run-05-1.3.png",
+		"./01_assets/2_character_hero/2_walk/adventurer-run3-00.png",
+		"./01_assets/2_character_hero/2_walk/adventurer-run3-01.png",
+		"./01_assets/2_character_hero/2_walk/adventurer-run3-02.png",
+		"./01_assets/2_character_hero/2_walk/adventurer-run3-03.png",
+		"./01_assets/2_character_hero/2_walk/adventurer-run3-04.png",
+		"./01_assets/2_character_hero/2_walk/adventurer-run3-05.png",
 	],
 	JUMP: [
 		"./01_assets/2_character_hero/3_jump/adventurer-jump-00.png",
