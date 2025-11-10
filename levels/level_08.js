@@ -27,15 +27,15 @@ function createLevel08() {
     enemies.push(mushroom);
 
     const batPositions = [
-        { spawn: 3.1, activation: 2, facingLeft: true },
-        { spawn: 3.4, activation: 1, facingLeft: false },
+        { spawn: 3.1, activation: 2.8, facingLeft: true },
+        { spawn: 3.4, activation: 3, facingLeft: false },
     ];
 
     batPositions.forEach(config => {
         const bat = new Bat();
         bat.spawnX = tile * config.spawn;
         bat.x = bat.spawnX;
-        bat.spawnY = 130;
+        bat.spawnY = -100;
         bat.y = bat.spawnY;
         bat.activationX = tile * config.activation;
         bat.isDormant = true;

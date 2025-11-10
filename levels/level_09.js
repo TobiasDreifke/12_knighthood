@@ -37,7 +37,7 @@ function createLevel09() {
     const bat = new Bat();
     bat.spawnX = tile * 3.3;
     bat.x = bat.spawnX;
-    bat.spawnY = 140;
+    bat.spawnY = -100;
     bat.y = bat.spawnY;
     bat.activationX = tile * 1.5;
     bat.isDormant = true;

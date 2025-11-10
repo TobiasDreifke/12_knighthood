@@ -19,15 +19,15 @@ function createLevel07() {
     });
 
     const batPositions = [
-        { spawn: 2.9, activation: 1.5, facingLeft: true },
-        { spawn: 3.3, activation: 1, facingLeft: false },
+        { spawn: 2.9, activation: 2, facingLeft: true },
+        { spawn: 3.3, activation: 2.8, facingLeft: false },
     ];
 
     batPositions.forEach(config => {
         const bat = new Bat();
         bat.spawnX = tile * config.spawn;
         bat.x = bat.spawnX;
-        bat.spawnY = 140;
+        bat.spawnY = -100;
         bat.y = bat.spawnY;
         bat.activationX = tile * config.activation;
         bat.isDormant = true;

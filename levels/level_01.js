@@ -26,6 +26,22 @@ function createLevel01() {
     const pickables = [];
     const overlays = [];
 
+    const batPositions = [
+        { spawn: 2.9, activation: 2.8, facingLeft: true },
+        { spawn: 3.3, activation: 3.3, facingLeft: false },
+    ];
+
+    batPositions.forEach(config => {
+        const bat = new Bat();
+        bat.spawnX = tile * config.spawn;
+        bat.x = bat.spawnX;
+        bat.spawnY = -100;
+        bat.y = bat.spawnY;
+        bat.activationX = tile * config.activation;
+        bat.isDormant = true;
+        bat.otherDirection = config.facingLeft;
+        enemies.push(bat);
+    });
 
     const pauseTooltip = new TooltipText({
         x: tile * 0.25,

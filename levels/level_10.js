@@ -4,10 +4,10 @@ function createLevel10() {
     const enemies = [];
 
     const batPositions = [
-        { spawn: 2.4, activation: 1, facingLeft: false },
-        { spawn: 3.4, activation: 2, facingLeft: true },
-        { spawn: 4.4, activation: 3, facingLeft: true },
-        { spawn: 5.4, activation: 3.2, facingLeft: true },
+        { spawn: 2.4, activation: 2, facingLeft: false },
+        { spawn: 3.4, activation: 3, facingLeft: true },
+        { spawn: 4.4, activation: 4, facingLeft: true },
+        { spawn: 5.4, activation: 4, facingLeft: true },
         { spawn: 0, activation: 0, facingLeft: true },
     ];
 
