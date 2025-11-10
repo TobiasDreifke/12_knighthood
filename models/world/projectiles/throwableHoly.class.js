@@ -1,3 +1,6 @@
+/**
+ * Holy ammo projectile supporting multiple penetrations and splash animation.
+ */
 class ThrowHoly extends MoveableObject {
     width = 50;
     height = 50;
@@ -98,6 +101,9 @@ class ThrowHoly extends MoveableObject {
         this.isAnimating = false;
     }
 
+    /**
+     * Launches the projectile with the provided arc configuration.
+     */
     throwHoly(facingLeft = false, launch = {}) {
         this.stopAnimation();
         this.isThrown = true;
@@ -188,6 +194,9 @@ class ThrowHoly extends MoveableObject {
         this.speedX = 0;
     }
 
+    /**
+     * Registers a hit and determines whether the projectile should explode.
+     */
     registerHit(enemy) {
         if (this.isImpacting || this.hitTargets.has(enemy)) return false;
         this.hitTargets.add(enemy);

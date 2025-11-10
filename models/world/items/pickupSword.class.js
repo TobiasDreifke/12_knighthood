@@ -1,3 +1,6 @@
+/**
+ * Simple sword pickup object that grants the hero a blade when collided with.
+ */
 class Sword extends MoveableObject {
 
     width = 50;
@@ -13,6 +16,10 @@ class Sword extends MoveableObject {
         "./01_assets/6_salsa_bottle/sword_pick_up.png",
     ];
 
+    /**
+     * @param {number} x
+     * @param {number} y
+     */
     constructor(x, y) {
         super();
         this.x = x;

@@ -1,3 +1,6 @@
+/**
+ * Dark ammo projectile with parabolic flight, impact animation, and damage value.
+ */
 class ThrowDark extends MoveableObject {
     width = 50;
     height = 50;
@@ -70,6 +73,9 @@ class ThrowDark extends MoveableObject {
         }
     }
 
+    /**
+     * Loops the idle animation while the bottle sits on the ground.
+     */
     startIdleAnimation() {
         if (this.isThrown || this.isAnimating) return;
         this.startLoopAnimation(this.IMAGES_IDLE, 6);
@@ -95,6 +101,9 @@ class ThrowDark extends MoveableObject {
         this.isAnimating = false;
     }
 
+    /**
+     * Launches the projectile, scheduling its movement and throw animation.
+     */
     throwDark(facingLeft = false, launch = {}) {
         this.stopAnimation();
         this.isThrown = true;
@@ -124,6 +133,9 @@ class ThrowDark extends MoveableObject {
         }, 25);
     }
 
+    /**
+     * Moves the projectile along its arc and triggers impacts when appropriate.
+     */
     advanceProjectile() {
         this.x += this.speedX;
         this.travelDistance += Math.abs(this.speedX);

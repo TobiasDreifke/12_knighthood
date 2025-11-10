@@ -1,9 +1,21 @@
+/**
+ * Handles showing/hiding the win and game-over screens with optional delays.
+ */
 class GameStateUI {
+	/**
+	 * @param {Document} [doc=document]
+	 */
 	constructor(doc = document) {
 		this.doc = doc;
 		this.pendingWinTimeout = null;
 	}
 
+	/**
+	 * Schedules the win screen to appear after an optional delay, canceling any previous timer.
+	 *
+	 * @param {World} world
+	 * @param {number} [delayMs=0]
+	 */
 	scheduleWinScreen(world, delayMs = 0) {
 		this.clearWinTimeout();
 		if (delayMs <= 0) {
@@ -13,6 +25,11 @@ class GameStateUI {
 		this.pendingWinTimeout = setTimeout(() => this.showWinScreen(world), delayMs);
 	}
 
+	/**
+	 * Immediately shows the win screen and stops the win sequence state.
+	 *
+	 * @param {World} world
+	 */
 	showWinScreen(world) {
 		this.clearWinTimeout();
 		if (!world) return;
@@ -24,6 +41,11 @@ class GameStateUI {
 		}
 	}
 
+	/**
+	 * Shows the game-over screen and halts world rendering.
+	 *
+	 * @param {World} world
+	 */
 	showGameOverScreen(world) {
 		this.clearWinTimeout();
 		if (!world) return;

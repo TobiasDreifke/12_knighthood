@@ -3,6 +3,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ASSETS_ROOT, findUnusedAssets } from './check-assets.mjs';
 
+/**
+ * CLI utility that relocates unused assets (based on `check-assets`) into an `unused_assets` folder.
+ *
+ * Run from the project root:
+ *
+ * ```bash
+ * node scripts/move-unused-assets.mjs
+ * ```
+ *
+ * Each unused asset is moved under `01_assets/unused_assets/...`, preserving subdirectories.
+ */
 const TARGET_ROOT = path.join(ASSETS_ROOT, 'unused_assets');
 ensureDir(TARGET_ROOT);
 
@@ -27,6 +38,11 @@ for (const relPath of assetsToMove) {
 
 console.log(`\nMoved ${movedCount} unused asset(s) into 01_assets/unused_assets.`);
 
+/**
+ * Creates a directory path recursively if it doesn't exist.
+ *
+ * @param {string} dirPath
+ */
 function ensureDir(dirPath) {
-    fs.mkdirSync(dirPath, { recursive: true });
+	fs.mkdirSync(dirPath, { recursive: true });
 }

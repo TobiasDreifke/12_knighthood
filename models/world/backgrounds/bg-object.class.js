@@ -1,3 +1,6 @@
+/**
+ * Generic parallax background element used across multiple layers.
+ */
 class BackgroundObject extends MoveableObject {
     x = 0;
     width = 720;

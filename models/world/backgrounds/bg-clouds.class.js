@@ -1,3 +1,6 @@
+/**
+ * Decorative cloud that gently floats using sinusoidal offsets.
+ */
 class Cloud extends MoveableObject {
     speed = 0.2;
 
@@ -11,6 +14,9 @@ class Cloud extends MoveableObject {
         this.startFloating();
     }
 
+    /**
+     * Loads the cloud sprite and scales it based on the sprite's natural size.
+     */
     loadCloudImage(path) {
         super.loadImage(path);
 
@@ -34,6 +40,9 @@ class Cloud extends MoveableObject {
         }
     }
 
+    /**
+     * Starts a timer that animates horizontal/vertical drift.
+     */
     startFloating() {
         const verticalAmplitude = 1 + Math.random() * 10; // 6-16 px drift
         const verticalSpeed = 5000 + Math.random() * 3000;

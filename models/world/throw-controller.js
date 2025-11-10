@@ -1,3 +1,6 @@
+/**
+ * Handles player projectile throwing logic, including cooldowns and ammo consumption.
+ */
 class ThrowController {
 	update(world) {
 		if (!world || world.isPaused) return;
@@ -5,6 +8,11 @@ class ThrowController {
 		this.tryDark(world);
 	}
 
+	/**
+	 * Attempts to launch a holy projectile if the input/cooldown conditions are met.
+	 *
+	 * @returns {boolean}
+	 */
 	tryHoly(world) {
 		if (!this.shouldThrow(world, "THROWHOLY", world?.holyAmmo, world?.lastHolyThrow, world?.holyCooldownMs)) return false;
 		world.lastHolyThrow = Date.now();
@@ -23,6 +31,9 @@ class ThrowController {
 		return true;
 	}
 
+	/**
+	 * Attempts to launch a dark projectile if the input/cooldown conditions are met.
+	 */
 	tryDark(world) {
 		if (!this.shouldThrow(world, "THROWDARK", world?.darkAmmo, world?.lastDarkThrow, world?.darkCooldownMs)) return false;
 		world.lastDarkThrow = Date.now();

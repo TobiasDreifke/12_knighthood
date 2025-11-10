@@ -1,8 +1,14 @@
+/**
+ * Builds playable levels by stitching together builder segments or falling back to predefined levels.
+ */
 class LevelAssembler {
 	constructor(tileWidth = 720) {
 		this.tileWidth = tileWidth;
 	}
 
+	/**
+	 * Returns a Level instance from builders, fallback arrays, or the default `level_01`.
+	 */
 	buildLevel(levelIndex, builders, fallbackLevels) {
 		const hasBuilders = Array.isArray(builders) && builders.some(fn => typeof fn === "function");
 		if (hasBuilders) {
@@ -14,6 +20,9 @@ class LevelAssembler {
 		return typeof level_01 !== "undefined" ? level_01 : null;
 	}
 
+	/**
+	 * Executes builder functions in order, merging their entities into a single level context.
+	 */
 	combineSegments(builders) {
 		const ctx = this.createContext();
 		builders.forEach(builder => this.applyBuilder(builder, ctx));
@@ -35,6 +44,9 @@ class LevelAssembler {
 		};
 	}
 
+	/**
+	 * Applies a level segment builder and merges its data into the shared context.
+	 */
 	applyBuilder(builder, ctx) {
 		if (typeof builder !== "function") return;
 		const segment = builder();
@@ -50,6 +62,9 @@ class LevelAssembler {
 		ctx.offset += this.resolveSegmentLength(segment);
 	}
 
+	/**
+	 * Adds enemies to the context while applying horizontal offsets.
+	 */
 	mergeEnemies(enemies, offset, ctx) {
 		if (!Array.isArray(enemies)) return;
 		enemies.forEach(enemy => {
@@ -59,6 +74,9 @@ class LevelAssembler {
 		});
 	}
 
+	/**
+	 * Shifts spawn positions/activation thresholds by the current segment offset.
+	 */
 	applyEnemyOffsets(enemy, offset) {
 		if (typeof enemy.spawnX === "number") {
 			enemy.spawnX += offset;

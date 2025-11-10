@@ -1,4 +1,12 @@
+/**
+ * Handles drawing the scrolling world, clouds, overlays, and HUD each frame.
+ */
 class RenderLoop {
+	/**
+	 * Main render tick. Prepares the frame, draws world layers, then schedules the next frame.
+	 *
+	 * @param {World} world
+	 */
 	render(world) {
 		if (!this.canRender(world)) return;
 		const ctx = world.ctx;
@@ -21,6 +29,9 @@ class RenderLoop {
 		ctx.translate(world.camera_x, 0);
 	}
 
+	/**
+	 * Renders clouds, backgrounds, hero, enemies, projectiles, and overlays.
+	 */
 	drawWorld(ctx, world) {
 		const level = world.level || {};
 		const clouds = this.splitCloudLayers(level.clouds || []);

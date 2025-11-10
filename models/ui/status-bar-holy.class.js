@@ -1,3 +1,6 @@
+/**
+ * Bottle-style HUD element that visualizes the hero's remaining holy ammo.
+ */
 class StatusbarHoly extends DrawableObject {
 
     world;
@@ -18,6 +21,9 @@ class StatusbarHoly extends DrawableObject {
         "./01_assets/7_statusbars/1_statusbar/3_statusbar_bottle/holy__holy_09.png",
         "./01_assets/7_statusbars/1_statusbar/3_statusbar_bottle/holy__holy_10.png",
     ]
+    /**
+     * Positions the bottle sprite and loads the frame catalog.
+     */
     constructor() {
         super();
 
@@ -38,6 +44,11 @@ class StatusbarHoly extends DrawableObject {
     }
 
 
+    /**
+     * Clamps the target fill percentage and updates the active sprite.
+     *
+     * @param {number} percentage
+     */
     setPercentage(percentage) {
         const clamped = Math.max(0, Math.min(100, percentage));
         this.percentage = clamped;
@@ -45,11 +56,19 @@ class StatusbarHoly extends DrawableObject {
         this.img = this.imageCache[path];
     }
 
+    /**
+     * @returns {number} Sprite index derived from the current percentage.
+     */
     resolveImageIndex() {
         const index = Math.floor(this.percentage / 10);
         return Math.max(0, Math.min(index, this.IMAGES.length - 1));
     }
 
+    /**
+     * Converts an absolute ammo count into a percentage based on slot capacity.
+     *
+     * @param {number} count
+     */
     setAmmoCount(count) {
         const safeCount = Math.max(0, Number.isFinite(count) ? count : 0);
         this.ammoCount = safeCount;

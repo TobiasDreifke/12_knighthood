@@ -1,3 +1,7 @@
+/**
+ * Orchestrates the entire game: level assembly, rendering, collisions, projectiles,
+ * game state transitions, and hero lifecycle management.
+ */
 class World {
 	levelAssembler = new LevelAssembler();
 	worldInitializer = new WorldInitializer(EntityUtils);
@@ -41,6 +45,11 @@ class World {
 	keyboard;
 	camera_x = 0;
 
+	/**
+	 * @param {HTMLCanvasElement} canvasPara
+	 * @param {KeyboardMapping} keyboardPara
+	 * @param {number} [levelIndex=0]
+	 */
 	constructor(canvasPara, keyboardPara, levelIndex = 0) {
 		this.ctx = canvasPara.getContext("2d");
 		this.canvas = canvasPara;
@@ -62,6 +71,9 @@ class World {
 		return this.levelAssembler.buildLevel(index, builders, levels);
 	}
 
+	/**
+	 * Boots the world: resumes audio, starts rendering and interval loops.
+	 */
 	start() {
 		this.hasStarted = true;
 		this.isPaused = false;
@@ -122,6 +134,11 @@ class World {
 		this.inputLocked = false;
 	}
 
+	/**
+	 * Pauses the game if possible, locking inputs and stopping idle loops.
+	 *
+	 * @returns {boolean}
+	 */
 	pauseGame() {
 		if (this.isPaused || !this.hasStarted || this.gameOverSequenceStarted || this.winSequenceStarted || this.isWinSequenceActive) return false;
 		this.isPaused = true;

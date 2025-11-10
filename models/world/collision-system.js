@@ -1,4 +1,13 @@
+/**
+ * Handles all world collision checks: hero vs enemies, projectiles vs enemies,
+ * pickup interactions, and cleanup of spent entities.
+ */
 class CollisionSystem {
+	/**
+	 * Processes collision interactions for the current tick.
+	 *
+	 * @param {World} world
+	 */
 	update(world) {
 		if (!world || world.isPaused) return;
 		this.handleEnemyInteractions(world);
@@ -10,6 +19,11 @@ class CollisionSystem {
 		this.handleHeroState(world);
 	}
 
+	/**
+	 * Resolves hero/enemy collisions and win triggers for defeated bosses.
+	 *
+	 * @param {World} world
+	 */
 	handleEnemyInteractions(world) {
 		const { heroCharacter, level } = world;
 		if (!heroCharacter || !Array.isArray(level?.enemies)) return;
@@ -24,6 +38,11 @@ class CollisionSystem {
 		}
 	}
 
+	/**
+	 * Updates holy projectile collisions against barriers and enemies.
+	 *
+	 * @param {World} world
+	 */
 	handleHolyProjectiles(world) {
 		const level = world.level;
 		if (!Array.isArray(world.throwableHoly)) return;
@@ -35,6 +54,11 @@ class CollisionSystem {
 		});
 	}
 
+	/**
+	 * Updates dark projectile collisions against barriers and enemies.
+	 *
+	 * @param {World} world
+	 */
 	handleDarkProjectiles(world) {
 		const level = world.level;
 		if (!Array.isArray(world.throwableDark)) return;
@@ -46,6 +70,11 @@ class CollisionSystem {
 		});
 	}
 
+	/**
+	 * Detects hero collisions with throwable pickups and updates ammo.
+	 *
+	 * @param {World} world
+	 */
 	handleThrowablePickups(world) {
 		const { level, heroCharacter } = world;
 		if (!heroCharacter || !Array.isArray(level?.throwables)) return;
@@ -57,6 +86,11 @@ class CollisionSystem {
 		});
 	}
 
+	/**
+	 * Handles hero collisions with pickable items (currently swords).
+	 *
+	 * @param {World} world
+	 */
 	handlePickableCollisions(world) {
 		const { level, heroCharacter } = world;
 		if (!heroCharacter || !Array.isArray(level?.pickables)) return;
@@ -71,6 +105,11 @@ class CollisionSystem {
 		});
 	}
 
+	/**
+	 * Removes projectiles or throwables flagged for removal/collision.
+	 *
+	 * @param {World} world
+	 */
 	cleanupProjectiles(world) {
 		world.throwableHoly = (world.throwableHoly || []).filter(p => !p?.shouldRemove);
 		world.throwableDark = (world.throwableDark || []).filter(p => !p?.shouldRemove);
@@ -79,12 +118,24 @@ class CollisionSystem {
 		level.throwables = level.throwables.filter(t => !heroCharacter.isColliding(t));
 	}
 
+	/**
+	 * Triggers the game-over sequence if the hero is dead.
+	 *
+	 * @param {World} world
+	 */
 	handleHeroState(world) {
 		if (world.heroCharacter?.isDead) {
 			world.startGameOverSequence();
 		}
 	}
 
+	/**
+	 * Stops a projectile that traveled beyond the configured barrier.
+	 *
+	 * @param {MoveableObject} projectile
+	 * @param {Level} level
+	 * @returns {boolean}
+	 */
 	hitLevelBarrier(projectile, level) {
 		if (typeof level?.projectileBarrierX !== "number") return false;
 		if (projectile.x < level.projectileBarrierX) return false;
@@ -92,6 +143,12 @@ class CollisionSystem {
 		return true;
 	}
 
+	/**
+	 * Applies holy projectile damage to every enemy it collides with.
+	 *
+	 * @param {MoveableObject} projectile
+	 * @param {MoveableObject[]} enemies
+	 */
 	applyHolyEnemyHits(projectile, enemies) {
 		if (!Array.isArray(enemies)) return;
 		for (const enemy of enemies) {
@@ -104,6 +161,13 @@ class CollisionSystem {
 		}
 	}
 
+	/**
+	 * Applies dark projectile damage to the first enemy hit.
+	 *
+	 * @param {MoveableObject} projectile
+	 * @param {MoveableObject[]} enemies
+	 * @returns {boolean} True if a hit occurred.
+	 */
 	applyDarkEnemyHit(projectile, enemies) {
 		if (!Array.isArray(enemies)) return false;
 		for (const enemy of enemies) {
@@ -118,6 +182,13 @@ class CollisionSystem {
 		return false;
 	}
 
+	/**
+	 * Adds a collectible throwable to the appropriate ammo pool.
+	 *
+	 * @param {World} world
+	 * @param {Object} throwable
+	 * @returns {HTMLAudioElement|null}
+	 */
 	collectThrowable(world, throwable) {
 		if (throwable instanceof ThrowDark) {
 			world.darkAmmo.push(throwable);
@@ -130,6 +201,9 @@ class CollisionSystem {
 		return null;
 	}
 
+	/**
+	 * Determines the damage value for a projectile hit, falling back to the enemy default.
+	 */
 	resolveDamage(projectile, enemy) {
 		return Number.isFinite(projectile?.damage) ? projectile.damage : enemy?.damageOnCollision;
 	}

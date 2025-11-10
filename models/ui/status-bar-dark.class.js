@@ -1,3 +1,6 @@
+/**
+ * Bottle-style HUD element that visualizes the hero's remaining dark ammo.
+ */
 class StatusbarDark extends DrawableObject {
     world;
     ammoCount = 0;
@@ -17,6 +20,9 @@ class StatusbarDark extends DrawableObject {
         "./01_assets/7_statusbars/1_statusbar/3_statusbar_bottle/dark_dark_09.png",
         "./01_assets/7_statusbars/1_statusbar/3_statusbar_bottle/dark_dark_10.png",
     ]
+    /**
+     * Positions the bottle sprite and preloads its fill-level frames.
+     */
     constructor() {
         super();
 
@@ -37,6 +43,11 @@ class StatusbarDark extends DrawableObject {
     }
 
 
+    /**
+     * Clamps the provided percentage, selects the matching sprite, and updates `img`.
+     *
+     * @param {number} percentage
+     */
     setPercentage(percentage) {
         const clamped = Math.max(0, Math.min(100, percentage));
         this.percentage = clamped;
@@ -44,11 +55,21 @@ class StatusbarDark extends DrawableObject {
         this.img = this.imageCache[path];
     }
 
+    /**
+     * Converts the current percentage to an array index (10% steps).
+     *
+     * @returns {number}
+     */
     resolveImageIndex() {
         const index = Math.floor(this.percentage / 10);
         return Math.max(0, Math.min(index, this.IMAGES.length - 1));
     }
 
+    /**
+     * Converts a raw ammo count into the appropriate percentage and updates the sprite.
+     *
+     * @param {number} count
+     */
     setAmmoCount(count) {
         const safeCount = Math.max(0, Number.isFinite(count) ? count : 0);
         this.ammoCount = safeCount;

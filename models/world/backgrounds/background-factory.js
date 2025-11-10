@@ -1,5 +1,10 @@
-const BACKGROUND_SEGMENTS = [-720, 0, 720, 720 * 2, 720 * 3, 720*4];
+const BACKGROUND_SEGMENTS = [-720, 0, 720, 720 * 2, 720 * 3, 720 * 4];
 
+/**
+ * Creates tiled parallax background layers for the demon woods scene.
+ *
+ * @returns {BackgroundObject[]}
+ */
 function createBackgroundObjects() {
     return [
         ...BACKGROUND_SEGMENTS.map(x => new BackgroundObject("./01_assets/5_background/layers/parallax-demon-woods-bg.png", x, null, 0)),

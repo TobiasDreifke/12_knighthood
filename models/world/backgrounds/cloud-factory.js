@@ -9,6 +9,12 @@ const CLOUD_VARIANTS = [
     { path: "./01_assets/5_background/layers/4_clouds/single_clouds/cloud_verysmall_01_left.png", scale: 0.7 },
 ];
 
+/**
+ * Generates a variety of cloud instances across the level span with slight jitter.
+ *
+ * @param {number} [count=100]
+ * @returns {Cloud[]}
+ */
 function generateClouds(count = 100) {
     const minX = -100;
     const maxX = 720 * 4;

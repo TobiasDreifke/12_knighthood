@@ -3,11 +3,35 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+/**
+ * CLI utility that scans project source files for `01_assets` usage to report unused files.
+ *
+ * Run from the project root:
+ *
+ * ```bash
+ * node scripts/check-assets.mjs
+ * ```
+ *
+ * The script prints the number of asset files, number of detected references,
+ * and a sorted list of unused assets (if any).
+ */
+
+/**
+ * Absolute path to the repository root (assumes script is executed from project dir).
+ */
 export const PROJECT_ROOT = process.cwd();
+/**
+ * Absolute path to the asset directory that should be scanned.
+ */
 export const ASSETS_ROOT = path.join(PROJECT_ROOT, '01_assets');
 const SOURCE_EXTENSIONS = new Set(['.js', '.mjs', '.cjs', '.ts', '.jsx', '.tsx', '.html', '.css', '.json']);
 const REFERENCE_REGEX = /['"`]([^'"`]*01_assets[^'"`]+)['"`]/g;
 
+/**
+ * Scans project source files for `01_assets` references and reports unused assets.
+ *
+ * @returns {{assetsCount:number, usedCount:number, unusedAssets:string[]}}
+ */
 export function findUnusedAssets() {
     const allAssets = collectFiles(ASSETS_ROOT);
     const usedAssets = new Set();
@@ -61,6 +85,13 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
     }
 }
 
+/**
+ * Recursively collects files rooted at `root`, optionally filtering by extension.
+ *
+ * @param {string} root
+ * @param {(filePath:string) => boolean} [filterFn]
+ * @returns {string[]}
+ */
 function collectFiles(root, filterFn = null) {
     const results = [];
     const stack = [root];
@@ -78,6 +109,13 @@ function collectFiles(root, filterFn = null) {
     return results;
 }
 
+/**
+ * Attempts to resolve a referenced asset path to an absolute file path.
+ *
+ * @param {string} ref
+ * @param {string} baseDir
+ * @returns {string|null}
+ */
 function resolveReference(ref, baseDir) {
     const cleaned = stripQuery(ref.trim());
     let candidate;
@@ -99,30 +137,36 @@ function resolveReference(ref, baseDir) {
 }
 
 function stripQuery(value) {
-    const idx = value.search(/[?#]/);
-    return idx === -1 ? value : value.slice(0, idx);
+	const idx = value.search(/[?#]/);
+	return idx === -1 ? value : value.slice(0, idx);
 }
 
+/**
+ * Reads a UTF-8 file safely, returning an empty string on error.
+ *
+ * @param {string} filePath
+ * @returns {string}
+ */
 function safeReadFile(filePath) {
-    try {
-        return fs.readFileSync(filePath, 'utf8');
-    } catch {
-        return '';
-    }
+	try {
+	 return fs.readFileSync(filePath, 'utf8');
+	} catch {
+		return '';
+	}
 }
 
 function safeReadDir(dirPath) {
-    try {
-        return fs.readdirSync(dirPath);
-    } catch {
-        return [];
-    }
+	try {
+		return fs.readdirSync(dirPath);
+	} catch {
+		return [];
+	}
 }
 
 function safeStat(target) {
-    try {
-        return fs.statSync(target);
-    } catch {
-        return null;
+	try {
+		return fs.statSync(target);
+	} catch {
+		return null;
     }
 }

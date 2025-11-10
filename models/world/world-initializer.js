@@ -1,8 +1,16 @@
+/**
+ * Sets up world entities by linking references, preparing enemies, and ensuring level metadata.
+ */
 class WorldInitializer {
 	constructor(entityUtils = EntityUtils) {
 		this.entityUtils = entityUtils;
 	}
 
+	/**
+	 * Main entry that wires up references and spawnables for a world instance.
+	 *
+	 * @param {World} world
+	 */
 	initialize(world) {
 		if (!world) return;
 		this.linkCoreEntities(world);

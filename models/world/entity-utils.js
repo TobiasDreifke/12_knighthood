@@ -1,4 +1,10 @@
+/**
+ * Utility helpers for wiring enemies and spawnables into the world context.
+ */
 class EntityUtils {
+	/**
+	 * Recursively assigns the `world` reference to single entities or collections.
+	 */
 	static attachWorldReference(target, world) {
 		if (!target) return;
 		if (Array.isArray(target)) {
@@ -10,6 +16,9 @@ class EntityUtils {
 		}
 	}
 
+	/**
+	 * Restores entities to their defined spawn coordinates when present.
+	 */
 	static resetSpawnCoordinates(entity) {
 		if (!entity) return;
 		if (typeof entity.spawnX === "number") {
@@ -20,6 +29,9 @@ class EntityUtils {
 		}
 	}
 
+	/**
+	 * Attaches world references, activation markers, targets, and animation for a given enemy.
+	 */
 	static prepareEnemy(enemy, world) {
 		if (!enemy) return;
 		EntityUtils.attachWorldReference(enemy, world);
@@ -40,6 +52,9 @@ class EntityUtils {
 		}
 	}
 
+	/**
+	 * Assigns the hero as a tracking target for enemies that require it.
+	 */
 	static assignEnemyTarget(enemy, hero) {
 		if (!hero) return;
 		if (EntityUtils.requiresPlayerAssignment(enemy)) {
@@ -48,6 +63,9 @@ class EntityUtils {
 		}
 	}
 
+	/**
+	 * @returns {boolean} Whether the enemy relies on a direct hero reference.
+	 */
 	static requiresPlayerAssignment(enemy) {
 		return enemy instanceof SkeletonBoss
 			|| enemy instanceof Goblin
@@ -55,6 +73,9 @@ class EntityUtils {
 			|| enemy instanceof Bat;
 	}
 
+	/**
+	 * Ensures an enemy's animation loop is running.
+	 */
 	static startEnemyAnimation(enemy) {
 		if (typeof enemy?.ensureAnimationController === "function") {
 			enemy.ensureAnimationController();

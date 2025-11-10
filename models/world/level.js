@@ -1,3 +1,6 @@
+/**
+ * Lightweight container for level entities (enemies, backgrounds, throwables, etc.).
+ */
 class Level {
     clouds;
     enemies;
