@@ -49,7 +49,7 @@ class Bat extends MoveableObject {
     frames = {};
     width = 120;
     height = 90;
-    y = -100;
+    y = 0;
 
     offsetLeft = 30;
     offsetRight = 30;
@@ -64,7 +64,7 @@ class Bat extends MoveableObject {
     encounterSoundPlayed = false;
     hurtTimeout = null;
     spawnX = null;
-    spawnY = 100;
+    spawnY = -100;
     activationX = null;
     isDormant = false;
     activationTriggered = false;
@@ -77,6 +77,12 @@ class Bat extends MoveableObject {
     diveSpeedCapMultiplier = 6;
     isDeathFalling = false;
     deathFallInterval = null;
+    travelDistance = 0;
+    travelDistanceForMaxBoost = 1200;
+    maxTravelSpeedMultiplier = 1.8;
+    loiterAltitude = null;
+    minAscendAltitude = null;
+    maxAscendAltitude = null;
 
     constructor(player = null, isHurt = false, isDead = false) {
         super().loadImage(BatFrameCatalog.getFrameSet("WALK")[0]);
@@ -85,6 +91,7 @@ class Bat extends MoveableObject {
         this.x = 400 + Math.random() * 1000;
 
         this.initializeState(player, isHurt, isDead);
+        this.initializeAltitudePreferences();
         this.initializeSpawn();
         this.setupAnimationController();
     }
@@ -147,8 +154,23 @@ class Bat extends MoveableObject {
         const heroCenterX = box ? (box.left + box.right) / 2 : this.player ? this.player.x : this.x;
         const heroBottom = box ? box.bottom : (this.player ? this.player.y + (this.player.height ?? 120) : this.y + this.height);
         const heroCenterY = box ? (box.top + box.bottom) / 2 : heroBottom - (this.player?.height ?? this.height) / 2;
-        const topAltitude = this.spawnY ?? 100;
+        const topAltitude = this.getTopAltitude();
         return { heroCenterX, heroBottom, heroCenterY, topAltitude };
+    }
+
+    getTopAltitude() {
+        let altitude = typeof this.loiterAltitude === "number"
+            ? this.loiterAltitude
+            : typeof this.spawnY === "number"
+                ? this.spawnY
+                : 100;
+        if (typeof this.minAscendAltitude === "number") {
+            altitude = Math.max(altitude, this.minAscendAltitude);
+        }
+        if (typeof this.maxAscendAltitude === "number") {
+            altitude = Math.min(altitude, this.maxAscendAltitude);
+        }
+        return altitude;
     }
 
     /**
@@ -166,6 +188,20 @@ class Bat extends MoveableObject {
      */
     playDiveAnimation() {
         this.playAnimationWithSpeed(this.frames.WALK, 14);
+    }
+
+    getTravelSpeedMultiplier() {
+        if (!this.maxTravelSpeedMultiplier || this.maxTravelSpeedMultiplier <= 1) return 1;
+        const distanceForMax = Math.max(this.travelDistanceForMaxBoost || 0, 1);
+        const progress = Math.min(this.travelDistance / distanceForMax, 1);
+        return 1 + progress * (this.maxTravelSpeedMultiplier - 1);
+    }
+
+    registerTravel(stepX = 0, stepY = 0) {
+        const distance = Math.hypot(stepX, stepY);
+        if (distance > 0) {
+            this.travelDistance += distance;
+        }
     }
 
     /**
@@ -231,7 +267,7 @@ class Bat extends MoveableObject {
 
     calculateDiveStep({ deltaX, deltaY, distance }) {
         const speedCap = this.baseHorizontalSpeed * this.diveSpeedCapMultiplier;
-        const stepSpeed = Math.min(this.currentDiveSpeed, speedCap);
+        const stepSpeed = Math.min(this.currentDiveSpeed, speedCap) * this.getTravelSpeedMultiplier();
         return {
             stepX: (deltaX / distance) * stepSpeed,
             stepY: (deltaY / distance) * stepSpeed,
@@ -242,6 +278,7 @@ class Bat extends MoveableObject {
     applyDiveStep({ stepX, stepY }) {
         this.x += stepX;
         this.y += stepY;
+        this.registerTravel(stepX, stepY);
     }
 
     nextDiveSpeed(speedCap) {
@@ -263,14 +300,16 @@ class Bat extends MoveableObject {
     }
 
     ascendToAltitude(topAltitude) {
-        const climbSpeed = this.verticalClimbSpeed;
-        this.y = Math.max(this.y - climbSpeed, topAltitude);
+        const speedMultiplier = this.getTravelSpeedMultiplier();
+        const climbSpeed = this.verticalClimbSpeed * speedMultiplier;
+        const targetY = Math.max(this.y - climbSpeed, topAltitude);
+        const verticalDelta = this.y - targetY;
+        this.y = targetY;
 
-        if (this.otherDirection) {
-            this.x -= this.baseHorizontalSpeed;
-        } else {
-            this.x += this.baseHorizontalSpeed;
-        }
+        const horizontalStep = this.baseHorizontalSpeed * speedMultiplier;
+        const horizontalDelta = this.otherDirection ? -horizontalStep : horizontalStep;
+        this.x += horizontalDelta;
+        this.registerTravel(horizontalDelta, -verticalDelta);
 
         if (this.y <= topAltitude + 1) {
             this.flightPhase = "descend";
@@ -438,6 +477,34 @@ class Bat extends MoveableObject {
         this.otherDirection = true;
         this.isHurt = isHurt;
         this.isDead = isDead;
+        this.travelDistance = 0;
+    }
+
+    initializeAltitudePreferences() {
+        if (typeof this.minAscendAltitude !== "number") {
+            this.minAscendAltitude = 0;
+        }
+
+        if (typeof this.maxAscendAltitude !== "number") {
+            this.maxAscendAltitude = Math.max(this.minAscendAltitude, 100);
+        } else if (this.maxAscendAltitude < this.minAscendAltitude) {
+            this.maxAscendAltitude = this.minAscendAltitude;
+        }
+
+        if (typeof this.loiterAltitude !== "number") {
+            const min = this.minAscendAltitude ?? 0;
+            const max = this.maxAscendAltitude ?? Math.max(min, 100);
+            const span = Math.max(max - min, 0);
+            const randomOffset = span > 0 ? Math.random() * span : 0;
+            this.loiterAltitude = min + randomOffset;
+        } else {
+            if (typeof this.minAscendAltitude === "number" && this.loiterAltitude < this.minAscendAltitude) {
+                this.loiterAltitude = this.minAscendAltitude;
+            }
+            if (typeof this.maxAscendAltitude === "number" && this.loiterAltitude > this.maxAscendAltitude) {
+                this.loiterAltitude = this.maxAscendAltitude;
+            }
+        }
     }
 
     initializeSpawn() {
