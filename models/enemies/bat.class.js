@@ -65,21 +65,15 @@ class Bat extends MoveableObject {
     hurtTimeout = null;
     spawnX = null;
     spawnY = 100;
-    returnAltitude = null;
     activationX = null;
     isDormant = false;
     activationTriggered = false;
-    totalTravelDistance = 0;
-    distanceForMaxTravelSpeed = 1600;
-    maxTravelSpeedMultiplier = 2;
-    initialHorizontalSpeed = 0;
-    initialVerticalClimbSpeed = 0;
 
     flightPhase = "descend";
     currentDiveSpeed = 0;
     diveTargetX = null;
     diveTargetY = null;
-    diveAcceleration = 5;
+    diveAcceleration = 0.35;
     diveSpeedCapMultiplier = 6;
     isDeathFalling = false;
     deathFallInterval = null;
@@ -110,7 +104,7 @@ class Bat extends MoveableObject {
         this.setupAnimationController();
     }
 
-    updateFacingDirection() {
+	updateFacingDirection() {
         this.updateFacingTowardPlayer({ player: this.player, flipThreshold: 10 });
     }
 
@@ -153,7 +147,7 @@ class Bat extends MoveableObject {
         const heroCenterX = box ? (box.left + box.right) / 2 : this.player ? this.player.x : this.x;
         const heroBottom = box ? box.bottom : (this.player ? this.player.y + (this.player.height ?? 120) : this.y + this.height);
         const heroCenterY = box ? (box.top + box.bottom) / 2 : heroBottom - (this.player?.height ?? this.height) / 2;
-        const topAltitude = this.returnAltitude ?? Math.max(0, this.spawnY ?? 100);
+        const topAltitude = this.spawnY ?? 100;
         return { heroCenterX, heroBottom, heroCenterY, topAltitude };
     }
 
@@ -188,7 +182,7 @@ class Bat extends MoveableObject {
         const halfWidth = this.width / 2;
         const targetX = heroCenterX;
         const groundFromWorld = this.world?.heroCharacter?.groundY ?? this.groundY ?? (heroBottom + 700);
-        const safeGround = groundFromWorld + 10;
+        const safeGround = groundFromWorld - 6;
         const desiredY = heroBottom - this.height * 0.1;
         const targetY = Math.min(desiredY, safeGround);
 
@@ -248,8 +242,6 @@ class Bat extends MoveableObject {
     applyDiveStep({ stepX, stepY }) {
         this.x += stepX;
         this.y += stepY;
-        const segmentDistance = Math.hypot(stepX, stepY);
-        this.registerTravelDistance(segmentDistance);
     }
 
     nextDiveSpeed(speedCap) {
@@ -279,8 +271,6 @@ class Bat extends MoveableObject {
         } else {
             this.x += this.baseHorizontalSpeed;
         }
-        const travelSegment = Math.hypot(this.baseHorizontalSpeed, climbSpeed);
-        this.registerTravelDistance(travelSegment);
 
         if (this.y <= topAltitude + 1) {
             this.flightPhase = "descend";
@@ -368,27 +358,27 @@ class Bat extends MoveableObject {
         return 340;
     }
 
-    hit(amount = this.damageOnCollision) {
-        const hurtFrames = this.frames.HURT?.length ?? 0;
-        const handled = this.handleHit(amount, {
-            deadSound: AudioHub.BAT_DEAD,
-            hurtSound: AudioHub.BAT_HURT,
-            hurtFps: 12,
-            hurtFrameCount: hurtFrames,
-            onDeath: () => {
-                this.clearHurtTimeout();
-                this.startDeathFall();
-            },
-            onHurtStart: () => {
-                this.clearHurtTimeout();
-                this.isHurt = true;
-            },
-            onHurtEnd: () => {
-                this.isHurt = false;
-            },
-        });
-        if (!handled) return;
-    }
+	hit(amount = this.damageOnCollision) {
+		const hurtFrames = this.frames.HURT?.length ?? 0;
+		const handled = this.handleHit(amount, {
+			deadSound: AudioHub.BAT_DEAD,
+			hurtSound: AudioHub.BAT_HURT,
+			hurtFps: 12,
+			hurtFrameCount: hurtFrames,
+			onDeath: () => {
+				this.clearHurtTimeout();
+				this.startDeathFall();
+			},
+			onHurtStart: () => {
+				this.clearHurtTimeout();
+				this.isHurt = true;
+			},
+			onHurtEnd: () => {
+				this.isHurt = false;
+			},
+		});
+		if (!handled) return;
+	}
 
     holdDormantPose() {
         const idleFrame = this.frames.WALK?.[0];
@@ -425,7 +415,7 @@ class Bat extends MoveableObject {
         }
     }
 
-    stopAllActivity() {
+	stopAllActivity() {
         this.animationController?.stop();
         if (this.deathFallInterval) {
             clearInterval(this.deathFallInterval);
@@ -441,14 +431,9 @@ class Bat extends MoveableObject {
         this.player = player;
         this.speed = 0.45 + Math.random() * 0.2;
         this.baseHorizontalSpeed = this.speed;
-        this.initialHorizontalSpeed = this.baseHorizontalSpeed;
         this.verticalClimbSpeed = 2.2 + Math.random();
-        this.initialVerticalClimbSpeed = this.verticalClimbSpeed;
-        this.distanceForMaxTravelSpeed = 1500 + Math.random() * 600;
-        this.maxTravelSpeedMultiplier = 1.8 + Math.random() * 0.4;
-        this.totalTravelDistance = 0;
         this.currentDiveSpeed = this.baseHorizontalSpeed * 2.4;
-        this.diveAcceleration = 5 + Math.random() * 0.15;
+        this.diveAcceleration = 10 + Math.random() * 0.15;
         this.diveSpeedCapMultiplier = 10 + Math.random() * 1.2;
         this.otherDirection = true;
         this.isHurt = isHurt;
@@ -457,39 +442,7 @@ class Bat extends MoveableObject {
 
     initializeSpawn() {
         this.spawnX = this.x;
-        if (typeof this.spawnY !== "number") {
-            this.spawnY = 100;
-        }
+        this.spawnY = typeof this.spawnY === "number" ? this.spawnY : 100;
         this.y = this.spawnY;
-        this.returnAltitude = this.randomizeReturnAltitude();
-    }
-
-    randomizeReturnAltitude() {
-        const heroHeight = this.player?.height ?? this.world?.heroCharacter?.height ?? 140;
-        const canvasHeight = this.player?.world?.canvas?.height ?? this.world?.canvas?.height ?? 480;
-        const maxCanvasAltitude = Math.max(0, canvasHeight - this.height);
-        if (maxCanvasAltitude <= 0) {
-            return Math.max(0, Math.min(this.spawnY ?? 100, 0));
-        }
-        const desiredMin = Math.max(heroHeight * 2, 0);
-        const minAltitude = Math.min(desiredMin, maxCanvasAltitude);
-        const maxAltitude = Math.max(minAltitude, maxCanvasAltitude);
-        if (maxAltitude <= minAltitude + 1) {
-            return minAltitude;
-        }
-        const randomAltitude = minAltitude + Math.random() * (maxAltitude - minAltitude);
-        return Math.round(randomAltitude);
-    }
-
-    registerTravelDistance(distance) {
-        if (!(distance > 0) || !this.initialHorizontalSpeed) return;
-        this.totalTravelDistance += distance;
-        const progress = Math.min(this.totalTravelDistance / this.distanceForMaxTravelSpeed, 1);
-        const multiplier = 1 + progress * (this.maxTravelSpeedMultiplier - 1);
-        this.baseHorizontalSpeed = this.initialHorizontalSpeed * multiplier;
-        if (this.initialVerticalClimbSpeed) {
-            this.verticalClimbSpeed = this.initialVerticalClimbSpeed * (0.85 + 0.15 * multiplier);
-        }
-        this.currentDiveSpeed = Math.max(this.currentDiveSpeed, this.baseHorizontalSpeed * 2);
     }
 }
