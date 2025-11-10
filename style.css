@@ -1,7 +1,9 @@
 /* ========================================
    1. Base + Layout
 ======================================== */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
 }
@@ -56,6 +58,7 @@ main {
 h1 {
     font-size: 2rem;
     text-align: center;
+    color: white;
 }
 
 .game_screen_wrapper {
@@ -88,38 +91,66 @@ canvas {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
 }
 
+.toggle_button {
+    background-color: rgb(255, 90, 90, 0.5);
+    color: rgb(62, 6, 6);
+
+}
+
+.toggle_button:hover {
+    background-color: rgba(251, 165, 165, 0.5);
+    color: rgb(62, 6, 6);
+
+}
+
+.start_gif_hero {
+    height: 100px;
+}
+
+.start_gif_goblin {
+    height: 100px;
+}
+
+.gif_wrapper {
+    width: 100%;
+}
+
 /* ========================================
    2. Sound + toggle row
 ======================================== */
 .toggle_button_wrapper {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     width: 100%;
+    gap: 1rem;
+
 }
+
+
 
 .sound_container {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 1rem;
 }
 
-#start-screen .sound_container .toggle_button {
+/* #start-screen .sound_container .toggle_button {
     padding: 10px 18px;
-    font-size: 1rem;
-}
+} */
 
 .toggle_button.is-muted {
     opacity: 0.7;
 }
 
 .volume_slider {
-    width: 160px;
+    width: 100%;
 }
 
 .slider_label {
     font-size: 1rem;
     color: #fff;
+    text-align: left;
 }
 
 /* ========================================
@@ -136,8 +167,9 @@ canvas {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 24px;
-    background-color: rgba(0, 0, 0, 0.8);
+    /* gap: 24px; */
+    /* background-color: rgba(0, 0, 0, 0.8); */
+    background-color: rgba(20, 5, 7, 0.9);
     opacity: 0;
     z-index: 10;
     transition: opacity 0.3s ease;
@@ -155,11 +187,25 @@ canvas {
     gap: 24px;
     text-align: center;
     color: #fff;
+
+    font-size: clamp(2.0rem, 7vw, 3rem);
+    color: #ff5a5a;
+    letter-spacing: .08em;
+    text-shadow: 0 0 12px rgba(255, 90, 90, .4);
+    margin-bottom: 1.5rem;
 }
 
 .pause_actions {
     display: flex;
     gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.pause_actions .toggle_button {
+    padding: 16px 32px;
+    font-size: 1.2rem;
+    cursor: pointer;
 }
 
 /* ========================================
@@ -336,18 +382,37 @@ canvas {
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.8);
+    background: rgba(20, 5, 7, 0.7);
+    backdrop-filter: blur(6px);
+    border-radius: 10px;
     z-index: 10;
     opacity: 1;
     transition: opacity 1s ease;
 }
 
-#start-screen button {
-    padding: 20px 40px;
-    font-size: 1.5rem;
-    cursor: pointer;
+#start-screen h1 {
+    font-size: clamp(2.5rem, 7vw, 4rem);
+    color: #ff5a5a;
+    letter-spacing: .08em;
+    text-shadow: 0 0 12px rgba(255, 90, 90, .4);
+    margin-bottom: 1.5rem;
+}
+
+
+#start-screen .start-footer {
+    font-size: .9rem;
+    color: #d7b7bc;
+}
+
+#start-screen .start-footer a {
+    color: #ff5a5a;
+    text-decoration: none;
+}
+
+#start-screen .start-footer a:hover {
+    text-decoration: underline;
 }
 
 #end-screen,
@@ -370,9 +435,11 @@ canvas {
 
 #end-screen h2,
 #gameover-screen h2 {
-    margin-bottom: 20px;
-    font-size: 2rem;
-    color: #fff;
+    font-size: clamp(2.5rem, 7vw, 4rem);
+    color: #ff5a5a;
+    letter-spacing: .08em;
+    text-shadow: 0 0 12px rgba(255, 90, 90, .4);
+    margin-bottom: 1.5rem;
 }
 
 #end-screen button,
@@ -386,6 +453,7 @@ canvas {
    8. Responsive tweaks
 ======================================== */
 @media (max-width: 900px) {
+
     body,
     main,
     .game_screen_wrapper {

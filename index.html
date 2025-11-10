@@ -44,9 +44,6 @@
     <!-- Background systems -->
     <script src="./models/world/backgrounds/bg-object.class.js"></script>
     <script src="./models/world/backgrounds/bg-clouds.class.js"></script>
-    <script src="./models/world/backgrounds/bg-firstlayer.class.js"></script>
-    <script src="./models/world/backgrounds/bg-secondlayer.class.js"></script>
-    <script src="./models/world/backgrounds/bg-thirdlayer.class.js"></script>
     <script src="./models/world/backgrounds/cloud-factory.js"></script>
     <script src="./models/world/backgrounds/background-factory.js"></script>
 
@@ -78,14 +75,15 @@
     <main>
 
         <div class="game_screen_wrapper">
-            <h1>KNIGHTHOOD</h1>
+            <!-- <h1>KNIGHTHOOD</h1> -->
             <!-- Canvas for the game -->
             <canvas id="canvas" width="720" height="480"></canvas>
 
             <!-- Pause screen overlay -->
             <div id="pause-screen" class="overlay">
                 <div class="pause_content">
-                    <h2>Paused</h2>
+
+                    <h2>PAUSED</h2>
                     <div class="pause_actions">
                         <button id="pause-continue-button" class="toggle_button">Continue</button>
                         <button id="pause-retry-button" class="toggle_button">Retry</button>
@@ -104,17 +102,31 @@
 
             <!-- Start screen overlay -->
             <div id="start-screen">
-                <div class="toggle_button_wrapper">
-                    <div class="sound_container">
-                        <button id="start-mute-button" class="toggle_button sound-mute">Mute</button>
-                        <label class="slider_label" for="start-volume">Volume</label>
-                        <input id="start-volume" class="volume_slider sound-volume" type="range" min="0" max="1"
-                            step="0.01" value="0.2">
+                <div class="pause_content">
+                    <h2>KNIGHTHOOD</h2>
+
+                    <div class="pause_actions">
+                        <button id="start-button" class="toggle_button">Start Game</button>
+                        <button id="start-impressum-button" class="toggle_button">Impressum</button>
                     </div>
-                    <button class="toggle_button fullscreen-toggle" id="start-fullscreen-button">Fullscreen</button>
+                    <div class="gif_wrapper">
+                        <img class="start_gif_hero" src="./01_assets/9_intro_outro_screens/RUN_LOOP.gif">
+                        <img class="start_gif_goblin" src="./01_assets/9_intro_outro_screens/GOBLIN_LOOP.gif">
+                        <img class="start_gif_goblin" src="./01_assets/9_intro_outro_screens/GOBLIN_LOOP.gif">
+                    </div>
+                    <div class="toggle_button_wrapper">
+                        <button id="start-mute-button" class="toggle_button sound-mute">Mute</button>
+                        <div class="sound_container">
+                            <label class="slider_label" for="start-volume">Volume</label>
+                            <input id="start-volume" class="volume_slider sound-volume" type="range" min="0" max="1"
+                                step="0.01" value="0.2">
+                        </div>
+                        <button class="toggle_button fullscreen-toggle" id="start-fullscreen-button">Fullscreen</button>
+                    </div>
                 </div>
-                <button id="start-button">Start Game</button>
-                <button id="start-impressum-button">IMPRESSUM</button>
+                <footer class="start-footer">
+                    <p class="tip">Tip: Holy pierces to the second target; Dark detonates on impact.</p>
+                </footer>
             </div>
 
             <div id="end-screen">
@@ -213,7 +225,7 @@
                     <li>Main Hero Sprite: <a href="https://rvros.itch.io/animated-pixel-hero" target="_blank">Animated
                             Pixel Hero</a> – by RVROS</li>
                     <li>Enemies / Monsters: <a href="https://luizmelo.itch.io/monsters-creatures-fantasy"
-                            target="_blank">Monsters Creatures Fantasy Pack</a> – by Luiz Melo</li>
+                            target="_blank">Monsters Creatures Fantasy Pack</a> - by Luiz Melo</li>
                 </ul>
 
                 <h3>Soundeffekte</h3>
