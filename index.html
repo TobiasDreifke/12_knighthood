@@ -91,7 +91,7 @@
                     <div class="toggle_button_wrapper">
                         <div class="sound_container">
                             <button id="pause-mute-button" class="toggle_button sound-mute">Mute</button>
-                            <label class="slider_label" for="pause-volume">Volume</label>
+                            <!-- <label class="slider_label" for="pause-volume">Volume</label> --> 
                             <input id="pause-volume" class="volume_slider sound-volume" type="range" min="0" max="1"
                                 step="0.01" value="0.2">
                         </div>
@@ -107,7 +107,7 @@
 
                     <div class="pause_actions">
                         <button id="start-button" class="toggle_button">Start Game</button>
-                        <button id="start-impressum-button" class="toggle_button">Impressum</button>
+                        <button id="start-legal-button" class="toggle_button">Legal Notice</button>
                     </div>
                     <div class="gif_wrapper">
                         <img class="start_gif_hero" src="./01_assets/9_intro_outro_screens/RUN_LOOP.gif">
@@ -117,7 +117,7 @@
                     <div class="toggle_button_wrapper">
                         <button id="start-mute-button" class="toggle_button sound-mute">Mute</button>
                         <div class="sound_container">
-                            <label class="slider_label" for="start-volume">Volume</label>
+                            <!-- <label class="slider_label" for="start-volume">Volume</label> -->
                             <input id="start-volume" class="volume_slider sound-volume" type="range" min="0" max="1"
                                 step="0.01" value="0.2">
                         </div>
@@ -163,11 +163,12 @@
     </main>
     <footer></footer>
 
-    <div id="impressum-modal" class="modal-overlay">
+    <!-- MODAL LEGAL NOTICE -->
+    <div id="legal-modal" class="modal-overlay">
         <div class="modal-dialog">
             <header class="modal-header">
-                <h2>Impressum</h2>
-                <button id="impressum-close-button" class="modal-close" aria-label="Close Impressum">✕</button>
+                <h2>Legal Notice</h2>
+                <button id="legal-close-button" class="modal-close" aria-label="Close Legal Notice">✕</button>
             </header>
 
             <div class="modal-body">
@@ -182,14 +183,13 @@
 
                 <p>
                     <strong>Kontakt</strong><br>
-                    E-Mail: <a href="mailto:contact@tobiasdreifke.de">contact@tobiasdreifke.de</a><br>
+                    E-Mail: <a href="mailto:mail@tobiasdreifke.com">contact@tobiasdreifke.de</a><br>
                     Telefon: +49 (0)123 456789
                 </p>
 
                 <p>
                     <strong>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</strong><br>
                     Tobias Dreifke<br>
-                    (Musterstraße 12, 12345 Berlin)
                 </p>
 
                 <h3>Haftungsausschluss</h3>

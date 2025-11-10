@@ -24,6 +24,10 @@ export const PROJECT_ROOT = process.cwd();
  * Absolute path to the asset directory that should be scanned.
  */
 export const ASSETS_ROOT = path.join(PROJECT_ROOT, '01_assets');
+/**
+ * Location where unused assets are archived after cleanup.
+ */
+export const UNUSED_ASSETS_ROOT = path.join(PROJECT_ROOT, '00_unused_assets');
 const SOURCE_EXTENSIONS = new Set(['.js', '.mjs', '.cjs', '.ts', '.jsx', '.tsx', '.html', '.css', '.json']);
 const REFERENCE_REGEX = /['"`]([^'"`]*01_assets[^'"`]+)['"`]/g;
 

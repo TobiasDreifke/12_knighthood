@@ -256,9 +256,9 @@ function setupTouchControls() {
 }
 
 function setupImpressumModal() {
-    const openButton = document.getElementById("start-impressum-button");
-    const modal = document.getElementById("impressum-modal");
-    const closeButton = document.getElementById("impressum-close-button");
+    const openButton = document.getElementById("start-legal-button");
+    const modal = document.getElementById("legal-modal");
+    const closeButton = document.getElementById("legal-close-button");
 
     if (!openButton || !modal || !closeButton) return;
 

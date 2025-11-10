@@ -1,0 +1,8 @@
+# Manage crawler access for KNIGHTHOOD
+User-agent: *
+Disallow: /legal-notice
+Disallow: /Legal-Notice
+Disallow: /*legal-notice*
+Disallow: /impressum
+Disallow: /Impressum
+Disallow: /*impressum*
