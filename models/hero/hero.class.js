@@ -274,13 +274,14 @@ class Hero extends MoveableObject {
      *
      * @param {number} [amount=this.damageOnCollision]
      */
-    hit(amount = this.damageOnCollision) {
-        const now = Date.now();
-        const cooldown = typeof this.hitCooldownMs === 'number' ? this.hitCooldownMs : 0;
-        if (now - this.lastHit < cooldown) return;
-        this.lastHit = now;
-        super.hit(amount);
-    }
+	hit(amount = this.damageOnCollision) {
+		const now = Date.now();
+		const cooldown = typeof this.hitCooldownMs === 'number' ? this.hitCooldownMs : 0;
+		if (now - this.lastHit < cooldown) return;
+		this.lastHit = now;
+		this.world?.gameStats?.addDamageTaken?.(amount);
+		super.hit(amount);
+	}
 
     /**
      * Sets the crouch hurtbox offsets, used by both crouch and attack states.

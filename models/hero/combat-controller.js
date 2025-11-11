@@ -17,6 +17,7 @@ class HeroCombatController {
 		const hero = this.hero;
 		if (hero.isAttacking) return;
 
+		hero.world?.gameStats?.recordAttack?.();
 		hero.isAttacking = true;
 		hero.frameIndex = 0;
 		hero.attackPressed = true;
@@ -200,12 +201,14 @@ class HeroCombatController {
 	 * @returns {boolean} True if any enemy took damage.
 	 */
 	applyDamageToEnemies() {
+		const world = this.hero.world;
 		let hit = false;
 		this.activeEnemies().forEach(enemy => {
 			if (!this.collidesWithEnemy(this.hero, enemy)) return;
 			console.log("HERO hit ENEMY!");
 			const dmg = this.hero.hasSword ? this.hero.swordDamage : this.hero.punchDamage;
 			enemy.hit(dmg);
+			world?.gameStats?.addDamage?.(dmg);
 			hit = true;
 		});
 		return hit;

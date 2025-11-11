@@ -125,6 +125,10 @@ class ThrowController {
 		const collection = world?.[config.targetArray];
 		if (Array.isArray(collection)) collection.push(projectile);
 		if (typeof world?.updateAmmoBars === "function") world.updateAmmoBars();
+		const spellType = typeof config.animationKey === "string" ? config.animationKey.toLowerCase() : null;
+		if (spellType) {
+			world?.gameStats?.recordCast?.(spellType);
+		}
 		this.triggerCast(hero, config.animationKey);
 	}
 

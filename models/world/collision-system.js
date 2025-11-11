@@ -50,7 +50,7 @@ class CollisionSystem {
 			if (!projectile) return;
 			if (this.hitLevelBarrier(projectile, level)) return;
 			if (projectile.isImpacting) return;
-			this.applyHolyEnemyHits(projectile, level?.enemies);
+			this.applyHolyEnemyHits(projectile, level?.enemies, world);
 		});
 	}
 
@@ -66,7 +66,7 @@ class CollisionSystem {
 			if (!projectile) return;
 			if (this.hitLevelBarrier(projectile, level)) return;
 			if (projectile.hasHit) return;
-			this.applyDarkEnemyHit(projectile, level?.enemies);
+			this.applyDarkEnemyHit(projectile, level?.enemies, world);
 		});
 	}
 
@@ -149,7 +149,7 @@ class CollisionSystem {
 	 * @param {MoveableObject} projectile
 	 * @param {MoveableObject[]} enemies
 	 */
-	applyHolyEnemyHits(projectile, enemies) {
+	applyHolyEnemyHits(projectile, enemies, world) {
 		if (!Array.isArray(enemies)) return;
 		for (const enemy of enemies) {
 			if (!enemy || enemy.isDead) continue;
@@ -157,6 +157,7 @@ class CollisionSystem {
 			if (!projectile.registerHit(enemy)) continue;
 			const dmg = this.resolveDamage(projectile, enemy);
 			enemy.hit(dmg);
+			world?.gameStats?.addDamage?.(dmg);
 			console.log(`[${enemy.constructor.name}] hit by HolyThrow!`);
 		}
 	}
@@ -168,13 +169,14 @@ class CollisionSystem {
 	 * @param {MoveableObject[]} enemies
 	 * @returns {boolean} True if a hit occurred.
 	 */
-	applyDarkEnemyHit(projectile, enemies) {
+	applyDarkEnemyHit(projectile, enemies, world) {
 		if (!Array.isArray(enemies)) return false;
 		for (const enemy of enemies) {
 			if (!enemy || enemy.isDead) continue;
 			if (!projectile.isColliding(enemy)) continue;
 			const dmg = this.resolveDamage(projectile, enemy);
 			enemy.hit(dmg);
+			world?.gameStats?.addDamage?.(dmg);
 			projectile.triggerImpact();
 			console.log(`[${enemy.constructor.name}] hit by DarkThrow!`);
 			return true;
@@ -192,10 +194,12 @@ class CollisionSystem {
 	collectThrowable(world, throwable) {
 		if (throwable instanceof ThrowDark) {
 			world.darkAmmo.push(throwable);
+			world?.gameStats?.recordPickup?.("dark");
 			return AudioHub.CAST_DARK_PICKUP;
 		}
 		if (throwable instanceof ThrowHoly) {
 			world.holyAmmo.push(throwable);
+			world?.gameStats?.recordPickup?.("holy");
 			return AudioHub.CAST_HOLY_PICKUP;
 		}
 		return null;

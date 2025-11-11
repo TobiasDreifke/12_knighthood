@@ -7,6 +7,7 @@ class HeroMovementController {
 	 */
 	constructor(hero) {
 		this.hero = hero;
+		this.slideActive = false;
 	}
 
 	/**
@@ -42,7 +43,10 @@ class HeroMovementController {
 		const jumpPressed = keyboard.UP || keyboard.JUMP;
 		const canJump = jumpPressed && !hero.isAboveGround();
 		AudioHub.playOncePerKey(hero.jumpSoundFlag, AudioHub.JUMP_HERO, jumpPressed, canJump);
-		if (canJump) hero.jump();
+		if (canJump) {
+			hero.jump();
+			hero.world?.gameStats?.recordJump?.();
+		}
 	}
 
 	/**
@@ -55,6 +59,10 @@ class HeroMovementController {
 		const slideRight = keyboard.RIGHT && keyboard.DOWN;
 		const slideLeft = keyboard.LEFT && keyboard.DOWN;
 		const slidePressed = slideRight || slideLeft;
+		if (slidePressed && !this.slideActive) {
+			hero.world?.gameStats?.recordSlide?.();
+		}
+		this.slideActive = slidePressed;
 		AudioHub.playOncePerKey(hero.slideSoundFlag, AudioHub.SLIDE_HERO, slidePressed, slidePressed);
 		if (slideRight) hero.slideRight();
 		if (slideLeft) hero.slideLeft();

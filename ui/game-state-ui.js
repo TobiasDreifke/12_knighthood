@@ -33,8 +33,10 @@ class GameStateUI {
 	showWinScreen(world) {
 		this.clearWinTimeout();
 		if (!world) return;
+		world.gameStats?.markWin?.();
 		world.isWinSequenceActive = false;
 		world.isRunning = false;
+		this.renderStats(world, "win-stats");
 		this.reveal("end-screen");
 		if (typeof AudioHub !== "undefined" && typeof AudioHub.playStartScreenMusic === "function") {
 			AudioHub.playStartScreenMusic();
@@ -50,6 +52,7 @@ class GameStateUI {
 		this.clearWinTimeout();
 		if (!world) return;
 		world.isRunning = false;
+		this.renderStats(world, "lose-stats");
 		this.reveal("gameover-screen");
 		if (typeof AudioHub !== "undefined" && typeof AudioHub.playStartScreenMusic === "function") {
 			AudioHub.playStartScreenMusic();
@@ -90,5 +93,45 @@ class GameStateUI {
 			return null;
 		}
 		return this.doc.getElementById(elementId);
+	}
+
+	renderStats(world, containerId) {
+		if (!containerId) return;
+		const container = this.getElement(containerId);
+		const stats = world?.gameStats?.getSnapshot?.();
+		if (!container || !stats) return;
+
+		const assignments = {
+			"kills-bats": stats.killed?.bats ?? 0,
+			"kills-goblins": stats.killed?.goblins ?? 0,
+			"kills-mushrooms": stats.killed?.mushrooms ?? 0,
+			"kills-bosses": stats.killed?.bosses ?? 0,
+			"collect-holy": stats.collected?.holy ?? 0,
+			"collect-dark": stats.collected?.dark ?? 0,
+			"attacks-used": stats.attacksUsed ?? 0,
+			"casts-holy": stats.spellsCast?.holy ?? 0,
+			"casts-dark": stats.spellsCast?.dark ?? 0,
+			"damage-dealt": stats.totalDamage ?? 0,
+			"damage-taken": stats.damageTaken ?? 0,
+			"slides-used": stats.slideUses ?? 0,
+			"jumps": stats.jumps ?? 0,
+			"time-ms": this.formatDuration(stats.timeMs),
+		};
+
+		Object.entries(assignments).forEach(([key, value]) => this.assignStat(container, key, value));
+	}
+
+	assignStat(container, key, value) {
+		const target = container.querySelector(`[data-stat="${key}"]`);
+		if (!target) return;
+		target.textContent = value;
+	}
+
+	formatDuration(durationMs) {
+		if (!Number.isFinite(durationMs) || durationMs <= 0) return "0:00";
+		const totalSeconds = Math.floor(durationMs / 1000);
+		const minutes = Math.floor(totalSeconds / 60);
+		const seconds = totalSeconds % 60;
+		return `${minutes}:${String(seconds).padStart(2, "0")}`;
 	}
 }

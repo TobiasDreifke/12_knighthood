@@ -60,6 +60,7 @@
     <script src="./models/world/render-loop.js"></script>
     <script src="./models/world/enemy-activation.js"></script>
     <script src="./models/world/interval-manager.js"></script>
+    <script src="./models/world/game-stats.js"></script>
     <script src="./ui/game-state-ui.js"></script>
     <script src="./models/world/world.class.js"></script>
 
@@ -131,39 +132,120 @@
 
             <div id="end-screen">
                 <h2>You Win!</h2>
+                <section class="win_stats__time">
+                    <p class="win_stats__value" data-stat="time-ms">0:00</p>
+                </section>
+                <div id="win-stats" class="win_stats" aria-live="polite">
+                    <div class="win_stats__grid">
+                        <section class="win_stats__group">
+                            <h3>Killed</h3>
+                            <ul class="win_stats__list">
+                                <li><span>Bats</span><span data-stat="kills-bats">0</span></li>
+                                <li><span>Goblins</span><span data-stat="kills-goblins">0</span></li>
+                                <li><span>Mushrooms</span><span data-stat="kills-mushrooms">0</span></li>
+                                <li><span>Bosses</span><span data-stat="kills-bosses">0</span></li>
+                            </ul>
+                        </section>
+                        <section class="win_stats__group">
+                            <h3>Collected</h3>
+                            <ul class="win_stats__list">
+                                <li><span>Holy Casts</span><span data-stat="collect-holy">0</span></li>
+                                <li><span>Dark Casts</span><span data-stat="collect-dark">0</span></li>
+                            </ul>
+                        </section>
+                        <section class="win_stats__group">
+                            <h3>Combat</h3>
+                            <ul class="win_stats__list">
+                                <li><span>Attacks Used</span><span data-stat="attacks-used">0</span></li>
+                                <li><span>Holy Casts</span><span data-stat="casts-holy">0</span></li>
+                                <li><span>Dark Casts</span><span data-stat="casts-dark">0</span></li>
+                                <li><span>Damage Dealt</span><span data-stat="damage-dealt">0</span></li>
+                                <li><span>Damage Taken</span><span data-stat="damage-taken">0</span></li>
+                            </ul>
+                        </section>
+                        <section class="win_stats__group">
+                            <h3>Mobility</h3>
+                            <ul class="win_stats__list">
+                                <li><span>Slides Used</span><span data-stat="slides-used">0</span></li>
+                                <li><span>Jumps</span><span data-stat="jumps">0</span></li>
+                            </ul>
+                        </section>
+                    </div>
+                </div>
                 <button id="restart-button">Play Again</button>
             </div>
 
             <div id="gameover-screen" style="display: none; opacity: 0;">
                 <h2>You Lose!</h2>
-                <button id="gameover-restart-button">Try Again</button>
-            </div>
+                <section class="win_stats__time">
+                    <p class="win_stats__value" data-stat="time-ms">0:00</p>
+                </section>
+                <div id="lose-stats" class="win_stats" aria-live="polite">
+                    <div class="win_stats__grid">
+                        <section class="win_stats__group">
+                            <h3>Killed</h3>
+                            <ul class="win_stats__list">
+                                <li><span>Bats</span><span data-stat="kills-bats">0</span></li>
+                                <li><span>Goblins</span><span data-stat="kills-goblins">0</span></li>
+                                <li><span>Mushrooms</span><span data-stat="kills-mushrooms">0</span></li>
+                                <li><span>Bosses</span><span data-stat="kills-bosses">0</span></li>
+                            </ul>
+                        </section>
+                        <section class="win_stats__group">
+                            <h3>Collected</h3>
+                            <ul class="win_stats__list">
+                                <li><span>Holy Casts</span><span data-stat="collect-holy">0</span></li>
+                                <li><span>Dark Casts</span><span data-stat="collect-dark">0</span></li>
+                            </ul>
+                        </section>
+                        <section class="win_stats__group">
+                            <h3>Combat</h3>
+                            <ul class="win_stats__list">
+                                <li><span>Attacks Used</span><span data-stat="attacks-used">0</span></li>
+                                <li><span>Holy Casts</span><span data-stat="casts-holy">0</span></li>
+                                <li><span>Dark Casts</span><span data-stat="casts-dark">0</span></li>
+                                <li><span>Damage Dealt</span><span data-stat="damage-dealt">0</span></li>
+                                <li><span>Damage Taken</span><span data-stat="damage-taken">0</span></li>
+                            </ul>
+                        </section>
+                        <section class="win_stats__group">
+                            <h3>Mobility</h3>
+                            <ul class="win_stats__list">
+                                <li><span>Slides Used</span><span data-stat="slides-used">0</span></li>
+                                <li><span>Jumps</span><span data-stat="jumps">0</span></li>
+                            </ul>
+                        </section>
+                        <button id="gameover-restart-button">Try Again</button>
+                    </div>
 
-            <!-- RESPONSIVE -->
-            <div id="touch-controls" class="touch_controls">
-                <div class="touch_controls__group touch_controls__movement">
-                    <button class="touch_button" data-control="left" aria-label="Move Left">&#8592;</button>
-                    <button class="touch_button" data-control="down" aria-label="Crouch">&#8595;</button>
-                    <button class="touch_button" data-control="right" aria-label="Move Right">&#8594;</button>
+                    <!-- RESPONSIVE -->
+                    <div id="touch-controls" class="touch_controls">
+                        <div class="touch_controls__group touch_controls__movement">
+                            <button class="touch_button" data-control="left" aria-label="Move Left">&#8592;</button>
+                            <button class="touch_button" data-control="down" aria-label="Crouch">&#8595;</button>
+                            <button class="touch_button" data-control="right" aria-label="Move Right">&#8594;</button>
 
-                </div>
-                <div class="touch_controls__group touch_controls__movement"> <button class="touch_button"
-                        data-control="pause" aria-label="Pause">Pause</button></div>
-                <div class="touch_controls__group touch_controls__actions">
-                    <button class="touch_button  primary" data-control="jump" aria-label="Jump">Jump</button>
-                    <button class="touch_button  primary" data-control="attack" aria-label="Attack">Attack</button>
-                    <button class="touch_button  primary" data-control="throwholy" aria-label="Throw Holy">Holy</button>
-                    <button class="touch_button  primary" data-control="throwdark" aria-label="Throw Dark">Dark</button>
-                </div>
-            </div>
+                        </div>
+                        <div class="touch_controls__group touch_controls__movement"> <button class="touch_button"
+                                data-control="pause" aria-label="Pause">Pause</button></div>
+                        <div class="touch_controls__group touch_controls__actions">
+                            <button class="touch_button  primary" data-control="jump" aria-label="Jump">Jump</button>
+                            <button class="touch_button  primary" data-control="attack"
+                                aria-label="Attack">Attack</button>
+                            <button class="touch_button  primary" data-control="throwholy"
+                                aria-label="Throw Holy">Holy</button>
+                            <button class="touch_button  primary" data-control="throwdark"
+                                aria-label="Throw Dark">Dark</button>
+                        </div>
+                    </div>
 
-            <div id="orientation-overlay" class="overlay orientation_overlay">
-                <div class="orientation_content">
-                    <h2>Rotate Your Device</h2>
-                    <p>For the best experience, turn your phone sideways.</p>
+                    <div id="orientation-overlay" class="overlay orientation_overlay">
+                        <div class="orientation_content">
+                            <h2>Rotate Your Device</h2>
+                            <p>For the best experience, turn your phone sideways.</p>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
     </main>
     <footer></footer>
 

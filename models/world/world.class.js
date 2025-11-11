@@ -12,6 +12,7 @@ class World {
 	intervalManager = new IntervalManager();
 	gameStateUI = new GameStateUI();
 	entityUtils = EntityUtils;
+	gameStats = new GameStats();
 
 	heroCharacter = new Hero();
 	statusBarHealth = new StatusbarHealth();
@@ -78,6 +79,7 @@ class World {
 		this.hasStarted = true;
 		this.isPaused = false;
 		this.isRunning = true;
+		this.gameStats?.markGameStart();
 		AudioHub.playGameplayMusic();
 		this.draw();  // start rendering loop
 		this.run();   // start intervals (collision checking, throwing, etc.)
@@ -200,6 +202,7 @@ class World {
 	startWinSequence(finalEnemy = null) {
 		if (this.winSequenceStarted) return;
 		this.winSequenceStarted = true;
+		this.gameStats?.markWin();
 		this.lockInput();
 		this.stopAllIntervals();
 		this.stopAllEnemyActivity(enemy => enemy?.constructor?.name === 'SkeletonBoss');

@@ -247,6 +247,7 @@ class MoveableObject extends DrawableObject {
 			this.health = 0;
 			this.isDead = true;
 			console.log(`[${this.constructor.name}] is dead`);
+			this.notifyStatsOfDeath();
 			return { wasFatal: true };
 		}
 		this.isHurt = true;
@@ -384,5 +385,11 @@ class MoveableObject extends DrawableObject {
 	// isDead() {
 	// 	return this.health === 0;
 	// }
-}
 
+	notifyStatsOfDeath() {
+		const world = this.getWorld();
+		const stats = world?.gameStats;
+		if (!stats || typeof stats.recordKill !== "function") return;
+		stats.recordKill(this);
+	}
+}
