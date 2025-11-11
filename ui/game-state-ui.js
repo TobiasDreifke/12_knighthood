@@ -128,10 +128,19 @@ class GameStateUI {
 	}
 
 	formatDuration(durationMs) {
-		if (!Number.isFinite(durationMs) || durationMs <= 0) return "0:00";
-		const totalSeconds = Math.floor(durationMs / 1000);
-		const minutes = Math.floor(totalSeconds / 60);
+		if (!Number.isFinite(durationMs) || durationMs <= 0) {
+			return "00:00:00,00";
+		}
+		const totalMs = Math.max(0, Math.floor(durationMs));
+		const totalSeconds = Math.floor(totalMs / 1000);
+		const centiseconds = Math.floor((totalMs % 1000) / 10);
 		const seconds = totalSeconds % 60;
-		return `${minutes}:${String(seconds).padStart(2, "0")}`;
+		const minutes = Math.floor(totalSeconds / 60) % 60;
+		const hours = Math.floor(totalSeconds / 3600);
+		return [
+			String(hours).padStart(2, "0"),
+			String(minutes).padStart(2, "0"),
+			String(seconds).padStart(2, "0"),
+		].join(":") + `,${String(centiseconds).padStart(2, "0")}`;
 	}
 }
