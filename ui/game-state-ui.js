@@ -36,7 +36,7 @@ class GameStateUI {
 		world.gameStats?.markWin?.();
 		world.isWinSequenceActive = false;
 		world.isRunning = false;
-		this.renderStats(world, "win-stats");
+		this.renderStats(world, "end-screen");
 		this.reveal("end-screen");
 		if (typeof AudioHub !== "undefined" && typeof AudioHub.playStartScreenMusic === "function") {
 			AudioHub.playStartScreenMusic();
@@ -52,7 +52,7 @@ class GameStateUI {
 		this.clearWinTimeout();
 		if (!world) return;
 		world.isRunning = false;
-		this.renderStats(world, "lose-stats");
+		this.renderStats(world, "gameover-screen");
 		this.reveal("gameover-screen");
 		if (typeof AudioHub !== "undefined" && typeof AudioHub.playStartScreenMusic === "function") {
 			AudioHub.playStartScreenMusic();
@@ -95,9 +95,9 @@ class GameStateUI {
 		return this.doc.getElementById(elementId);
 	}
 
-	renderStats(world, containerId) {
-		if (!containerId) return;
-		const container = this.getElement(containerId);
+	renderStats(world, rootId) {
+		if (!rootId) return;
+		const container = this.getElement(rootId);
 		const stats = world?.gameStats?.getSnapshot?.();
 		if (!container || !stats) return;
 
