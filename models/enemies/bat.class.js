@@ -116,25 +116,35 @@ class Bat extends MoveableObject {
     }
 
 	hit(amount = this.damageOnCollision) {
+		const handled = this.handleHit(amount, this.buildHitResponseOptions());
+		if (!handled) return;
+	}
+
+	buildHitResponseOptions() {
 		const hurtFrames = this.frames.HURT?.length ?? 0;
-		const handled = this.handleHit(amount, {
+		return {
 			deadSound: AudioHub.BAT_DEAD,
 			hurtSound: AudioHub.BAT_HURT,
 			hurtFps: 12,
 			hurtFrameCount: hurtFrames,
-			onDeath: () => {
-				this.clearHurtTimeout();
-				this.startDeathFall();
-			},
-			onHurtStart: () => {
-				this.clearHurtTimeout();
-				this.isHurt = true;
-			},
-			onHurtEnd: () => {
-				this.isHurt = false;
-			},
-		});
-		if (!handled) return;
+			onDeath: () => this.handleHitDeath(),
+			onHurtStart: () => this.handleHitStart(),
+			onHurtEnd: () => this.handleHitEnd(),
+		};
+	}
+
+	handleHitDeath() {
+		this.clearHurtTimeout();
+		this.startDeathFall();
+	}
+
+	handleHitStart() {
+		this.clearHurtTimeout();
+		this.isHurt = true;
+	}
+
+	handleHitEnd() {
+		this.isHurt = false;
 	}
 
     holdDormantPose() {

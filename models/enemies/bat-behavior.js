@@ -50,18 +50,27 @@ const BatDiveBehavior = {
      * @this {Bat}
      */
     getTopAltitude() {
-        let altitude = typeof this.loiterAltitude === "number"
-            ? this.loiterAltitude
-            : typeof this.spawnY === "number"
-                ? this.spawnY
-                : 100;
-        if (typeof this.minAscendAltitude === "number") {
-            altitude = Math.max(altitude, this.minAscendAltitude);
-        }
-        if (typeof this.maxAscendAltitude === "number") {
-            altitude = Math.min(altitude, this.maxAscendAltitude);
-        }
+        let altitude = this.resolveBaseLoiterAltitude();
+        altitude = this.applyMinAltitudeClamp(altitude);
+        altitude = this.applyMaxAltitudeClamp(altitude);
         return altitude;
+    },
+    resolveBaseLoiterAltitude() {
+        if (typeof this.loiterAltitude === "number") return this.loiterAltitude;
+        if (typeof this.spawnY === "number") return this.spawnY;
+        return 100;
+    },
+    applyMinAltitudeClamp(value) {
+        if (typeof this.minAscendAltitude === "number") {
+            return Math.max(value, this.minAscendAltitude);
+        }
+        return value;
+    },
+    applyMaxAltitudeClamp(value) {
+        if (typeof this.maxAscendAltitude === "number") {
+            return Math.min(value, this.maxAscendAltitude);
+        }
+        return value;
     },
     /**
      * Locks in a dive target using the latest hero metrics and begins accelerating toward it.
@@ -231,16 +240,23 @@ const BatDiveBehavior = {
      */
     ascendToAltitude(topAltitude) {
         const speedMultiplier = this.getTravelSpeedMultiplier();
-        const climbSpeed = this.verticalClimbSpeed * speedMultiplier;
-        const targetY = Math.max(this.y - climbSpeed, topAltitude);
-        const verticalDelta = this.y - targetY;
+        const { targetY, verticalDelta } = this.calculateAscendVerticalStep(speedMultiplier, topAltitude);
         this.y = targetY;
-    
-        const horizontalStep = this.baseHorizontalSpeed * speedMultiplier;
-        const horizontalDelta = this.otherDirection ? -horizontalStep : horizontalStep;
+        const horizontalDelta = this.calculateAscendHorizontalStep(speedMultiplier);
         this.x += horizontalDelta;
         this.registerTravel(horizontalDelta, -verticalDelta);
-    
+        this.updateFlightPhaseAfterAscend(topAltitude);
+    },
+    calculateAscendVerticalStep(speedMultiplier, topAltitude) {
+        const climbSpeed = this.verticalClimbSpeed * speedMultiplier;
+        const targetY = Math.max(this.y - climbSpeed, topAltitude);
+        return { targetY, verticalDelta: this.y - targetY };
+    },
+    calculateAscendHorizontalStep(speedMultiplier) {
+        const horizontalStep = this.baseHorizontalSpeed * speedMultiplier;
+        return this.otherDirection ? -horizontalStep : horizontalStep;
+    },
+    updateFlightPhaseAfterAscend(topAltitude) {
         if (this.y <= topAltitude + 1) {
             this.flightPhase = "descend";
         }
@@ -378,30 +394,41 @@ const BatDiveBehavior = {
      * @this {Bat}
      */
     initializeAltitudePreferences() {
-        if (typeof this.minAscendAltitude !== "number") {
-            this.minAscendAltitude = 0;
-        }
-    
+        this.minAscendAltitude = this.resolveMinAscendAltitude();
+        this.maxAscendAltitude = this.resolveMaxAscendAltitude();
+        this.loiterAltitude = this.resolveLoiterAltitude();
+    },
+    resolveMinAscendAltitude() {
+        return typeof this.minAscendAltitude === "number" ? this.minAscendAltitude : 0;
+    },
+    resolveMaxAscendAltitude() {
         if (typeof this.maxAscendAltitude !== "number") {
-            this.maxAscendAltitude = Math.max(this.minAscendAltitude, 100);
-        } else if (this.maxAscendAltitude < this.minAscendAltitude) {
-            this.maxAscendAltitude = this.minAscendAltitude;
+            return Math.max(this.minAscendAltitude, 100);
         }
-    
-        if (typeof this.loiterAltitude !== "number") {
-            const min = this.minAscendAltitude ?? 0;
-            const max = this.maxAscendAltitude ?? Math.max(min, 100);
-            const span = Math.max(max - min, 0);
-            const randomOffset = span > 0 ? Math.random() * span : 0;
-            this.loiterAltitude = min + randomOffset;
-        } else {
-            if (typeof this.minAscendAltitude === "number" && this.loiterAltitude < this.minAscendAltitude) {
-                this.loiterAltitude = this.minAscendAltitude;
-            }
-            if (typeof this.maxAscendAltitude === "number" && this.loiterAltitude > this.maxAscendAltitude) {
-                this.loiterAltitude = this.maxAscendAltitude;
-            }
+        return Math.max(this.maxAscendAltitude, this.minAscendAltitude);
+    },
+    resolveLoiterAltitude() {
+        if (typeof this.loiterAltitude === "number") {
+            return this.clampLoiterAltitude(this.loiterAltitude);
         }
+        return this.generateRandomLoiterAltitude();
+    },
+    clampLoiterAltitude(value) {
+        let result = value;
+        if (typeof this.minAscendAltitude === "number" && result < this.minAscendAltitude) {
+            result = this.minAscendAltitude;
+        }
+        if (typeof this.maxAscendAltitude === "number" && result > this.maxAscendAltitude) {
+            result = this.maxAscendAltitude;
+        }
+        return result;
+    },
+    generateRandomLoiterAltitude() {
+        const min = this.minAscendAltitude ?? 0;
+        const max = this.maxAscendAltitude ?? Math.max(min, 100);
+        const span = Math.max(max - min, 0);
+        const randomOffset = span > 0 ? Math.random() * span : 0;
+        return min + randomOffset;
     },
     /**
      * Helper for `initializeSpawn` extracted from the Bat class.

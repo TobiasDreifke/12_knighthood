@@ -239,38 +239,45 @@ function setupImpressumModal() {
     const openButton = document.getElementById("start-legal-button");
     const modal = document.getElementById("legal-modal");
     const closeButton = document.getElementById("legal-close-button");
-
     if (!openButton || !modal || !closeButton) return;
+    const state = createModalState(modal, openButton);
+    bindLegalModalButtons(openButton, closeButton, state);
+    bindLegalModalDismissHandlers(modal, state);
+    state.hide(false);
+}
 
-    const showModal = () => {
-        modal.classList.add("visible");
-        modal.setAttribute("aria-hidden", "false");
-    };
-
-    const hideModal = (returnFocus = true) => {
-        modal.classList.remove("visible");
-        modal.setAttribute("aria-hidden", "true");
+function createModalState(modal, openButton) {
+    const show = () => toggleModalVisibility(modal, { visible: true });
+    const hide = (returnFocus = true) => {
+        toggleModalVisibility(modal, { visible: false });
         if (returnFocus) {
             openButton.focus();
         }
     };
+    return { show, hide };
+}
 
-    openButton.addEventListener("click", showModal);
-    closeButton.addEventListener("click", () => hideModal());
+function toggleModalVisibility(modal, { visible }) {
+    modal.classList.toggle("visible", visible);
+    modal.setAttribute("aria-hidden", String(!visible));
+}
 
+function bindLegalModalButtons(openButton, closeButton, modalState) {
+    openButton.addEventListener("click", () => modalState.show());
+    closeButton.addEventListener("click", () => modalState.hide());
+}
+
+function bindLegalModalDismissHandlers(modal, modalState) {
     modal.addEventListener("click", event => {
         if (event.target === modal) {
-            hideModal();
+            modalState.hide();
         }
     });
-
     window.addEventListener("keydown", event => {
         if (event.key === "Escape" && modal.classList.contains("visible")) {
-            hideModal();
+            modalState.hide();
         }
     });
-
-    hideModal(false);
 }
 
 /**

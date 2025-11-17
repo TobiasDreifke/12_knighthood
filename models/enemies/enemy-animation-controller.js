@@ -96,36 +96,67 @@
 		 */
 		updateFrame() {
 			const enemy = this.enemy;
+			const world = this.resolveWorld(enemy);
+			if (this.shouldSkipFrame(world)) return;
+			this.runBeforeFrameHook(enemy);
+			if (this.handleDormantState(enemy)) return;
+			if (this.runStateMachine(enemy)) return;
+			if (this.onActiveHaltsFrame(enemy)) return;
+			this.runAfterFrameHook(enemy);
+		}
+
+		resolveWorld(enemy) {
 			const resolver = this.config.resolveWorld;
-			const world = typeof resolver === "function" ? resolver(enemy) : (enemy.player?.world || enemy.world);
-			if (world?.isPaused) return;
-
-			if (typeof this.config.onBeforeFrame === "function") {
-				this.config.onBeforeFrame(enemy, this);
+			if (typeof resolver === "function") {
+				return resolver(enemy);
 			}
+			return enemy.player?.world || enemy.world;
+		}
 
+		shouldSkipFrame(world) {
+			return world?.isPaused;
+		}
+
+		runBeforeFrameHook(enemy) {
+			const hook = this.config.onBeforeFrame;
+			if (typeof hook === "function") {
+				hook(enemy, this);
+			}
+		}
+
+		handleDormantState(enemy) {
 			const dormant = this.config.dormant;
-			if (dormant?.condition && dormant.condition(enemy, this)) {
-				dormant.action?.(enemy, this);
-				return;
-			}
+			if (!dormant?.condition) return false;
+			if (!dormant.condition(enemy, this)) return false;
+			dormant.action?.(enemy, this);
+			return true;
+		}
 
+		runStateMachine(enemy) {
 			for (const state of this.states) {
 				if (!state) continue;
-				const condition = state.condition;
-				const shouldRun = typeof condition === "function" ? condition(enemy, this) : !!condition;
+				const shouldRun = typeof state.condition === "function"
+					? state.condition(enemy, this)
+					: !!state.condition;
 				if (!shouldRun) continue;
-				const action = state.action;
-				const result = typeof action === "function" ? action(enemy, this) : undefined;
-				if (result !== false) return;
+				const result = typeof state.action === "function" ? state.action(enemy, this) : undefined;
+				if (result !== false) {
+					return true;
+				}
 			}
+			return false;
+		}
 
-			if (typeof this.config.onActive === "function") {
-				if (this.config.onActive(enemy, this) === false) return;
-			}
+		onActiveHaltsFrame(enemy) {
+			const hook = this.config.onActive;
+			if (typeof hook !== "function") return false;
+			return hook(enemy, this) === false;
+		}
 
-			if (typeof this.config.onAfterFrame === "function") {
-				this.config.onAfterFrame(enemy, this);
+		runAfterFrameHook(enemy) {
+			const hook = this.config.onAfterFrame;
+			if (typeof hook === "function") {
+				hook(enemy, this);
 			}
 		}
 
