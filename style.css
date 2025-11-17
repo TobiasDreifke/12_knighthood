@@ -293,7 +293,7 @@ button:disabled {
 }
 
 .touch_button--icon.touch_button--holy {
-    background-image: url("./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_1.png");
+    background-image: url("./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_2.png");
 }
 
 .touch_button--icon.touch_button--dark {
@@ -411,6 +411,7 @@ button:disabled {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 24px;
     text-align: center;
     color: #fff;
@@ -794,6 +795,7 @@ button:disabled {
     main,
     .game_screen_wrapper {
         width: 100vw;
+        /* height: 100svh; */
     }
 
     .game_screen_wrapper {
@@ -804,13 +806,26 @@ button:disabled {
 
     canvas {
         width: 100%;
-        height: 100%;
+        /* height: 100%; */
         /* max-height: calc(100dvh - 200px); */
         min-height: 200px;
         border-radius: 12px;
     }
 
+    .canvas_stage {
+        position: relative;
+        display: block;
+        width: min(95vw, 1200px, calc((100vh) * 1.5));
+        aspect-ratio: 3 / 2;
+        margin: 0 auto;
+        /* display: flex;
+        justify-content: center;
+        align-items: center; */
+    }
 
+    .start_footer {
+        padding-bottom: 0.5rem;
+    }
 
     #start-screen,
     #pause-screen,
@@ -818,10 +833,23 @@ button:disabled {
     #gameover-screen,
     #orientation-overlay {
         border-radius: 12px;
+        /* display: flex;
+
+        justify-content: center;
+        align-items: center; */
     }
 
     .pause_content {
-        height: 100dvh
+        /* background-color: #3e0606; */
+        height: 100svh;
+        gap: 0.3rem;
+        margin-bottom: 0.2rem;
+
+    }
+
+    .icon_button {
+        width: 32px;
+        height: 32px;
     }
 
     .pause_actions .toggle_button {
@@ -832,24 +860,36 @@ button:disabled {
     }
 
     .pause_content h2 {
-        font-size: 3rem;
+        font-size: 2rem;
+    }
+
+    .sound_mute {
+        aspect-ratio: 1;
+        height: 32px;
+        width: 32px;
     }
 
     .icon_button {
+        /* background-color: #c3c3c3; */
+        aspect-ratio: 1;
         height: 32px;
         width: 32px;
     }
 
     .touch_controls {
+
+        /* background-color: #000; */
         left: 50%;
         bottom: 0.5rem;
         transform: translateX(-50%);
-        width: min(100%, 420px);
-        padding: 0 6px;
-        gap: 8px;
+
+        /* width: min(100%, 420px); */
+        height: 100%;
+        /* padding: 0 6px; */
+        gap: 16px;
         display: flex;
         flex-direction: row;
-        align-items: center;
+        align-items: end;
         justify-content: space-between;
     }
 
@@ -858,8 +898,30 @@ button:disabled {
     }
 
     .touch_button {
-          width: 32px;
-        height: 32px;
+        width: 50px;
+        height: 50px;
         font-size: 1rem;
+        aspect-ratio: 1;
+        background-color: #ff5a5a00;
+    }
+
+    .touch_controls__actions {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .attack_touch {
+        display: flex;
+        flex-direction: column;
+        justify-content: end;
+        gap: 1.5rem;
+    }
+
+    .up_down_touch {
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+        align-items: end;
+        gap: 0.5rem;
     }
 }

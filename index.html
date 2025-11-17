@@ -96,19 +96,28 @@
                     </button>
                 </div>
                 <div id="touch-controls" class="touch_controls">
+
+                    <div class="touch_controls__group touch_controls__actions">
+
+                        <div class="attack_touch">
+                            <button class="touch_button primary touch_button--icon touch_button--holy"
+                                data-control="throwholy" aria-label="Throw Holy">Holy</button>
+                            <button class="touch_button primary touch_button--icon touch_button--dark"
+                                data-control="throwdark" aria-label="Throw Dark">Dark</button>
+                            <button class="touch_button primary touch_button--icon touch_button--attack"
+                                data-control="attack" aria-label="Attack">Attack</button>
+                        </div>
+                        <div class=up_down_touch>
+                            <button class="touch_button primary" data-control="jump" aria-label="Jump">&#8593;</button>
+                            <button class="touch_button" data-control="down" aria-label="Crouch">&#8595;</button>
+                        </div>
+
+                    </div>
+
+
                     <div class="touch_controls__group touch_controls__movement">
                         <button class="touch_button" data-control="left" aria-label="Move Left">&#8592;</button>
-                        <button class="touch_button" data-control="down" aria-label="Crouch">&#8595;</button>
                         <button class="touch_button" data-control="right" aria-label="Move Right">&#8594;</button>
-                    </div>
-                    <div class="touch_controls__group touch_controls__actions">
-                        <button class="touch_button primary" data-control="jump" aria-label="Jump">&#8593;</button>
-                        <button class="touch_button primary touch_button--icon touch_button--attack"
-                            data-control="attack" aria-label="Attack">Attack</button>
-                        <button class="touch_button primary touch_button--icon touch_button--holy"
-                            data-control="throwholy" aria-label="Throw Holy">Holy</button>
-                        <button class="touch_button primary touch_button--icon touch_button--dark"
-                            data-control="throwdark" aria-label="Throw Dark">Dark</button>
                     </div>
                 </div>
 
@@ -263,7 +272,7 @@
                 <button id="gameover-restart-button">Try Again</button>
             </div>
 
-            
+
     </main>
     <footer></footer>
 
