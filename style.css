@@ -790,6 +790,62 @@ button:disabled {
     }
 }
 
+
+
+.touch_controls {
+
+    /* background-color: #000; */
+    left: 50%;
+    bottom: 1.5rem;
+    transform: translateX(-50%);
+    width: 95%;
+    /* width: min(100%, 420px); */
+    height: 100%;
+    /* padding: 0 6px; */
+    gap: 16px;
+    display: flex;
+    flex-direction: row;
+    align-items: end;
+    justify-content: space-between;
+}
+
+.touch_controls__group {
+    gap: 8px;
+}
+
+.touch_button {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+    aspect-ratio: 1;
+    background-color: #ff5a5a00;
+}
+
+.touch_controls__actions {
+    display: flex;
+    gap: 3rem;
+}
+
+.touch_controls__movement {
+    display: flex;
+    gap: 2rem;
+}
+
+.attack_touch {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    gap: 2rem;
+}
+
+.up_down_touch {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    align-items: end;
+    gap: 2rem;
+}
+
 /* ========================================
    8. Responsive tweaks
 ======================================== */
