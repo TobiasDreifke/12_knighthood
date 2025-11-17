@@ -169,7 +169,11 @@ button:disabled {
 }
 
 .sound_container .icon_button {
-    flex: 0 0 56px;
+    /* flex: 0 0 56px; */
+}
+
+.toggle_button_wrapper .icon_button {
+    flex-shrink: 0;
 }
 
 .fullscreen_toggle.icon_button {
