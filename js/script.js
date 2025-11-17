@@ -1,4 +1,4 @@
-let canvas;
+﻿let canvas;
 let world;
 let keyboard = new KeyboardMapping()
 let pressedKey = [];
@@ -620,31 +620,9 @@ function showStartScreen(startScreen = document.getElementById("start-screen")) 
 }
 
 /**
- * Requests fullscreen on large displays to optimize the canvas experience.
+ * Placeholder kept so legacy calls remain safe; auto-fullscreen has been removed.
  */
-function maybeEnterPreferredFullscreen() {
-    if (!fullscreenWrapper) return;
-    if (!shouldAutoFullscreen()) return;
-    if (document.fullscreenElement) return;
-    try {
-        fullscreenWrapper.requestFullscreen?.();
-    } catch {
-        // Ignore fullscreen request errors (user gesture requirement, etc.)
-    }
-}
-
-/**
- * @returns {boolean} True when the viewport is large enough to prefer fullscreen.
- */
-function shouldAutoFullscreen() {
-    return typeof window !== "undefined"
-        && window.innerWidth >= 1024
-        && window.innerHeight >= 700;
-}
-
-/**
- * Clears all keyboard action states so stale inputs do not persist across restarts.
- */
+function maybeEnterPreferredFullscreen() { }
 function resetKeyboardState() {
     Object.keys(keyboard).forEach(key => {
         keyboard[key] = false;
@@ -680,4 +658,6 @@ window.addEventListener("keyup", (event) => {
     if (!actions.length) return;
     setKeyboardActionsState(actions, false);
 });
+
+
 
