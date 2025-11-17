@@ -471,7 +471,6 @@ function updateWorldOrientationState(portrait) {
         }
         return;
     }
-    maybeEnterPreferredFullscreen();
     if (orientationPauseActive && world.isPaused) {
         world.resumeGame();
     }
@@ -638,11 +637,9 @@ function maybeEnterPreferredFullscreen() {
  * @returns {boolean} True when the viewport is large enough to prefer fullscreen.
  */
 function shouldAutoFullscreen() {
-    if (typeof window === "undefined") return false;
-    if (window.innerWidth >= 1024 && window.innerHeight >= 700) return true;
-    const isLandscape = window.innerWidth > window.innerHeight;
-    const meetsMobileThreshold = window.innerWidth >= 640;
-    return isLandscape && meetsMobileThreshold;
+    return typeof window !== "undefined"
+        && window.innerWidth >= 1024
+        && window.innerHeight >= 700;
 }
 
 /**
