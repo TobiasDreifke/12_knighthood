@@ -81,6 +81,7 @@ function updateMuteButtons(muteButtons) {
         const isMuted = AudioHub.isMuted;
         button.setAttribute("aria-pressed", String(isMuted));
         button.textContent = isMuted ? "Unmute" : "Mute";
+        button.classList.toggle("is-muted", isMuted);
     });
 }
 
@@ -96,11 +97,12 @@ function bindVolumeSliders(sliders, sync, updateMute) {
         slider.addEventListener("input", (event) => {
             const value = event.target.value;
             sync(value);
-            AudioHub.setVolume(Number(value));
-            if (Number(value) === 0) {
-                AudioHub.muteAll();
+            const numericValue = Number(value);
+            AudioHub.setVolume(numericValue);
+            if (numericValue === 0) {
+                AudioHub.muteAudio();
             } else if (AudioHub.isMuted) {
-                AudioHub.unmuteAll();
+                AudioHub.unmuteAudio();
             }
             updateMute();
         });
@@ -118,10 +120,10 @@ function bindMuteButtons(buttons, sync, updateMute) {
     buttons.forEach(button => {
         button.addEventListener("click", () => {
             if (AudioHub.isMuted) {
-                AudioHub.unmuteAll();
+                AudioHub.unmuteAudio();
                 sync(String(AudioHub.masterVolume));
             } else {
-                AudioHub.muteAll();
+                AudioHub.muteAudio();
                 sync("0");
             }
             updateMute();
@@ -152,9 +154,10 @@ function setupFullscreenToggle() {
  * @returns {{buttons:HTMLButtonElement[],wrapper:HTMLElement}|null}
  */
 function collectFullscreenContext() {
-    const wrapper = document.getElementById("game-container");
+    const wrapper = document.querySelector(".game_screen_wrapper");
     if (!wrapper) return null;
-    const buttons = Array.from(document.querySelectorAll("[data-action=\"fullscreen-toggle\"]"));
+    const buttons = Array.from(document.querySelectorAll(".fullscreen_toggle"));
+    if (!buttons.length) return null;
     return { buttons, wrapper };
 }
 

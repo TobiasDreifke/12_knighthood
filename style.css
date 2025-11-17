@@ -438,9 +438,9 @@ button:disabled {
     transition: opacity 0.3s ease;
 }
 
-#pause-screen.overlay_visible {
-    display: flex;
-    opacity: 1;
+#pause-screen.visible {
+	display: flex;
+	opacity: 1;
 }
 
 .pause_content {
