@@ -91,6 +91,19 @@ canvas {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
 }
 
+.canvas_stage {
+    position: relative;
+    display: inline-block;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: not-allowed;
+}
+
 .toggle_button {
     background-color: rgb(255, 90, 90, 0.8);
     color: rgb(62, 6, 6);
@@ -113,6 +126,43 @@ canvas {
 
 .gif_wrapper {
     width: 100%;
+}
+
+/* ========================================
+   Canvas HUD controls
+======================================== */
+.canvas_ui {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.canvas_ui .ui_button {
+    pointer-events: auto;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(5, 8, 14, 0.9);
+    color: #fff;
+    border-radius: 999px;
+    padding: 0.45rem 1rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.canvas_ui .ui_button:hover {
+    background: rgba(255, 90, 90, 0.9);
+    color: #1a0a0a;
+    transform: translateY(-1px);
+}
+
+.canvas_ui .ui_button:focus-visible {
+    outline: 2px solid #ff5a5a;
+    outline-offset: 2px;
 }
 
 /* ========================================
@@ -328,7 +378,7 @@ canvas {
 }
 
 .modal_dialog {
-    width: min(600px, 100%);
+    width: min(600px, calc(100% - 32px));
     max-height: calc(100dvh - 80px);
     display: flex;
     flex-direction: column;
@@ -380,6 +430,10 @@ canvas {
     /* for Firefox */
     scrollbar-color: #ff5a5a #1b1b1b;
     /* thumb and track */
+    flex: 1 1 auto;
+    min-height: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 
@@ -611,6 +665,35 @@ canvas {
     font-size: clamp(2rem, 5vw, 2.8rem);
     font-weight: 800;
     color:#ff5a5a;
+}
+
+@media (min-width: 1024px) {
+    .game_screen_wrapper {
+        width: min(1100px, 95vw);
+    }
+
+    .canvas_ui {
+        top: 2rem;
+        right: 2rem;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .modal_overlay {
+        align-items: flex-start;
+        padding: 12px;
+    }
+
+    .modal_dialog {
+        width: 100%;
+        max-height: calc(100dvh - 32px);
+        border-radius: 12px;
+    }
+
+    .modal_body {
+        padding: 18px;
+    }
 }
 
 @media (max-width: 520px) {

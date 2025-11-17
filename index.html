@@ -32,6 +32,7 @@
     <script src="./models/enemies/mushroom-frames.js"></script>
     <script src="./models/enemies/mushroom.class.js"></script>
     <script src="./models/enemies/bat-frames.js"></script>
+    <script src="./models/enemies/bat-behavior.js"></script>
     <script src="./models/enemies/bat.class.js"></script>
     <script src="./models/enemies/skeleton-boss-frames.js"></script>
     <script src="./models/enemies/skeleton-boss.class.js"></script>
@@ -78,7 +79,18 @@
         <div class="game_screen_wrapper">
             <!-- <h1>KNIGHTHOOD</h1> -->
             <!-- Canvas for the game -->
-            <canvas id="canvas" width="720" height="480"></canvas>
+            <div class="canvas_stage">
+                <canvas id="canvas" width="720" height="480"></canvas>
+                <div class="canvas_ui" role="region" aria-label="Game controls">
+                    <button id="ingame-mute-button" class="ui_button sound_mute" type="button" aria-pressed="false">
+                        Mute
+                    </button>
+                    <button id="ingame-fullscreen-button" class="ui_button fullscreen_toggle" type="button"
+                        aria-pressed="false">
+                        Fullscreen
+                    </button>
+                </div>
+            </div>
 
             <!-- Pause screen overlay -->
             <div id="pause-screen" class="overlay">
@@ -248,20 +260,20 @@
     </main>
     <footer></footer>
 
-    <!-- MODAL LEGAL NOTICE -->
+        <!-- MODAL LEGAL NOTICE -->
     <div id="legal-modal" class="modal_overlay">
-        <div class="modal_dialog">
+        <div class="modal_dialog" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title">
             <header class="modal_header">
-                <h2>Legal Notice</h2>
-                <button id="legal-close-button" class="modal_close" aria-label="Close Legal Notice">âœ•</button>
+                <h2 id="legal-modal-title">Legal Notice</h2>
+                <button id="legal-close-button" class="modal_close" aria-label="Close Legal Notice">&times;</button>
             </header>
 
             <div class="modal_body">
 
-                <h3>Angaben gemÃ¤ÃŸ Â§ 5 TMG</h3>
+                <h3>Angaben gemäß § 5 TMG</h3>
                 <p>
                     <strong>Tobias Dreifke</strong><br>
-                    MusterstraÃŸe 12<br>
+                    Musterstraße 12<br>
                     12345 Berlin<br>
                     Deutschland
                 </p>
@@ -273,66 +285,51 @@
                 </p>
 
                 <p>
-                    <strong>Verantwortlich fÃ¼r den Inhalt nach Â§ 55 Abs. 2 RStV</strong><br>
+                    <strong>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</strong><br>
                     Tobias Dreifke<br>
                 </p>
 
                 <h3>Haftungsausschluss</h3>
                 <p>
-                    Trotz sorgfÃ¤ltiger inhaltlicher Kontrolle Ã¼bernehme ich keine Haftung fÃ¼r die Inhalte externer
-                    Links.
-                    FÃ¼r den Inhalt der verlinkten Seiten sind ausschlieÃŸlich deren Betreiber verantwortlich.
+                    Trotz sorgfältiger inhaltlicher Kontrolle übernehme ich keine Haftung für die Inhalte externer Links.
+                    Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.
                 </p>
 
                 <h3>Urheberrecht</h3>
                 <p>
-                    Alle Inhalte dieser Website, insbesondere Grafiken, Texte, Soundeffekte und Musik, unterliegen dem
-                    Urheberrecht.
-                    Die Verwendung, VervielfÃ¤ltigung oder Verbreitung ohne ausdrÃ¼ckliche Genehmigung ist nicht
-                    gestattet.
+                    Alle Inhalte dieser Website, insbesondere Grafiken, Texte, Soundeffekte und Musik, unterliegen dem Urheberrecht.
+                    Die Verwendung, Vervielfältigung oder Verbreitung ohne ausdrückliche Genehmigung ist nicht gestattet.
                 </p>
 
                 <hr style="margin: 1.5em 0; border: none; border-top: 1px solid #555;">
 
-                <h2>Credits / Assets & Lizenzen</h2>
+                <h2>Credits / Assets &amp; Lizenzen</h2>
 
-                <h3>Sprites & Grafiken</h3>
+                <h3>Sprites &amp; Grafiken</h3>
                 <ul>
-                    <li>Icons: <a href="https://shikashipx.itch.io/shikashis-fantasy-icons-pack"
-                            target="_blank">Shikashiâ€™s Fantasy Icons Pack</a> â€“ by Shikashi</li>
-                    <li>Clouds & Backgrounds: <a href="https://talhagulbahar.itch.io/clouds-and-backgrounds"
-                            target="_blank">Clouds and Backgrounds Pack</a> â€“ by Talha Gulbahar</li>
-                    <li>Holy Spell Effects: <a href="https://pimen.itch.io/holy-spell-effect" target="_blank">Holy Spell
-                            Effect Pack</a> â€“ by Pimen</li>
-                    <li>Dark Spell Effects: <a href="https://pimen.itch.io/dark-spell-effect" target="_blank">Dark Spell
-                            Effect Pack</a> â€“ by Pimen</li>
-                    <li>Background Environment: <a href="https://aethrall.itch.io/demon-woods-parallax-background"
-                            target="_blank">Demon Woods Parallax Background</a> â€“ by Aethrall</li>
-                    <li>Main Hero Sprite: <a href="https://rvros.itch.io/animated-pixel-hero" target="_blank">Animated
-                            Pixel Hero</a> â€“ by RVROS</li>
-                    <li>Enemies / Monsters: <a href="https://luizmelo.itch.io/monsters-creatures-fantasy"
-                            target="_blank">Monsters Creatures Fantasy Pack</a> - by Luiz Melo</li>
+                    <li>Icons: <a href="https://shikashipx.itch.io/shikashis-fantasy-icons-pack" target="_blank" rel="noopener noreferrer">Shikashi’s Fantasy Icons Pack</a> – by Shikashi</li>
+                    <li>Clouds &amp; Backgrounds: <a href="https://talhagulbahar.itch.io/clouds-and-backgrounds" target="_blank" rel="noopener noreferrer">Clouds and Backgrounds Pack</a> – by Talha Gulbahar</li>
+                    <li>Holy Spell Effects: <a href="https://pimen.itch.io/holy-spell-effect" target="_blank" rel="noopener noreferrer">Holy Spell Effect Pack</a> – by Pimen</li>
+                    <li>Dark Spell Effects: <a href="https://pimen.itch.io/dark-spell-effect" target="_blank" rel="noopener noreferrer">Dark Spell Effect Pack</a> – by Pimen</li>
+                    <li>Background Environment: <a href="https://aethrall.itch.io/demon-woods-parallax-background" target="_blank" rel="noopener noreferrer">Demon Woods Parallax Background</a> – by Aethrall</li>
+                    <li>Main Hero Sprite: <a href="https://rvros.itch.io/animated-pixel-hero" target="_blank" rel="noopener noreferrer">Animated Pixel Hero</a> – by RVROS</li>
+                    <li>Enemies / Monsters: <a href="https://luizmelo.itch.io/monsters-creatures-fantasy" target="_blank" rel="noopener noreferrer">Monsters Creatures Fantasy Pack</a> – by Luiz Melo</li>
                 </ul>
 
                 <h3>Soundeffekte</h3>
                 <ul>
-                    <li>Verschiedene Soundeffekte von <a href="https://pixabay.com/sound-effects/"
-                            target="_blank">Pixabay Sound Effects</a> (freie Nutzung, Urheber teilweise unbekannt)</li>
-                    <li>Einige Sounds wurden mit <a href="https://mp3cut.net/de/" target="_blank">mp3cut.net</a>
-                        bearbeitet oder gekÃ¼rzt</li>
+                    <li>Verschiedene Soundeffekte von <a href="https://pixabay.com/sound-effects/" target="_blank" rel="noopener noreferrer">Pixabay Sound Effects</a> (freie Nutzung, Urheber teilweise unbekannt)</li>
+                    <li>Einige Sounds wurden mit <a href="https://mp3cut.net/de/" target="_blank" rel="noopener noreferrer">mp3cut.net</a> bearbeitet oder gekürzt</li>
                 </ul>
 
                 <h3>Musik / Soundtrack</h3>
                 <ul>
-                    <li>Soundtrack erstellt mit <strong>Suno AI</strong> und anschlieÃŸend von mir nachbearbeitet
-                        (gemÃ¤ÃŸ
-                        Nutzungsbedingungen fÃ¼r nichtkommerzielle Projekte)</li>
+                    <li>Soundtrack erstellt mit <strong>Suno AI</strong> und anschließend von mir nachbearbeitet (gemäß Nutzungsbedingungen für nichtkommerzielle Projekte)</li>
                 </ul>
 
             </div>
         </div>
     </div>
-
 </body>
 
 </html>

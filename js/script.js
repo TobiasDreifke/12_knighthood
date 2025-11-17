@@ -1,18 +1,31 @@
-﻿let canvas;
+let canvas;
 let world;
 let keyboard = new KeyboardMapping()
 let pressedKey = [];
 let orientationPauseActive = false;
 let touchControlsManager = null;
+let fullscreenWrapper = null;
 
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof AudioHub !== "undefined") {
+        AudioHub.resetSoundControls();
+    }
+});
+
+/**
+ * Bootstraps the game initialization logic once the level scripts are ready.
+ */
 function init() {
+    canvas = document.getElementById("canvas");
+    /**
+     * Creates the world once all level scripts have been loaded.
+     */
     const startGame = () => {
-        canvas = document.getElementById("canvas");
+        if (!canvas) return;
         const initialLevelIndex = 0;
         AudioHub.ensureInteractionUnlock();
         world = new World(canvas, keyboard, initialLevelIndex);
 
-        console.log("my char is", world.heroCharacter);
         setupStartButton();
         setupSoundControls();
         setupPauseMenu();
@@ -20,16 +33,7 @@ function init() {
         touchControlsManager = setupTouchControls();
         setupOrientationGuard();
         setupImpressumModal();
-
-        const restartButton = document.getElementById("restart-button");
-        restartButton.addEventListener("click", () => {
-            location.reload();
-        });
-
-        const gameoverRestartButton = document.getElementById("gameover-restart-button");
-        if (gameoverRestartButton) {
-            gameoverRestartButton.addEventListener("click", () => location.reload());
-        }
+        setupRestartButtons();
     };
 
     const readiness = window.LEVEL_FACTORY_READY;
@@ -42,6 +46,9 @@ function init() {
     }
 }
 
+/**
+ * Wires the start screen button to unlock audio, hide the overlay, and launch the world.
+ */
 function setupStartButton() {
     const startScreen = document.getElementById("start-screen");
     const startButton = document.getElementById("start-button");
@@ -49,18 +56,29 @@ function setupStartButton() {
     startButton.addEventListener("click", () => {
         AudioHub.unlock();
         AudioHub.playGameplayMusic();
-        startScreen.style.opacity = 0;
-
-        setTimeout(() => {
-            startScreen.style.display = "none";
-            world?.heroCharacter?.startIntroDrop();
-            world.start();
-        }, 10);
+        hideStartScreen(startScreen);
+        maybeEnterPreferredFullscreen();
+        setTimeout(() => startWorldSession({ autoFullscreen: false }), 10);
     });
 
     requestAnimationFrame(() => AudioHub.playStartScreenMusic());
 }
 
+/**
+ * Hooks all restart buttons so they reset the game without a page reload.
+ */
+function setupRestartButtons() {
+    const restartIds = ["restart-button", "gameover-restart-button"];
+    restartIds.forEach(id => {
+        const button = document.getElementById(id);
+        if (!button) return;
+        button.addEventListener("click", () => restartGame());
+    });
+}
+
+/**
+ * Sets up event handlers for all mute/volume controls in the UI.
+ */
 function setupSoundControls() {
     const controls = collectSoundControls();
     if (!controls) return;
@@ -73,6 +91,11 @@ function setupSoundControls() {
     updateMute();
 }
 
+/**
+ * Collects available mute buttons and volume sliders in the DOM.
+ *
+ * @returns {{volumeSliders:HTMLInputElement[],muteButtons:HTMLButtonElement[]}|null}
+ */
 function collectSoundControls() {
     const volumeSliders = Array.from(document.querySelectorAll(".sound_volume"));
     const muteButtons = Array.from(document.querySelectorAll(".sound_mute"));
@@ -80,6 +103,12 @@ function collectSoundControls() {
     return { volumeSliders, muteButtons };
 }
 
+/**
+ * Returns a helper that syncs all sliders to a single value.
+ *
+ * @param {HTMLInputElement[]} volumeSliders
+ * @returns {(value:string) => void}
+ */
 function createSliderSync(volumeSliders) {
     return value => {
         volumeSliders.forEach(slider => {
@@ -90,6 +119,11 @@ function createSliderSync(volumeSliders) {
     };
 }
 
+/**
+ * Updates all mute buttons so they reflect the current AudioHub state.
+ *
+ * @param {HTMLButtonElement[]} muteButtons
+ */
 function updateMuteButtons(muteButtons) {
     muteButtons.forEach(button => {
         const isMuted = AudioHub.isMuted;
@@ -99,6 +133,13 @@ function updateMuteButtons(muteButtons) {
     });
 }
 
+/**
+ * Attaches input listeners to sync slider movement with the AudioHub volume.
+ *
+ * @param {HTMLInputElement[]} sliders
+ * @param {(value:string) => void} sync
+ * @param {() => void} updateMute
+ */
 function bindVolumeSliders(sliders, sync, updateMute) {
     sliders.forEach(slider => {
         if (!(slider instanceof HTMLInputElement)) return;
@@ -114,6 +155,13 @@ function bindVolumeSliders(sliders, sync, updateMute) {
     });
 }
 
+/**
+ * Hooks mute buttons so they toggle AudioHub and keep UI in sync.
+ *
+ * @param {HTMLButtonElement[]} buttons
+ * @param {(value:string) => void} sync
+ * @param {() => void} updateMute
+ */
 function bindMuteButtons(buttons, sync, updateMute) {
     buttons.forEach(button => {
         button.addEventListener("click", () => {
@@ -125,9 +173,13 @@ function bindMuteButtons(buttons, sync, updateMute) {
     });
 }
 
+/**
+ * Enables fullscreen buttons if the browser supports the API.
+ */
 function setupFullscreenToggle() {
     const context = collectFullscreenContext();
     if (!context) return;
+    fullscreenWrapper = context.wrapper;
     if (!ensureFullscreenSupport(context)) return;
     const isActive = () => document.fullscreenElement === context.wrapper;
     const updateButtons = () => updateFullscreenButtons(context.buttons, isActive());
@@ -136,6 +188,11 @@ function setupFullscreenToggle() {
     updateButtons();
 }
 
+/**
+ * Collects fullscreen buttons and wrapper for toggling the canvas container.
+ *
+ * @returns {{buttons:HTMLButtonElement[],wrapper:HTMLElement}|null}
+ */
 function collectFullscreenContext() {
     const buttons = Array.from(document.querySelectorAll(".fullscreen_toggle"));
     const wrapper = document.querySelector(".game_screen_wrapper");
@@ -143,6 +200,12 @@ function collectFullscreenContext() {
     return { buttons, wrapper };
 }
 
+/**
+ * Disables fullscreen controls when the browser does not support the API.
+ *
+ * @param {{buttons:HTMLButtonElement[],wrapper:HTMLElement}} param0
+ * @returns {boolean}
+ */
 function ensureFullscreenSupport({ buttons, wrapper }) {
     const supportsBrowserFullscreen = typeof wrapper.requestFullscreen === "function" && typeof document.exitFullscreen === "function";
     if (document.fullscreenEnabled || supportsBrowserFullscreen) return true;
@@ -153,6 +216,12 @@ function ensureFullscreenSupport({ buttons, wrapper }) {
     return false;
 }
 
+/**
+ * Updates the aria-pressed/text state of fullscreen buttons.
+ *
+ * @param {HTMLButtonElement[]} buttons
+ * @param {boolean} active
+ */
 function updateFullscreenButtons(buttons, active) {
     buttons.forEach(button => {
         button.textContent = active ? "Exit Fullscreen" : "Fullscreen";
@@ -160,6 +229,13 @@ function updateFullscreenButtons(buttons, active) {
     });
 }
 
+/**
+ * Hooks all fullscreen buttons to request/exit fullscreen mode.
+ *
+ * @param {HTMLButtonElement[]} buttons
+ * @param {HTMLElement} wrapper
+ * @param {() => boolean} isActive
+ */
 function bindFullscreenButtons(buttons, wrapper, isActive) {
     buttons.forEach(button => {
         button.addEventListener("click", async () => {
@@ -176,6 +252,13 @@ function bindFullscreenButtons(buttons, wrapper, isActive) {
     });
 }
 
+/**
+ * Syncs wrapper styles and button states when fullscreen mode changes.
+ *
+ * @param {HTMLElement} wrapper
+ * @param {() => void} updateButtons
+ * @param {() => boolean} isActive
+ */
 function bindFullscreenChange(wrapper, updateButtons, isActive) {
     document.addEventListener("fullscreenchange", () => {
         wrapper.classList.toggle("is-fullscreen", isActive());
@@ -183,6 +266,11 @@ function bindFullscreenChange(wrapper, updateButtons, isActive) {
     });
 }
 
+/**
+ * Enables the on-screen touch controls for smaller viewports.
+ *
+ * @returns {{setVisible:(state:boolean) => void, releaseAll:() => void}|null}
+ */
 function setupTouchControls() {
     const container = document.getElementById("touch-controls");
     if (!container) return null;
@@ -262,6 +350,9 @@ function setupTouchControls() {
     };
 }
 
+/**
+ * Initializes the legal notice modal interactions.
+ */
 function setupImpressumModal() {
     const openButton = document.getElementById("start-legal-button");
     const modal = document.getElementById("legal-modal");
@@ -300,6 +391,9 @@ function setupImpressumModal() {
     hideModal(false);
 }
 
+/**
+ * Watches orientation changes so gameplay pauses on portrait phones.
+ */
 function setupOrientationGuard() {
     const context = collectOrientationElements();
     if (!context) return;
@@ -309,6 +403,11 @@ function setupOrientationGuard() {
     window.addEventListener("orientationchange", applyState);
 }
 
+/**
+ * Collects DOM nodes used for the orientation overlay.
+ *
+ * @returns {{overlay:HTMLElement,startButton:HTMLButtonElement}|null}
+ */
 function collectOrientationElements() {
     const overlay = document.getElementById("orientation-overlay");
     if (!overlay) return null;
@@ -316,6 +415,11 @@ function collectOrientationElements() {
     return { overlay, startButton };
 }
 
+/**
+ * Applies orientation visibility, touch controls, and pause state.
+ *
+ * @param {{overlay:HTMLElement,startButton:HTMLButtonElement}} param0
+ */
 function handleOrientationChange({ overlay, startButton }) {
     const portrait = isPortraitPhone();
     updateOverlayAndStartButton(overlay, startButton, portrait);
@@ -323,15 +427,30 @@ function handleOrientationChange({ overlay, startButton }) {
     updateWorldOrientationState(portrait);
 }
 
+/**
+ * @returns {boolean} True when the viewport is a portrait mobile layout.
+ */
 function isPortraitPhone() {
     return window.innerHeight > window.innerWidth && window.innerWidth < 900;
 }
 
+/**
+ * Shows/hides the orientation overlay and disables the start button on portrait.
+ *
+ * @param {HTMLElement} overlay
+ * @param {HTMLButtonElement} startButton
+ * @param {boolean} portrait
+ */
 function updateOverlayAndStartButton(overlay, startButton, portrait) {
     overlay.classList.toggle("visible", portrait);
     if (startButton) startButton.disabled = portrait;
 }
 
+/**
+ * Shows or hides the touch controls based on viewport orientation/size.
+ *
+ * @param {boolean} portrait
+ */
 function updateTouchControlsState(portrait) {
     if (!touchControlsManager) return;
     const shouldShowTouchControls = !portrait && window.innerWidth < 900;
@@ -339,6 +458,11 @@ function updateTouchControlsState(portrait) {
     if (portrait) touchControlsManager.releaseAll();
 }
 
+/**
+ * Pauses or resumes the world when the device orientation changes.
+ *
+ * @param {boolean} portrait
+ */
 function updateWorldOrientationState(portrait) {
     if (!world || !world.hasStarted) return;
     if (portrait) {
@@ -347,12 +471,16 @@ function updateWorldOrientationState(portrait) {
         }
         return;
     }
+    maybeEnterPreferredFullscreen();
     if (orientationPauseActive && world.isPaused) {
         world.resumeGame();
     }
     orientationPauseActive = false;
 }
 
+/**
+ * Wires pause menu controls so they resume or restart the game.
+ */
 function setupPauseMenu() {
     const pauseScreen = document.getElementById("pause-screen");
     if (!pauseScreen) return;
@@ -369,10 +497,13 @@ function setupPauseMenu() {
     });
 
     retryButton?.addEventListener("click", () => {
-        location.reload();
+        restartGame({ autoStart: false, showStartScreen: true });
     });
 }
 
+/**
+ * Pauses or resumes the world depending on its current state.
+ */
 function togglePause() {
     if (!world) return;
     if (world.isPaused) {
@@ -384,24 +515,142 @@ function togglePause() {
     }
 }
 
+/**
+ * Reveals the pause overlay.
+ */
 function showPauseOverlay() {
     const pauseScreen = document.getElementById("pause-screen");
     if (!pauseScreen) return;
     pauseScreen.classList.add("overlay_visible");
 }
 
+/**
+ * Hides the pause overlay.
+ */
 function hidePauseOverlay() {
     const pauseScreen = document.getElementById("pause-screen");
     if (!pauseScreen) return;
     pauseScreen.classList.remove("overlay_visible");
 }
 
+/**
+ * Applies a boolean state to each keyboard action (except PAUSE).
+ *
+ * @param {string[]} actions
+ * @param {boolean} state
+ */
 function setKeyboardActionsState(actions, state) {
     actions.forEach(action => {
         if (action === "PAUSE") return;
         if (Object.prototype.hasOwnProperty.call(keyboard, action)) {
             keyboard[action] = state;
         }
+    });
+}
+
+/**
+ * Resets the current world, stats, and inputs without reloading the page.
+ */
+function restartGame(options = {}) {
+    const {
+        autoStart = true,
+        showStartScreen: shouldShowStartScreen = false,
+    } = options;
+    if (!canvas) return;
+    hidePauseOverlay();
+    const currentWorld = world;
+    orientationPauseActive = false;
+    touchControlsManager?.releaseAll();
+    resetKeyboardState();
+    AudioHub.stopAll();
+    if (currentWorld && typeof currentWorld.destroy === "function") {
+        currentWorld.destroy();
+    }
+    world = new World(canvas, keyboard, 0);
+    if (shouldShowStartScreen) {
+        showStartScreen();
+        return;
+    }
+    if (autoStart) {
+        hideStartScreen();
+        startWorldSession();
+    }
+}
+
+/**
+ * Starts the current world instance, triggering the intro drop and music.
+ *
+ * @param {{autoFullscreen?:boolean}} [options]
+ */
+function startWorldSession(options = {}) {
+    if (!world) return;
+    if (options.autoFullscreen !== false) {
+        maybeEnterPreferredFullscreen();
+    }
+    world?.heroCharacter?.startIntroDrop();
+    world.start();
+}
+
+/**
+ * Fades out and hides the start screen overlay.
+ *
+ * @param {HTMLElement} [startScreen=document.getElementById("start-screen")]
+ */
+function hideStartScreen(startScreen = document.getElementById("start-screen")) {
+    if (!startScreen) return;
+    startScreen.style.opacity = 0;
+    setTimeout(() => {
+        startScreen.style.display = "none";
+    }, 10);
+}
+
+/**
+ * Reveals the start screen overlay and resumes the intro music loop.
+ *
+ * @param {HTMLElement} [startScreen=document.getElementById("start-screen")]
+ */
+function showStartScreen(startScreen = document.getElementById("start-screen")) {
+    if (!startScreen) return;
+    startScreen.style.display = "flex";
+    requestAnimationFrame(() => {
+        startScreen.style.opacity = 1;
+    });
+    if (typeof AudioHub !== "undefined" && typeof AudioHub.playStartScreenMusic === "function") {
+        AudioHub.playStartScreenMusic();
+    }
+}
+
+/**
+ * Requests fullscreen on large displays to optimize the canvas experience.
+ */
+function maybeEnterPreferredFullscreen() {
+    if (!fullscreenWrapper) return;
+    if (!shouldAutoFullscreen()) return;
+    if (document.fullscreenElement) return;
+    try {
+        fullscreenWrapper.requestFullscreen?.();
+    } catch {
+        // Ignore fullscreen request errors (user gesture requirement, etc.)
+    }
+}
+
+/**
+ * @returns {boolean} True when the viewport is large enough to prefer fullscreen.
+ */
+function shouldAutoFullscreen() {
+    if (typeof window === "undefined") return false;
+    if (window.innerWidth >= 1024 && window.innerHeight >= 700) return true;
+    const isLandscape = window.innerWidth > window.innerHeight;
+    const meetsMobileThreshold = window.innerWidth >= 640;
+    return isLandscape && meetsMobileThreshold;
+}
+
+/**
+ * Clears all keyboard action states so stale inputs do not persist across restarts.
+ */
+function resetKeyboardState() {
+    Object.keys(keyboard).forEach(key => {
+        keyboard[key] = false;
     });
 }
 
