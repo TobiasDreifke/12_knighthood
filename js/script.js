@@ -5,6 +5,15 @@ let pressedKey = [];
 let orientationPauseActive = false;
 let touchControlsManager = null;
 let fullscreenWrapper = null;
+const coarsePointerQuery = window.matchMedia
+    ? window.matchMedia("(pointer: coarse)")
+    : {
+        matches: false,
+        addEventListener() {},
+        removeEventListener() {},
+        addListener() {},
+        removeListener() {},
+    };
 
 document.addEventListener("DOMContentLoaded", () => {
     if (typeof AudioHub !== "undefined") {
@@ -410,6 +419,11 @@ function setupOrientationGuard() {
     applyState();
     window.addEventListener("resize", applyState);
     window.addEventListener("orientationchange", applyState);
+    if (typeof coarsePointerQuery.addEventListener === "function") {
+        coarsePointerQuery.addEventListener("change", () => updateTouchControlsState(isPortraitPhone()));
+    } else if (typeof coarsePointerQuery.addListener === "function") {
+        coarsePointerQuery.addListener(() => updateTouchControlsState(isPortraitPhone()));
+    }
 }
 
 /**
@@ -462,7 +476,7 @@ function updateOverlayAndStartButton(overlay, startButton, portrait) {
  */
 function updateTouchControlsState(portrait) {
     if (!touchControlsManager) return;
-    const shouldShowTouchControls = !portrait && window.innerWidth < 900;
+    const shouldShowTouchControls = !portrait && devicePrefersTouchControls();
     touchControlsManager.setVisible(shouldShowTouchControls);
     if (portrait) touchControlsManager.releaseAll();
 }
@@ -484,6 +498,11 @@ function updateWorldOrientationState(portrait) {
         world.resumeGame();
     }
     orientationPauseActive = false;
+}
+
+function devicePrefersTouchControls() {
+    const widthThreshold = 900;
+    return coarsePointerQuery.matches || window.innerWidth <= widthThreshold;
 }
 
 /**

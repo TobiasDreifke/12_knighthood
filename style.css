@@ -806,7 +806,7 @@ button:disabled {
         border-radius: 12px;
     }
 
- 
+
 
     #start-screen,
     #pause-screen,
@@ -837,20 +837,24 @@ button:disabled {
     }
 
     .touch_controls {
-        position: absolute;
-        bottom: 0.50rem;
-        right: 0.75rem;
+        left: 50%;
+        bottom: 0.5rem;
         transform: translateX(-50%);
-        /* width: 100%;
-        width: min(95vw, 430px); */
+        width: min(100%, 420px);
+        padding: 0 6px;
+        gap: 8px;
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
     }
 
+    .touch_controls__group {
+        gap: 8px;
+    }
+
     .touch_button {
-        width: 32px;
+          width: 32px;
         height: 32px;
         font-size: 1rem;
     }
