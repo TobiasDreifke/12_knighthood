@@ -212,6 +212,90 @@ button:disabled {
     padding: 0;
 }
 
+.touch_controls {
+    position: absolute;
+    left: 50%;
+    bottom: 0.75rem;
+    transform: translateX(-50%);
+    width: min(95%, 667px);
+    padding: 0 0.5rem;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.touch_controls.visible {
+    display: flex;
+}
+
+.touch_controls__group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    pointer-events: auto;
+    flex-wrap: wrap;
+}
+
+.touch_button {
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    font-size: 1.2rem;
+    border-radius: 50%;
+    border: 2px solid rgba(201, 14, 39, 0.7);
+    background: rgba(20, 7, 12, 0.85);
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    touch-action: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.touch_button.primary {
+    border-color: rgba(201, 14, 39, 0.7);
+}
+
+.touch_button:active {
+    transform: scale(0.95);
+}
+
+.touch_button:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.touch_button--icon {
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border-radius: 50%;
+    text-indent: -9999px;
+    background-color: rgba(15, 4, 7, 0.85);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 70%;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.touch_button--icon.touch_button--attack {
+    background-image: url("./01_assets/6_salsa_bottle/sword_pick_up.png");
+}
+
+.touch_button--icon.touch_button--holy {
+    background-image: url("./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_1.png");
+}
+
+.touch_button--icon.touch_button--dark {
+    background-image: url("./01_assets/6_salsa_bottle/bottle_rotation/idle_01/dark_vfx_splash_idle_1.png");
+}
+
 /* ========================================
    2. Sound + toggle row
 ======================================== */
@@ -346,103 +430,6 @@ button:disabled {
     padding: 16px 32px;
     font-size: 1.2rem;
     cursor: pointer;
-}
-
-/* ========================================
-   4. Touch controls
-======================================== */
-.touch_controls {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(95vw, 430px);
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    pointer-events: none;
-    z-index: 8;
-}
-
-.touch_controls.visible {
-    display: flex;
-}
-
-.touch_controls__group {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    pointer-events: auto;
-}
-
-.touch_controls__actions {
-    flex-wrap: wrap;
-    row-gap: 12px;
-}
-
-.touch_button {
-    width: 64px;
-    height: 64px;
-    padding: 0;
-    font-size: 1.4rem;
-    border-radius: 50%;
-    border: 2px solid rgba(201, 14, 39, 0.7);
-    background: rgba(20, 7, 12, 0.85);
-    color: #fff;
-    letter-spacing: 0.05em;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(6px);
-    touch-action: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.touch_button.primary {
-    border-color: rgba(201, 14, 39, 0.7);
-}
-
-.touch_button:active {
-    transform: scale(0.95);
-}
-
-.touch_button:focus-visible {
-    outline: 2px solid #fff;
-    outline-offset: 2px;
-}
-
-.touch_button--icon {
-    width: 64px;
-    height: 64px;
-    padding: 0;
-    border-radius: 50%;
-    text-indent: -9999px;
-    background-color: rgba(15, 4, 7, 0.85);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 70%;
-    /* image-rendering: pixelated; */
-    border: 2px solid rgba(255, 255, 255, 0.35);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.touch_button--icon:active {
-    transform: scale(0.95);
-}
-
-.touch_button--icon.touch_button--attack {
-    background-image: url("./01_assets/6_salsa_bottle/sword_pick_up.png");
-}
-
-.touch_button--icon.touch_button--holy {
-    background-image: url("./01_assets/6_salsa_bottle/bottle_rotation/idle_02/holy_idle_1.png");
-}
-
-.touch_button--icon.touch_button--dark {
-    background-image: url("./01_assets/6_salsa_bottle/bottle_rotation/idle_01/dark_vfx_splash_idle_1.png");
 }
 
 /* ========================================
@@ -814,10 +801,12 @@ button:disabled {
     canvas {
         width: 100%;
         height: 100%;
-        max-height: calc(100dvh - 200px);
+        /* max-height: calc(100dvh - 200px); */
         min-height: 200px;
         border-radius: 12px;
     }
+
+ 
 
     #start-screen,
     #pause-screen,
@@ -849,34 +838,20 @@ button:disabled {
 
     .touch_controls {
         position: absolute;
-        bottom: 0.75rem;
-        left: 0.75rem;
-        /* transform: translateX(-50%); */
-        /* width: min(95vw, 430px); */
+        bottom: 0.50rem;
+        right: 0.75rem;
+        transform: translateX(-50%);
+        /* width: 100%;
+        width: min(95vw, 430px); */
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        pointer-events: none;
-        z-index: 8;
     }
 
     .touch_button {
         width: 32px;
         height: 32px;
-        padding: 0;
-        font-size: 1.4rem;
-        border-radius: 50%;
-        border: 2px solid rgba(201, 14, 39, 0.7);
-        background: rgba(20, 7, 12, 0.85);
-        color: #fff;
-        letter-spacing: 0.05em;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
-        backdrop-filter: blur(6px);
-        touch-action: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        font-size: 1rem;
     }
 }
