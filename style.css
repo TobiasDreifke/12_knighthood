@@ -164,6 +164,10 @@ button:disabled {
     background-image: url("./01_assets/10_icons/sound_muted.png");
 }
 
+.icon_button--pause {
+    background-image: url("./01_assets/10_icons/pause_menu.png");
+}
+
 .sound_container .icon_button {
     flex: 0 0 56px;
 }
@@ -334,6 +338,7 @@ button:disabled {
     display: flex;
     gap: 16px;
     justify-content: center;
+    align-items: center;
     flex-wrap: wrap;
 }
 
@@ -348,13 +353,14 @@ button:disabled {
 ======================================== */
 .touch_controls {
     position: absolute;
-    bottom: 16px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - 32px);
+    width: min(95vw, 430px);
     display: none;
-    justify-content: space-between;
-    gap: 24px;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
     pointer-events: none;
     z-index: 8;
 }
@@ -365,30 +371,35 @@ button:disabled {
 
 .touch_controls__group {
     display: flex;
-    gap: 16px;
+    gap: 12px;
+    justify-content: center;
     pointer-events: auto;
 }
 
-.touch_controls__movement .touch_button {
-    min-width: 64px;
+.touch_controls__actions {
+    flex-wrap: wrap;
+    row-gap: 12px;
 }
 
 .touch_button {
-    padding: 14px 18px;
-    font-size: 1rem;
-    border-radius: 12px;
-    border: 1px solid rgba(201, 14, 39, 0.7);
-    background: rgba(63, 16, 22, 0.7);
+    width: 64px;
+    height: 64px;
+    padding: 0;
+    font-size: 1.4rem;
+    border-radius: 50%;
+    border: 2px solid rgba(201, 14, 39, 0.7);
+    background: rgba(20, 7, 12, 0.85);
     color: #fff;
-    text-transform: uppercase;
     letter-spacing: 0.05em;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
     backdrop-filter: blur(6px);
     touch-action: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .touch_button.primary {
-    /* background: rgba(63, 16, 22, 0.7); */
     border-color: rgba(201, 14, 39, 0.7);
 }
 
@@ -432,10 +443,6 @@ button:disabled {
 
 .touch_button--icon.touch_button--dark {
     background-image: url("./01_assets/6_salsa_bottle/bottle_rotation/idle_01/dark_vfx_splash_idle_1.png");
-}
-
-.touch_button--icon.touch_button--pause {
-    background-image: url("./01_assets/10_icons/pause_menu.png");
 }
 
 /* ========================================
@@ -617,6 +624,7 @@ button:disabled {
 #start-screen .start_footer {
     font-size: .9rem;
     color: #d7b7bc;
+    padding-bottom: 1rem;
 }
 
 #start-screen .start_footer a {
@@ -817,5 +825,58 @@ button:disabled {
     #gameover-screen,
     #orientation-overlay {
         border-radius: 12px;
+    }
+
+    .pause_content {
+        height: 100dvh
+    }
+
+    .pause_actions .toggle_button {
+        /* height: 30px; */
+        padding: 8px 8px;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+    .pause_content h2 {
+        font-size: 3rem;
+    }
+
+    .icon_button {
+        height: 32px;
+        width: 32px;
+    }
+
+    .touch_controls {
+        position: absolute;
+        bottom: 0.75rem;
+        left: 0.75rem;
+        /* transform: translateX(-50%); */
+        /* width: min(95vw, 430px); */
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        pointer-events: none;
+        z-index: 8;
+    }
+
+    .touch_button {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        font-size: 1.4rem;
+        border-radius: 50%;
+        border: 2px solid rgba(201, 14, 39, 0.7);
+        background: rgba(20, 7, 12, 0.85);
+        color: #fff;
+        letter-spacing: 0.05em;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(6px);
+        touch-action: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 }

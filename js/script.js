@@ -30,6 +30,7 @@ function init() {
         setupSoundControls();
         setupPauseMenu();
         setupFullscreenToggle();
+        setupCanvasHudButtons();
         touchControlsManager = setupTouchControls();
         setupOrientationGuard();
         setupImpressumModal();
@@ -214,6 +215,14 @@ function ensureFullscreenSupport({ buttons, wrapper }) {
         button.title = "Fullscreen not supported in this browser";
     });
     return false;
+}
+
+/**
+ * Hooks HUD buttons rendered on top of the canvas (pause, etc.).
+ */
+function setupCanvasHudButtons() {
+    const pauseButton = document.getElementById("ingame-pause-button");
+    pauseButton?.addEventListener("click", () => togglePause());
 }
 
 /**

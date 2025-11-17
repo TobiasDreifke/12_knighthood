@@ -82,13 +82,42 @@
             <div class="canvas_stage">
                 <canvas id="canvas" width="720" height="480"></canvas>
                 <div class="canvas_ui" role="region" aria-label="Game controls">
-                    <button id="ingame-mute-button" class="ui_button sound_mute icon_button" type="button" aria-pressed="false">
+                    <button id="ingame-pause-button" class="ui_button icon_button icon_button--pause" type="button"
+                        aria-pressed="false">
+                        Pause
+                    </button>
+                    <button id="ingame-mute-button" class="ui_button sound_mute icon_button" type="button"
+                        aria-pressed="false">
                         Mute
                     </button>
                     <button id="ingame-fullscreen-button" class="ui_button fullscreen_toggle icon_button" type="button"
                         aria-pressed="false">
                         Fullscreen
                     </button>
+                </div>
+                <div id="touch-controls" class="touch_controls">
+                    <div class="touch_controls__group touch_controls__movement">
+                        <button class="touch_button" data-control="left" aria-label="Move Left">&#8592;</button>
+                        <button class="touch_button" data-control="down" aria-label="Crouch">&#8595;</button>
+                        <button class="touch_button" data-control="right" aria-label="Move Right">&#8594;</button>
+                    </div>
+                    <div class="touch_controls__group touch_controls__actions">
+                        <button class="touch_button primary" data-control="jump" aria-label="Jump">&#8593;</button>
+                        <button class="touch_button primary touch_button--icon touch_button--attack"
+                            data-control="attack" aria-label="Attack">Attack</button>
+                        <button class="touch_button primary touch_button--icon touch_button--holy"
+                            data-control="throwholy" aria-label="Throw Holy">Holy</button>
+                        <button class="touch_button primary touch_button--icon touch_button--dark"
+                            data-control="throwdark" aria-label="Throw Dark">Dark</button>
+                    </div>
+                </div>
+
+
+                <div id="orientation-overlay" class="overlay orientation_overlay">
+                    <div class="orientation_content">
+                        <h2>Rotate Your Device</h2>
+                        <p>For the best experience, turn your phone sideways.</p>
+                    </div>
                 </div>
             </div>
 
@@ -108,7 +137,8 @@
                             <input id="pause-volume" class="volume_slider sound_volume" type="range" min="0" max="1"
                                 step="0.01" value="0.2">
                         </div>
-                        <button class="toggle_button fullscreen_toggle icon_button" id="pause-fullscreen-button">Fullscreen</button>
+                        <button class="toggle_button fullscreen_toggle icon_button"
+                            id="pause-fullscreen-button">Fullscreen</button>
                     </div>
                 </div>
             </div>
@@ -134,7 +164,8 @@
                             <input id="start-volume" class="volume_slider sound_volume" type="range" min="0" max="1"
                                 step="0.01" value="0.2">
                         </div>
-                        <button class="toggle_button fullscreen_toggle icon_button" id="start-fullscreen-button">Fullscreen</button>
+                        <button class="toggle_button fullscreen_toggle icon_button"
+                            id="start-fullscreen-button">Fullscreen</button>
                     </div>
                 </div>
                 <footer class="start_footer">
@@ -233,39 +264,12 @@
             </div>
 
             <!-- RESPONSIVE -->
-            <div id="touch-controls" class="touch_controls">
-                <div class="touch_controls__group touch_controls__movement">
-                    <button class="touch_button" data-control="left" aria-label="Move Left">&#8592;</button>
-                    <button class="touch_button" data-control="down" aria-label="Crouch">&#8595;</button>
-                    <button class="touch_button" data-control="right" aria-label="Move Right">&#8594;</button>
 
-                </div>
-                <div class="touch_controls__group touch_controls__movement">
-                    <button class="touch_button primary touch_button--icon touch_button--pause" data-control="pause"
-                        aria-label="Pause">Pause</button>
-                </div>
-                <div class="touch_controls__group touch_controls__actions">
-                    <button class="touch_button  primary" data-control="jump" aria-label="Jump">	&#8593</button>
-                    <button class="touch_button primary touch_button--icon touch_button--attack" data-control="attack"
-                        aria-label="Attack">Attack</button>
-                    <button class="touch_button primary touch_button--icon touch_button--holy" data-control="throwholy"
-                        aria-label="Throw Holy">Holy</button>
-                    <button class="touch_button primary touch_button--icon touch_button--dark" data-control="throwdark"
-                        aria-label="Throw Dark">Dark</button>
-                </div>
-            </div>
-
-            <div id="orientation-overlay" class="overlay orientation_overlay">
-                <div class="orientation_content">
-                    <h2>Rotate Your Device</h2>
-                    <p>For the best experience, turn your phone sideways.</p>
-                </div>
-            </div>
         </div>
     </main>
     <footer></footer>
 
-        <!-- MODAL LEGAL NOTICE -->
+    <!-- MODAL LEGAL NOTICE -->
     <div id="legal-modal" class="modal_overlay">
         <div class="modal_dialog" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title">
             <header class="modal_header">
@@ -296,14 +300,17 @@
 
                 <h3>Haftungsausschluss</h3>
                 <p>
-                    Trotz sorgfältiger inhaltlicher Kontrolle übernehme ich keine Haftung für die Inhalte externer Links.
+                    Trotz sorgfältiger inhaltlicher Kontrolle übernehme ich keine Haftung für die Inhalte externer
+                    Links.
                     Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.
                 </p>
 
                 <h3>Urheberrecht</h3>
                 <p>
-                    Alle Inhalte dieser Website, insbesondere Grafiken, Texte, Soundeffekte und Musik, unterliegen dem Urheberrecht.
-                    Die Verwendung, Vervielfältigung oder Verbreitung ohne ausdrückliche Genehmigung ist nicht gestattet.
+                    Alle Inhalte dieser Website, insbesondere Grafiken, Texte, Soundeffekte und Musik, unterliegen dem
+                    Urheberrecht.
+                    Die Verwendung, Vervielfältigung oder Verbreitung ohne ausdrückliche Genehmigung ist nicht
+                    gestattet.
                 </p>
 
                 <hr style="margin: 1.5em 0; border: none; border-top: 1px solid #555;">
@@ -312,24 +319,38 @@
 
                 <h3>Sprites &amp; Grafiken</h3>
                 <ul>
-                    <li>Icons: <a href="https://shikashipx.itch.io/shikashis-fantasy-icons-pack" target="_blank" rel="noopener noreferrer">Shikashi’s Fantasy Icons Pack</a> – by Shikashi</li>
-                    <li>Clouds &amp; Backgrounds: <a href="https://talhagulbahar.itch.io/clouds-and-backgrounds" target="_blank" rel="noopener noreferrer">Clouds and Backgrounds Pack</a> – by Talha Gulbahar</li>
-                    <li>Holy Spell Effects: <a href="https://pimen.itch.io/holy-spell-effect" target="_blank" rel="noopener noreferrer">Holy Spell Effect Pack</a> – by Pimen</li>
-                    <li>Dark Spell Effects: <a href="https://pimen.itch.io/dark-spell-effect" target="_blank" rel="noopener noreferrer">Dark Spell Effect Pack</a> – by Pimen</li>
-                    <li>Background Environment: <a href="https://aethrall.itch.io/demon-woods-parallax-background" target="_blank" rel="noopener noreferrer">Demon Woods Parallax Background</a> – by Aethrall</li>
-                    <li>Main Hero Sprite: <a href="https://rvros.itch.io/animated-pixel-hero" target="_blank" rel="noopener noreferrer">Animated Pixel Hero</a> – by RVROS</li>
-                    <li>Enemies / Monsters: <a href="https://luizmelo.itch.io/monsters-creatures-fantasy" target="_blank" rel="noopener noreferrer">Monsters Creatures Fantasy Pack</a> – by Luiz Melo</li>
+                    <li>Icons: <a href="https://shikashipx.itch.io/shikashis-fantasy-icons-pack" target="_blank"
+                            rel="noopener noreferrer">Shikashi’s Fantasy Icons Pack</a> – by Shikashi</li>
+                    <li>Clouds &amp; Backgrounds: <a href="https://talhagulbahar.itch.io/clouds-and-backgrounds"
+                            target="_blank" rel="noopener noreferrer">Clouds and Backgrounds Pack</a> – by Talha
+                        Gulbahar</li>
+                    <li>Holy Spell Effects: <a href="https://pimen.itch.io/holy-spell-effect" target="_blank"
+                            rel="noopener noreferrer">Holy Spell Effect Pack</a> – by Pimen</li>
+                    <li>Dark Spell Effects: <a href="https://pimen.itch.io/dark-spell-effect" target="_blank"
+                            rel="noopener noreferrer">Dark Spell Effect Pack</a> – by Pimen</li>
+                    <li>Background Environment: <a href="https://aethrall.itch.io/demon-woods-parallax-background"
+                            target="_blank" rel="noopener noreferrer">Demon Woods Parallax Background</a> – by Aethrall
+                    </li>
+                    <li>Main Hero Sprite: <a href="https://rvros.itch.io/animated-pixel-hero" target="_blank"
+                            rel="noopener noreferrer">Animated Pixel Hero</a> – by RVROS</li>
+                    <li>Enemies / Monsters: <a href="https://luizmelo.itch.io/monsters-creatures-fantasy"
+                            target="_blank" rel="noopener noreferrer">Monsters Creatures Fantasy Pack</a> – by Luiz Melo
+                    </li>
                 </ul>
 
                 <h3>Soundeffekte</h3>
                 <ul>
-                    <li>Verschiedene Soundeffekte von <a href="https://pixabay.com/sound-effects/" target="_blank" rel="noopener noreferrer">Pixabay Sound Effects</a> (freie Nutzung, Urheber teilweise unbekannt)</li>
-                    <li>Einige Sounds wurden mit <a href="https://mp3cut.net/de/" target="_blank" rel="noopener noreferrer">mp3cut.net</a> bearbeitet oder gekürzt</li>
+                    <li>Verschiedene Soundeffekte von <a href="https://pixabay.com/sound-effects/" target="_blank"
+                            rel="noopener noreferrer">Pixabay Sound Effects</a> (freie Nutzung, Urheber teilweise
+                        unbekannt)</li>
+                    <li>Einige Sounds wurden mit <a href="https://mp3cut.net/de/" target="_blank"
+                            rel="noopener noreferrer">mp3cut.net</a> bearbeitet oder gekürzt</li>
                 </ul>
 
                 <h3>Musik / Soundtrack</h3>
                 <ul>
-                    <li>Soundtrack erstellt mit <strong>Suno AI</strong> und anschließend von mir nachbearbeitet (gemäß Nutzungsbedingungen für nichtkommerzielle Projekte)</li>
+                    <li>Soundtrack erstellt mit <strong>Suno AI</strong> und anschließend von mir nachbearbeitet (gemäß
+                        Nutzungsbedingungen für nichtkommerzielle Projekte)</li>
                 </ul>
 
             </div>
