@@ -6,11 +6,6 @@
             createLevel03,
             createLevel04,
             createLevel05,
-            createLevel06,
-            createLevel07,
-            createLevel08,
-            createLevel09,
-            createLevel10,
         ].filter(fn => typeof fn === "function");
 
         window.GAME_LEVEL_BUILDERS = builders;

@@ -5,11 +5,6 @@
         "level_03.js",
         "level_04.js",
         "level_05.js",
-        "level_06.js",
-        "level_07.js",
-        "level_08.js",
-        "level_09.js",
-        "level_10.js",
     ];
 
     const basePath = "./levels/";

@@ -5,7 +5,7 @@ function createLevel05() {
 
     const goblinPositions = [
         { spawn: 1.8, activation: 1, facingLeft: true },
-        { spawn: 2.6, activation: 1.2, facingLeft: false },
+        { spawn: 2.4, activation: 1.1, facingLeft: false },
     ];
 
     goblinPositions.forEach(config => {
@@ -19,15 +19,41 @@ function createLevel05() {
     });
 
     const mushroom = new Mushroom();
-    mushroom.spawnX = tile * 3.1;
+    mushroom.spawnX = tile * 2.9;
     mushroom.x = mushroom.spawnX;
-    mushroom.activationX = tile * 1.5;
+    mushroom.activationX = tile * 1.4;
     mushroom.isDormant = true;
     mushroom.otherDirection = true;
     enemies.push(mushroom);
 
+    const batPositions = [
+        { spawn: 2.4, activation: 2, facingLeft: false },
+        { spawn: 3.1, activation: 2.4, facingLeft: true },
+        { spawn: 3.6, activation: 2.8, facingLeft: false },
+    ];
+
+    batPositions.forEach(config => {
+        const bat = new Bat();
+        bat.spawnX = tile * config.spawn;
+        bat.x = bat.spawnX;
+        bat.spawnY = -120;
+        bat.y = bat.spawnY;
+        bat.activationX = tile * config.activation;
+        bat.isDormant = true;
+        bat.otherDirection = config.facingLeft;
+        enemies.push(bat);
+    });
+
+    const boss = new SkeletonBoss();
+    boss.spawnX = tile * 3.2;
+    boss.x = boss.spawnX;
+    boss.activationX = tile * 2.7;
+    boss.isDormant = true;
+    boss.otherDirection = false;
+    enemies.push(boss);
+
     const throwables = [];
-    const holyPositions = [0.7, 1.05];
+    const holyPositions = [0.65, 1.0, 1.35];
     holyPositions.forEach((mult, index) => {
         const holyPickup = new ThrowHoly(tile * mult, 360, false, 22 + index * 2);
         holyPickup.spawnX = holyPickup.x;
@@ -35,12 +61,20 @@ function createLevel05() {
         throwables.push(holyPickup);
     });
 
+    const darkPositions = [1.55, 1.9];
+    darkPositions.forEach((mult, index) => {
+        const darkPickup = new ThrowDark(tile * mult, 360, false, 24 + index * 2);
+        darkPickup.spawnX = darkPickup.x;
+        darkPickup.spawnY = darkPickup.y;
+        throwables.push(darkPickup);
+    });
+
     const pickables = [];
     const overlays = [];
 
     const level = new Level(
         enemies,
-        generateClouds(70),
+        generateClouds(120),
         createBackgroundObjects(),
         throwables,
         pickables,
@@ -48,6 +82,7 @@ function createLevel05() {
     );
 
     level.level_end_x = tile * 4;
+    level.projectileBarrierX = tile * 3.85;
     return level;
 }
 
