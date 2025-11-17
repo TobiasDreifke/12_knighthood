@@ -42,7 +42,8 @@ class SkeletonBoss extends MoveableObject {
 
     collidingObject = true;
     debugColor = "green";
-    health = 240;
+    health = 320;
+    maxHealth = 320;
     encounterSoundPlayed = false;
     attackTimers = [];
     hurtTimeout = null;
@@ -62,7 +63,8 @@ class SkeletonBoss extends MoveableObject {
         this.loadAllImages();
         this.player = player;
         this.x = 700;
-        this.speed = 0.55;
+        this.speed = 1;
+        this.damageOnCollision = 18;
         this.otherDirection = true;
         this.isHurt = isHurt;
         this.isDead = isDead;
@@ -403,6 +405,36 @@ class SkeletonBoss extends MoveableObject {
             }
         }
         return null;
+    }
+
+    /**
+     * Draws a health bar above the boss to visualize remaining HP.
+     *
+     * @param {CanvasRenderingContext2D} ctx
+     */
+    drawHud(ctx) {
+        if (!ctx || this.isDead) return;
+        const ratio = this.getHealthRatio();
+        const barWidth = this.width * 0.7;
+        const barHeight = 14;
+        const barX = this.x + (this.width - barWidth) / 2;
+        const barY = this.y - 24;
+        ctx.save();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+        ctx.fillRect(barX - 2, barY - 2, barWidth + 4, barHeight + 4);
+        ctx.fillStyle = 'rgba(140, 20, 20, 0.85)';
+        ctx.fillRect(barX, barY, barWidth, barHeight);
+        ctx.fillStyle = '#34f5c5';
+        ctx.fillRect(barX, barY, barWidth * ratio, barHeight);
+        ctx.restore();
+    }
+
+    /**
+     * @returns {number} Normalized health ratio between 0 and 1.
+     */
+    getHealthRatio() {
+        const max = this.maxHealth || this.health || 1;
+        return Math.max(0, Math.min(1, this.health / max));
     }
 
     /**

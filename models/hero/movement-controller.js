@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Translates keyboard input into hero movement commands, slide/jump SFX, and camera-friendly state.
  */
 class HeroMovementController {
@@ -11,21 +11,22 @@ class HeroMovementController {
 	}
 
 	/**
-	 * Main entry point for hero movement – handles jumps, slides, and horizontal motion.
+	 * Main entry point for hero movement â€“ handles jumps, slides, and horizontal motion.
 	 *
 	 * @param {Keyboard} keyboard
-	 * @returns {{slidePressed: boolean}}
+	 * @returns {{slidePressed: boolean, movedHorizontally: boolean}}
 	 */
 	applyMovementInput(keyboard) {
 		if (this.isMovementLocked()) {
-			return { slidePressed: false };
+			return { slidePressed: false, movedHorizontally: false };
 		}
 
 		this.handleJumpInput(keyboard);
 		const slideState = this.handleSlideInput(keyboard);
-		this.handleHorizontalMovement(keyboard);
-		return slideState;
+		const movedHorizontally = this.handleHorizontalMovement(keyboard);
+		return { ...slideState, movedHorizontally };
 	}
+
 
 	/**
 	 * @returns {boolean} True when controls are temporarily disabled.
@@ -74,12 +75,14 @@ class HeroMovementController {
 	 */
 	handleHorizontalMovement(keyboard) {
 		const hero = this.hero;
-		const maxX = hero.world?.level?.level_end_x ?? Infinity;
-		if (keyboard.RIGHT && hero.x < maxX) {
-			hero.moveRight();
+		let moved = false;
+		if (keyboard.RIGHT) {
+			moved = hero.moveRight() || moved;
 		}
-		if (keyboard.LEFT && hero.x > 0) {
-			hero.moveLeft();
+		if (keyboard.LEFT) {
+			moved = hero.moveLeft() || moved;
 		}
+		return moved;
 	}
+
 }

@@ -98,7 +98,6 @@ class CollisionSystem {
 			if (!pickable || !heroCharacter.isColliding(pickable)) return;
 			if (!(pickable instanceof Sword)) return;
 			world.heroinventory.push(pickable);
-			console.log("Sword collected:", world.heroinventory.length);
 			heroCharacter.hasSword = true;
 			heroCharacter.startDrawSwordAnimation();
 			level.pickables = level.pickables.filter(p => p !== pickable);
@@ -158,7 +157,6 @@ class CollisionSystem {
 			const dmg = this.resolveDamage(projectile, enemy);
 			enemy.hit(dmg);
 			world?.gameStats?.addDamage?.(dmg);
-			console.log(`[${enemy.constructor.name}] hit by HolyThrow!`);
 		}
 	}
 
@@ -178,7 +176,6 @@ class CollisionSystem {
 			enemy.hit(dmg);
 			world?.gameStats?.addDamage?.(dmg);
 			projectile.triggerImpact();
-			console.log(`[${enemy.constructor.name}] hit by DarkThrow!`);
 			return true;
 		}
 		return false;

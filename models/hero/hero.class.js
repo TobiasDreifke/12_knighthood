@@ -312,4 +312,67 @@ class Hero extends MoveableObject {
         this.offsetTop = 15;
         this.offsetBottom = 5;
     }
+
+    /**
+     * Moves the hero to the right while respecting level boundaries.
+     *
+     * @returns {boolean}
+     */
+    moveRight() {
+        return this.applyHorizontalDelta(this.speed);
+    }
+
+    /**
+     * Moves the hero to the left while respecting level boundaries.
+     *
+     * @returns {boolean}
+     */
+    moveLeft() {
+        return this.applyHorizontalDelta(-this.speed);
+    }
+
+    /**
+     * Executes a slide to the right and clamps the hero within the level.
+     *
+     * @returns {boolean}
+     */
+    slideRight() {
+        return this.applyHorizontalDelta(this.slideSpeed);
+    }
+
+    /**
+     * Executes a slide to the left and clamps the hero within the level.
+     *
+     * @returns {boolean}
+     */
+    slideLeft() {
+        return this.applyHorizontalDelta(-this.slideSpeed);
+    }
+
+    /**
+     * Applies a horizontal delta while enforcing the current movement bounds.
+     *
+     * @param {number} delta
+     * @returns {boolean}
+     */
+    applyHorizontalDelta(delta) {
+        const { minX, maxX } = this.resolveMovementBounds();
+        const nextX = Math.min(maxX, Math.max(minX, this.x + delta));
+        const moved = nextX !== this.x;
+        this.x = nextX;
+        if (moved) {
+            this.otherDirection = delta < 0;
+        }
+        return moved;
+    }
+
+    /**
+     * Resolves the allowed horizontal range for the hero.
+     *
+     * @returns {{minX:number,maxX:number}}
+     */
+    resolveMovementBounds() {
+        const maxX = this.world?.level?.level_end_x ?? Infinity;
+        return { minX: 0, maxX };
+    }
 }

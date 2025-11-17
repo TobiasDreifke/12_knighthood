@@ -2,6 +2,7 @@
  * Handles drawing the scrolling world, clouds, overlays, and HUD each frame.
  */
 class RenderLoop {
+	frameHandle = null;
 	/**
 	 * Main render tick. Prepares the frame, draws world layers, then schedules the next frame.
 	 *
@@ -13,7 +14,7 @@ class RenderLoop {
 		this.prepareFrame(ctx, world);
 		this.drawWorld(ctx, world);
 		this.finishFrame(ctx, world);
-		requestAnimationFrame(() => this.render(world));
+		this.frameHandle = requestAnimationFrame(() => this.render(world));
 	}
 
 	canRender(world) {
@@ -93,6 +94,7 @@ class RenderLoop {
 		this.attachWorldIfMissing(obj, world);
 		this.drawDebugShapes(ctx, obj);
 		this.drawSprite(ctx, obj);
+		this.drawObjectHud(ctx, obj);
 	}
 
 	attachWorldIfMissing(obj, world) {
@@ -134,6 +136,12 @@ class RenderLoop {
 		ctx.restore();
 	}
 
+	drawObjectHud(ctx, obj) {
+		if (typeof obj.drawHud === "function") {
+			obj.drawHud(ctx);
+		}
+	}
+
 	drawFacing(ctx, obj) {
 		ctx.save();
 		ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
@@ -152,5 +160,15 @@ class RenderLoop {
 			}
 		});
 		return layers;
+	}
+
+	/**
+	 * Cancels the pending animation frame so rendering pauses cleanly.
+	 */
+	stop() {
+		if (this.frameHandle) {
+			cancelAnimationFrame(this.frameHandle);
+			this.frameHandle = null;
+		}
 	}
 }

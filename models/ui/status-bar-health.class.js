@@ -34,7 +34,6 @@ class StatusbarHealth extends DrawableObject {
         this.setPercentage(100);
         // this.isHurt();
 
-        // console.log("loaded statusbar img:", this.IMAGES);
     }
 
 

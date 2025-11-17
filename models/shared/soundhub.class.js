@@ -6,7 +6,7 @@ class AudioHub {
     static START_SCREEN_MUSIC = AudioHub.createLoopingAudio('./01_assets/00_audio/looping_intro.mp3', 0.2);
     static GAMEPLAY_MUSIC = AudioHub.createLoopingAudio('./01_assets/00_audio/looping_gameplay.mp3', 0.05);
 
-    static WALK_HERO = AudioHub.createAudio('./01_assets/00_audio/walking/Hero/indoor-footsteps-6385 (mp3cut.net).mp3', 1);
+    static WALK_HERO = AudioHub.createAudio('./01_assets/00_audio/walking/hero/indoor-footsteps-6385 (mp3cut.net).mp3', 1);
     static SWORD_DRAW = AudioHub.createAudio('./01_assets/00_audio/sword/draw-sword1-44724.mp3', 0.8);
     static SWORD_SLICE = AudioHub.createAudio('./01_assets/00_audio/sword/sword-slice-393847.mp3', 0.8);
     static CAST_HOLY = AudioHub.createAudio('./01_assets/00_audio/cast/holy_cast.mp3', 0.75);
@@ -59,6 +59,7 @@ class AudioHub {
 	static previousVolume = 0.2;
 	static muteRestoreVolume = 0.2;
 	static isMuted = false;
+	static STORAGE_KEY = 'knighthood_audio_state';
 	static currentMusic = null;
 	static heroIdleLoopActive = false;
     static pendingHeroIdleResume = false;
@@ -242,8 +243,7 @@ class AudioHub {
      * @param {number} value
      */
     static setVolume(value) {
-        const numericValue = Number(value);
-        const normalized = Math.max(0, Math.min(1, Number.isFinite(numericValue) ? numericValue : 0));
+        const normalized = this.clampVolume(value);
         this.masterVolume = normalized;
         this.muteRestoreVolume = normalized;
         if (normalized > 0) {
@@ -251,6 +251,7 @@ class AudioHub {
             this.isMuted = false;
         }
         this.applyVolumeToAll(this.getEffectiveVolume());
+        this.persistAudioState();
         return { volume: this.masterVolume, isMuted: this.isMuted };
     }
 
@@ -276,6 +277,7 @@ class AudioHub {
             this.playHeroIdleLoop(true);
         }
         this.pendingHeroIdleResume = false;
+        this.persistAudioState();
     }
 
     /**
@@ -291,13 +293,14 @@ class AudioHub {
         this.applyVolumeToAll(0);
         this.pauseCurrentMusic();
         this.stopHeroIdleLoop();
+        this.persistAudioState();
     }
 
     /**
      * Hydrates master volume/mute state from persisted storage on boot.
      */
     static initializeVolume() {
-        this.applyVolumeToAll(this.getEffectiveVolume());
+        this.resetMuteState(this.masterVolume);
     }
 
     /**
@@ -639,15 +642,23 @@ class AudioHub {
      * @param {number} [defaultVolume=0.2]
      */
     static resetMuteState(defaultVolume = 0.2) {
-        this.isMuted = false;
-        this.setVolume(defaultVolume);
+        const stored = this.loadStoredAudioState();
+        if (stored) {
+            this.masterVolume = this.clampVolume(stored.volume);
+            this.isMuted = !!stored.isMuted;
+        } else {
+            this.masterVolume = defaultVolume;
+            this.isMuted = false;
+        }
+        this.applyVolumeToAll(this.getEffectiveVolume());
     }
 
     /**
      * Resets sliders, mute buttons, and any CSS indicators reflecting sound state.
      */
     static resetSoundControls() {
-        this.resetVolumeSliders(String(this.masterVolume));
+        const sliderValue = this.isMuted ? "0" : String(this.masterVolume);
+        this.resetVolumeSliders(sliderValue);
         this.resetMuteButtons();
         this.clearInstrumentIndicators();
     }
@@ -666,13 +677,54 @@ class AudioHub {
     }
 
     /**
+     * Reads the stored audio state from localStorage if available.
+     *
+     * @returns {{volume:number,isMuted:boolean}|null}
+     */
+    static loadStoredAudioState() {
+        if (!this.canUseStorage()) return null;
+        try {
+            const raw = window.localStorage.getItem(this.STORAGE_KEY);
+            return raw ? JSON.parse(raw) : null;
+        } catch {
+            return null;
+        }
+    }
+
+    /**
+     * Persists the current volume/mute state to localStorage.
+     */
+    static persistAudioState() {
+        if (!this.canUseStorage()) return;
+        try {
+            const payload = JSON.stringify({ volume: this.masterVolume, isMuted: this.isMuted });
+            window.localStorage.setItem(this.STORAGE_KEY, payload);
+        } catch {
+            // Swallow storage errors silently
+        }
+    }
+
+    /**
+     * @returns {boolean} True when localStorage can be accessed safely.
+     */
+    static canUseStorage() {
+        try {
+            return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+        } catch {
+            return false;
+        }
+    }
+
+    /**
      * Updates mute button data attributes/styles so UI reflects the actual mute state.
      */
     static resetMuteButtons() {
+        const isMuted = this.isMuted;
         document.querySelectorAll('.sound_mute').forEach(button => {
-            button.textContent = 'Mute';
-            button.setAttribute('aria-pressed', 'false');
-            button.classList.remove('is-muted');
+            if (!(button instanceof HTMLButtonElement)) return;
+            button.textContent = isMuted ? 'Unmute' : 'Mute';
+            button.setAttribute('aria-pressed', String(isMuted));
+            button.classList.toggle('is-muted', isMuted);
         });
     }
 

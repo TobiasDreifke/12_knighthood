@@ -136,7 +136,6 @@ class MoveableObject extends DrawableObject {
 	slideRight() {
 		this.x += this.slideSpeed;
 		this.otherDirection = false;
-		// console.log("SLIDIIIIIIIING");
 	}
 
 	moveLeft() {
@@ -147,7 +146,6 @@ class MoveableObject extends DrawableObject {
 	slideLeft() {
 		this.x -= this.slideSpeed;
 		this.otherDirection = true;
-		// console.log("SLIDIIIIIIIING");
 	}
 
 	crouch() {
@@ -242,11 +240,9 @@ class MoveableObject extends DrawableObject {
 	 */
 	applyDamage(amount) {
 		this.health -= amount;
-		console.log(`[${this.constructor.name}] is hit with [${amount}]`);
 		if (this.health <= 0) {
 			this.health = 0;
 			this.isDead = true;
-			console.log(`[${this.constructor.name}] is dead`);
 			this.notifyStatsOfDeath();
 			return { wasFatal: true };
 		}

@@ -36,9 +36,7 @@ class StatusbarDark extends DrawableObject {
         this.loadImages(this.IMAGES);
         this.setAmmoCount(0);
         // this.isHurt();
-        // console.log("loaded statusbar img:", this.IMAGES);
         // this.collect();
-        // console.log("statusbar this level" + this.world.level.throwables);
 
     }
 

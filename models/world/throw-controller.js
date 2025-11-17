@@ -16,7 +16,6 @@ class ThrowController {
 	tryHoly(world) {
 		if (!this.shouldThrow(world, "THROWHOLY", world?.holyAmmo, world?.lastHolyThrow, world?.holyCooldownMs)) return false;
 		world.lastHolyThrow = Date.now();
-		console.log("Throwing holy bottle, ammo left:", world.holyAmmo.length);
 		const projectile = this.consumeProjectile(world.holyAmmo);
 		if (!projectile) return false;
 		const config = {
@@ -37,7 +36,6 @@ class ThrowController {
 	tryDark(world) {
 		if (!this.shouldThrow(world, "THROWDARK", world?.darkAmmo, world?.lastDarkThrow, world?.darkCooldownMs)) return false;
 		world.lastDarkThrow = Date.now();
-		console.log("Throwing dark bottle, ammo left:", world.darkAmmo.length);
 		const projectile = this.consumeProjectile(world.darkAmmo);
 		if (!projectile) return false;
 		const config = {

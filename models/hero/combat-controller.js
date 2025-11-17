@@ -120,7 +120,6 @@ class HeroCombatController {
 		if (hero.isCasting) return false;
 		if (force) return true;
 		if (this.isOutOfAmmo(type)) {
-			console.log("No ammo left or already casting!");
 			return false;
 		}
 		return true;
@@ -205,7 +204,6 @@ class HeroCombatController {
 		let hit = false;
 		this.activeEnemies().forEach(enemy => {
 			if (!this.collidesWithEnemy(this.hero, enemy)) return;
-			console.log("HERO hit ENEMY!");
 			const dmg = this.hero.hasSword ? this.hero.swordDamage : this.hero.punchDamage;
 			enemy.hit(dmg);
 			world?.gameStats?.addDamage?.(dmg);

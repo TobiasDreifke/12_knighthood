@@ -40,7 +40,7 @@ class HeroAnimationController {
 		const movementState = hero.applyMovementInput(keyboard);
 		this.updateGroundState(hero);
 		if (!this.playPriorityAnimation(keyboard, movementState)) {
-			this.playMovementAnimation(keyboard);
+			this.playMovementAnimation(keyboard, movementState);
 		}
 		hero.updateCameraPosition();
 	}
@@ -188,10 +188,10 @@ class HeroAnimationController {
 	/**
 	 * Chooses between crouch, air, walk, or idle animations based on the latest keyboard state.
 	 */
-	playMovementAnimation(keyboard) {
+	playMovementAnimation(keyboard, movementState = {}) {
 		if (this.handleCrouch(keyboard)) return;
 		if (this.handleAirState()) return;
-		if (this.handleWalk(keyboard)) return;
+		if (this.handleWalk(keyboard, movementState)) return;
 		this.playIdle();
 	}
 
@@ -227,8 +227,9 @@ class HeroAnimationController {
 	/**
 	 * Plays the walking animation (sword or fists) when moving left/right.
 	 */
-	handleWalk(keyboard) {
+	handleWalk(keyboard, movementState = {}) {
 		if (!keyboard.RIGHT && !keyboard.LEFT) return false;
+		if (!movementState.movedHorizontally) return false;
 		const hero = this.hero;
 		AudioHub.stopHeroIdleLoop();
 		const frames = hero.hasSword ? hero.frames.WALK_SWORD : hero.frames.WALK;
@@ -389,7 +390,6 @@ class HeroAnimationController {
 		for (const [key, frames] of Object.entries(catalog)) {
 			if (frames === images) return key;
 		}
-		console.log("Animation name not found");
 		return null;
 	}
 }

@@ -121,6 +121,26 @@ class World {
 		});
 	}
 
+	/**
+	 * Stops all activity and clears transient world state without reloading the page.
+	 */
+	destroy() {
+		this.stopAllIntervals();
+		this.renderLoop?.stop?.();
+		this.stopAllEnemyActivity();
+		this.gameStateUI?.hideScreens?.();
+		this.throwableHoly = [];
+		this.throwableDark = [];
+		this.darkAmmo = [];
+		this.holyAmmo = [];
+		this.overlayObjects = [];
+		this.unlockInput();
+		this.inputLocked = false;
+		this.isPaused = false;
+		this.hasStarted = false;
+		this.isRunning = false;
+	}
+
 	lockInput() {
 		this.inputLocked = true;
 		if (this.keyboard) {
