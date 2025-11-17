@@ -1,3 +1,6 @@
+/**
+ * Provides the mushroom sprite sheet mappings via a single global catalog instance.
+ */
 (() => {
 	if (typeof globalThis.MushroomFrameCatalog !== "undefined") return;
 

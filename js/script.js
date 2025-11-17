@@ -500,6 +500,11 @@ function updateWorldOrientationState(portrait) {
     orientationPauseActive = false;
 }
 
+/**
+ * Returns whether the device likely needs touch controls based on pointer capabilities or viewport width.
+ *
+ * @returns {boolean}
+ */
 function devicePrefersTouchControls() {
     const widthThreshold = 900;
     return coarsePointerQuery.matches || window.innerWidth <= widthThreshold;
@@ -651,12 +656,21 @@ function showStartScreen(startScreen = document.getElementById("start-screen")) 
  * Placeholder kept so legacy calls remain safe; auto-fullscreen has been removed.
  */
 function maybeEnterPreferredFullscreen() { }
+
+/**
+ * Clears all keyboard action flags so no lingering input remains after a restart or pause event.
+ */
 function resetKeyboardState() {
     Object.keys(keyboard).forEach(key => {
         keyboard[key] = false;
     });
 }
 
+/**
+ * Handles keydown events, toggling pause and marking keyboard actions active.
+ *
+ * @param {KeyboardEvent} event
+ */
 window.addEventListener("keydown", (event) => {
     const actions = KeyboardMapping.getActionsForEvent(event);
 
@@ -679,6 +693,11 @@ window.addEventListener("keydown", (event) => {
     setKeyboardActionsState(actions, true);
 });
 
+/**
+ * Releases keyboard actions when their key is lifted, unless the world locks input.
+ *
+ * @param {KeyboardEvent} event
+ */
 window.addEventListener("keyup", (event) => {
     if (world && world.inputLocked) return;
 

@@ -1,3 +1,8 @@
+/**
+ * Creates the penultimate Level 09 configuration, including boss prep overlays.
+ *
+ * @returns {Level}
+ */
 function createLevel09() {
     const tile = 720;
 

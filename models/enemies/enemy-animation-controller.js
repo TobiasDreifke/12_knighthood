@@ -1,3 +1,6 @@
+/**
+ * Defines the EnemyAnimationController globally exactly once to keep animation logic centralized.
+ */
 (() => {
 	if (typeof globalThis.EnemyAnimationController !== "undefined") return;
 

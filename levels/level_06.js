@@ -1,3 +1,8 @@
+/**
+ * Generates Level 06 combining terrain overlays, pick-ups, and creature spawns.
+ *
+ * @returns {Level}
+ */
 function createLevel06() {
     const tile = 720;
 

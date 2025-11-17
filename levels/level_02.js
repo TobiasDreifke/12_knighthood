@@ -1,3 +1,8 @@
+/**
+ * Builds the second combat-focused level configuration with its enemies and overlays.
+ *
+ * @returns {Level}
+ */
 function createLevel02() {
     const tile = 720;
 

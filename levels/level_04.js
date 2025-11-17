@@ -1,3 +1,8 @@
+/**
+ * Configures the fourth level with its tailored enemy mix and environmental props.
+ *
+ * @returns {Level}
+ */
 function createLevel04() {
     const tile = 720;
 

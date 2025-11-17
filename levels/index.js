@@ -1,3 +1,6 @@
+/**
+ * Registers all available level builder factories once the loader signals readiness.
+ */
 (function initializeGameLevels() {
     const registerLevels = () => {
         const builders = [

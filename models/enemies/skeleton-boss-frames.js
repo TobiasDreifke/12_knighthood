@@ -1,3 +1,6 @@
+/**
+ * Declares the skeleton boss animation frames and exposes them through a global catalog only once.
+ */
 (() => {
 	if (typeof globalThis.SkeletonBossFrameCatalog !== "undefined") return;
 

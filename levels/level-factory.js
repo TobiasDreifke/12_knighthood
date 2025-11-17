@@ -1,3 +1,6 @@
+/**
+ * Immediately loads the initial batch of level scripts sequentially so they exist before the world boots.
+ */
 (function setupLevelFactory() {
     const levelFiles = [
         "level_01.js",
@@ -10,12 +13,24 @@
     const basePath = "./levels/";
     const head = document.head || document.documentElement;
 
+    /**
+     * Loads each level script in order to preserve dependency expectations.
+     *
+     * @param {string[]} files
+     * @returns {Promise<void>}
+     */
     function loadScriptSequentially(files) {
         return files.reduce((promise, file) => {
             return promise.then(() => injectScript(file));
         }, Promise.resolve());
     }
 
+    /**
+     * Injects a `<script>` tag for a specific level file and resolves when it finishes loading.
+     *
+     * @param {string} file
+     * @returns {Promise<string>}
+     */
     function injectScript(file) {
         return new Promise((resolve, reject) => {
             const script = document.createElement("script");

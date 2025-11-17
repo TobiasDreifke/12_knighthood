@@ -1,3 +1,8 @@
+/**
+ * Builds the introductory tutorial level and wires helpful tooltip overlays.
+ *
+ * @returns {Level}
+ */
 function createLevel01() {
     const tile = 720;
 

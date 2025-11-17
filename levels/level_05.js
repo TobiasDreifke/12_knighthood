@@ -1,3 +1,8 @@
+/**
+ * Builds Level 05, wiring together its scripted encounters and collectible placement.
+ *
+ * @returns {Level}
+ */
 function createLevel05() {
     const tile = 720;
 

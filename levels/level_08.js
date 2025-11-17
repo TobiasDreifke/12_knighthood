@@ -1,3 +1,8 @@
+/**
+ * Prepares Level 08, defining the stage layout, hazards, and helper overlays.
+ *
+ * @returns {Level}
+ */
 function createLevel08() {
     const tile = 720;
 

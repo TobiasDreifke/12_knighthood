@@ -1,3 +1,6 @@
+/**
+ * Populates `globalThis.BatFrameCatalog` once so other modules can request bat sprite sets.
+ */
 (() => {
 	if (typeof globalThis.BatFrameCatalog !== "undefined") return;
 

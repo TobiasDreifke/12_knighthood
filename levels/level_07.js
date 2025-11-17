@@ -1,3 +1,8 @@
+/**
+ * Assembles Level 07 with its tuned balance of enemies, items, and overlays.
+ *
+ * @returns {Level}
+ */
 function createLevel07() {
     const tile = 720;
 

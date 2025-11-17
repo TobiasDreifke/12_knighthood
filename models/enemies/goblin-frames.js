@@ -1,3 +1,6 @@
+/**
+ * Registers the goblin animation frame catalog globally so each file loads only once.
+ */
 (() => {
 	if (typeof globalThis.GoblinFrameCatalog !== "undefined") return;
 

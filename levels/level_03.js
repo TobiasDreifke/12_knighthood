@@ -1,3 +1,8 @@
+/**
+ * Produces the full Level 03 setup, including backgrounds, actors, and loot.
+ *
+ * @returns {Level}
+ */
 function createLevel03() {
     const tile = 720;
 

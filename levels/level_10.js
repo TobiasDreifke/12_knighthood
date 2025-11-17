@@ -1,3 +1,8 @@
+/**
+ * Builds the final Level 10 encounter, wiring in the boss fight and supporting props.
+ *
+ * @returns {Level}
+ */
 function createLevel10() {
     const tile = 720;
 
