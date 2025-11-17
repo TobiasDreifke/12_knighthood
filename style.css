@@ -114,15 +114,62 @@ button:disabled {
 }
 
 .toggle_button {
-    background-color: rgb(255, 90, 90, 0.8);
+    background-color: #ff5a5acc;
     color: rgb(62, 6, 6);
 
 }
 
 .toggle_button:hover {
-    background-color: rgba(251, 165, 165, 0.5);
-    color: rgb(62, 6, 6);
+    background-color: #fba5a580;
+    color: #3e0606;
 
+}
+
+.icon_button {
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    aspect-ratio: 1;
+    /* filter: brightness(0) saturate(100%) invert(91%) sepia(25%) saturate(3866%) hue-rotate(298deg) brightness(111%) contrast(96%); */
+    filter: brightness(0) saturate(100%) invert(42%) sepia(59%) saturate(1044%) hue-rotate(320deg) brightness(109%) contrast(107%);
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.461);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 65%;
+    text-indent: -9999px;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.icon_button:hover {
+    transform: translateY(-1px);
+    border-color: rgb(255, 178, 178);
+}
+
+.icon_button:focus-visible {
+    outline: 2px solid #ff5a5a;
+    outline-offset: 3px;
+}
+
+.sound_mute.icon_button {
+    background-image: url("./01_assets/10_icons/sound_unmuted.png");
+}
+
+.sound_mute.icon_button.is-muted {
+    background-image: url("./01_assets/10_icons/sound_muted.png");
+}
+
+.fullscreen_toggle.icon_button {
+    background-image: url("./01_assets/10_icons/fullscreen_on.png");
+}
+
+.fullscreen_toggle.icon_button[aria-pressed="true"] {
+    background-image: url("./01_assets/10_icons/fullscreen_off.png");
 }
 
 .start_gif_hero {
@@ -152,26 +199,9 @@ button:disabled {
 
 .canvas_ui .ui_button {
     pointer-events: auto;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    background: rgba(5, 8, 14, 0.9);
-    color: #fff;
-    border-radius: 999px;
-    padding: 0.45rem 1rem;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
-}
-
-.canvas_ui .ui_button:hover {
-    background: rgba(255, 90, 90, 0.9);
-    color: #1a0a0a;
-    transform: translateY(-1px);
-}
-
-.canvas_ui .ui_button:focus-visible {
-    outline: 2px solid #ff5a5a;
-    outline-offset: 2px;
+    border: none;
+    /* background: transparent; */
+    padding: 0;
 }
 
 /* ========================================

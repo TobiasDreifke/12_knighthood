@@ -82,10 +82,10 @@
             <div class="canvas_stage">
                 <canvas id="canvas" width="720" height="480"></canvas>
                 <div class="canvas_ui" role="region" aria-label="Game controls">
-                    <button id="ingame-mute-button" class="ui_button sound_mute" type="button" aria-pressed="false">
+                    <button id="ingame-mute-button" class="ui_button sound_mute icon_button" type="button" aria-pressed="false">
                         Mute
                     </button>
-                    <button id="ingame-fullscreen-button" class="ui_button fullscreen_toggle" type="button"
+                    <button id="ingame-fullscreen-button" class="ui_button fullscreen_toggle icon_button" type="button"
                         aria-pressed="false">
                         Fullscreen
                     </button>
@@ -103,12 +103,12 @@
                     </div>
                     <div class="toggle_button_wrapper">
                         <div class="sound_container">
-                            <button id="pause-mute-button" class="toggle_button sound_mute">Mute</button>
+                            <button id="pause-mute-button" class="toggle_button sound_mute icon_button">Mute</button>
                             <!-- <label class="slider_label" for="pause-volume">Volume</label> -->
                             <input id="pause-volume" class="volume_slider sound_volume" type="range" min="0" max="1"
                                 step="0.01" value="0.2">
                         </div>
-                        <button class="toggle_button fullscreen_toggle" id="pause-fullscreen-button">Fullscreen</button>
+                        <button class="toggle_button fullscreen_toggle icon_button" id="pause-fullscreen-button">Fullscreen</button>
                     </div>
                 </div>
             </div>
@@ -128,13 +128,13 @@
                         <img class="start_gif_goblin" src="./01_assets/9_intro_outro_screens/GOBLIN_LOOP.gif">
                     </div>
                     <div class="toggle_button_wrapper">
-                        <button id="start-mute-button" class="toggle_button sound_mute">Mute</button>
+                        <button id="start-mute-button" class="toggle_button sound_mute icon_button">Mute</button>
                         <div class="sound_container">
                             <!-- <label class="slider_label" for="start-volume">Volume</label> -->
                             <input id="start-volume" class="volume_slider sound_volume" type="range" min="0" max="1"
                                 step="0.01" value="0.2">
                         </div>
-                        <button class="toggle_button fullscreen_toggle" id="start-fullscreen-button">Fullscreen</button>
+                        <button class="toggle_button fullscreen_toggle icon_button" id="start-fullscreen-button">Fullscreen</button>
                     </div>
                 </div>
                 <footer class="start_footer">
