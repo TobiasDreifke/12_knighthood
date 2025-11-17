@@ -162,12 +162,18 @@ class HeroAnimationController {
 	 */
 	handleAttackInput(keyboard) {
 		const hero = this.hero;
-		if (!keyboard.ATTACK) return false;
-		AudioHub.stopHeroIdleLoop();
-		if (!hero.attackPressed) {
-			hero.attackPressed = true;
-			hero.playAttackAnimationOnce();
+		if (!keyboard.ATTACK) {
+			hero.attackPressed = false;
+			return false;
 		}
+		if (hero.attackPressed) {
+			return false;
+		}
+		const started = hero.playAttackAnimationOnce();
+		if (!started) {
+			return false;
+		}
+		AudioHub.stopHeroIdleLoop();
 		return true;
 	}
 

@@ -21,8 +21,8 @@ class HeroMovementController {
 			return { slidePressed: false, movedHorizontally: false };
 		}
 
-		this.handleJumpInput(keyboard);
 		const slideState = this.handleSlideInput(keyboard);
+		this.handleJumpInput(keyboard);
 		const movedHorizontally = this.handleHorizontalMovement(keyboard);
 		return { ...slideState, movedHorizontally };
 	}
@@ -33,7 +33,7 @@ class HeroMovementController {
 	 */
 	isMovementLocked() {
 		const hero = this.hero;
-		return hero.controlsLocked || hero.isCelebrating;
+		return hero.controlsLocked || hero.isCelebrating || hero.isAttacking || hero.isCasting;
 	}
 
 	/**
@@ -41,6 +41,7 @@ class HeroMovementController {
 	 */
 	handleJumpInput(keyboard) {
 		const hero = this.hero;
+		if (this.slideActive) return;
 		const jumpPressed = keyboard.UP || keyboard.JUMP;
 		const canJump = jumpPressed && !hero.isAboveGround();
 		AudioHub.playOncePerKey(hero.jumpSoundFlag, AudioHub.JUMP_HERO, jumpPressed, canJump);

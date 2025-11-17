@@ -29,6 +29,7 @@ class Hero extends MoveableObject {
     triggeredImpactFrames = new Set();
     impactFramesPlayed = new Set();
     hitCooldownMs = 600;
+    attackCooldownMs = 250;
 
     slideSoundFlag = { value: false };
     jumpSoundFlag = { value: false };
@@ -119,7 +120,7 @@ class Hero extends MoveableObject {
      * Starts an attack via the combat controller.
      */
     playAttackAnimationOnce() {
-        this.combatController.playAttackAnimationOnce();
+        return this.combatController.playAttackAnimationOnce();
     }
 
     /**

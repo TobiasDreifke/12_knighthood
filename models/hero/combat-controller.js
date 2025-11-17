@@ -8,6 +8,7 @@ class HeroCombatController {
 	constructor(hero) {
 		this.hero = hero;
 		this.activeAttackTimeout = null;
+		this.nextAttackTime = 0;
 	}
 
 	/**
@@ -15,7 +16,7 @@ class HeroCombatController {
 	 */
 	playAttackAnimationOnce() {
 		const hero = this.hero;
-		if (hero.isAttacking) return;
+		if (!this.canStartAttack()) return false;
 
 		hero.world?.gameStats?.recordAttack?.();
 		hero.isAttacking = true;
@@ -24,6 +25,16 @@ class HeroCombatController {
 
 		this.configureAttackState();
 		this.scheduleAttackEnd();
+		return true;
+	}
+
+	/**
+	 * @returns {boolean} True if starting an attack is currently allowed.
+	 */
+	canStartAttack() {
+		const hero = this.hero;
+		if (hero.isAttacking) return false;
+		return !this.isAttackOnCooldown();
 	}
 
 	/**
@@ -78,6 +89,7 @@ class HeroCombatController {
 		hero.triggeredImpactFrames.clear();
 		hero.impactFramesPlayed.clear();
 		this.clearAttackTimeout();
+		this.startAttackCooldown();
 	}
 
 	/**
@@ -87,6 +99,28 @@ class HeroCombatController {
 		if (!this.activeAttackTimeout) return;
 		clearTimeout(this.activeAttackTimeout);
 		this.activeAttackTimeout = null;
+	}
+
+	/**
+	 * Marks the earliest timestamp at which another attack can begin.
+	 */
+	startAttackCooldown() {
+		this.nextAttackTime = Date.now() + this.getAttackCooldownDuration();
+	}
+
+	/**
+	 * @returns {number} Configured cooldown in milliseconds.
+	 */
+	getAttackCooldownDuration() {
+		const duration = this.hero.attackCooldownMs;
+		return typeof duration === "number" && duration > 0 ? duration : 0;
+	}
+
+	/**
+	 * @returns {boolean} True when an attack cooldown is active.
+	 */
+	isAttackOnCooldown() {
+		return Date.now() < this.nextAttackTime;
 	}
 
 	/**
