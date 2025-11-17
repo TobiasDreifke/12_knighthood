@@ -250,6 +250,8 @@ button:disabled {
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
     backdrop-filter: blur(6px);
     touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -282,6 +284,8 @@ button:disabled {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .touch_button--icon.touch_button--attack {
