@@ -2,6 +2,11 @@
  * Handles player projectile throwing logic, including cooldowns and ammo consumption.
  */
 class ThrowController {
+	/**
+	 * Tries both holy and dark throws when inputs/cooldowns allow.
+	 *
+	 * @param {World} world
+	 */
 	update(world) {
 		if (!world || world.isPaused) return;
 		this.tryHoly(world);

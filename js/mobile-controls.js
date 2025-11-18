@@ -140,6 +140,11 @@ function createTouchReleaseAll(activeControls, setKeyState) {
  */
 function createTouchControlsApi(container, releaseAll) {
     return {
+        /**
+         * Toggles the touch controls visibility and releases buttons when hidden.
+         *
+         * @param {boolean} visible
+         */
         setVisible(visible) {
             container.classList.toggle("visible", !!visible);
             if (!visible) {
