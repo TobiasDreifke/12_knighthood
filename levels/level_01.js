@@ -5,7 +5,6 @@
  */
 function createLevel01() {
     const tile = 720;
-
     const enemies = [];
 
     const goblin1 = new Goblin();
@@ -24,14 +23,9 @@ function createLevel01() {
     goblin2.otherDirection = true;
     enemies.push(goblin2);
 
-
-
-
     const throwables = [];
     const pickables = [];
     const overlays = [];
-
-   
 
     const pauseTooltip = new TooltipText({
         x: tile * 0.25,

@@ -5,7 +5,6 @@
  */
 function createLevel08() {
     const tile = 720;
-
     const enemies = [];
 
     const goblinPositions = [

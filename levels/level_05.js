@@ -5,7 +5,6 @@
  */
 function createLevel05() {
     const tile = 720;
-
     const enemies = [];
 
     const goblinPositions = [
@@ -76,7 +75,6 @@ function createLevel05() {
 
     const pickables = [];
     const overlays = [];
-
     const level = new Level(
         enemies,
         generateClouds(120),

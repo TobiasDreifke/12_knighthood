@@ -5,7 +5,6 @@
  */
 function createLevel04() {
     const tile = 720;
-
     const enemies = [];
 
     const goblinPositions = [
@@ -28,6 +27,7 @@ function createLevel04() {
         bat.otherDirection = config.facingLeft;
         enemies.push(bat);
     });
+
     goblinPositions.forEach(config => {
         const goblin = new Goblin();
         goblin.spawnX = tile * config.spawn;
@@ -39,13 +39,11 @@ function createLevel04() {
     });
 
     const throwables = [];
-
     const pickables = [];
     const sword = new Sword(tile * 0.45, 340);
     sword.spawnX = sword.x;
     sword.spawnY = sword.y;
     pickables.push(sword);
-
     const overlays = [];
 
     const level = new Level(

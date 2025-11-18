@@ -5,7 +5,6 @@
  */
 function createLevel03() {
     const tile = 720;
-
     const enemies = [];
 
     const goblinPositions = [
@@ -53,6 +52,7 @@ function createLevel03() {
         maxWidth: 360,
         text: () => `A Dark cast has high damage <br> but will explode upon contact`,
     });
+
     overlays.push(DarkTooltip);
     const ThrowDarkTooltip = new TooltipText({
         x: tile * 1,
@@ -64,6 +64,7 @@ function createLevel03() {
         maxWidth: 360,
         text: () => `To Cast a Dark press ${KeyboardMapping.getDisplayKey("THROWDARK", "throwdark")}`,
     });
+    
     overlays.push(ThrowDarkTooltip);
     const level = new Level(
         enemies,

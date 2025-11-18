@@ -15,6 +15,7 @@ const BatDiveBehavior = {
         }
         this.updateFacingTowardPlayer({ player: this.player, flipThreshold: 10 });
     },
+    
     /**
      * Runs the dive routine: descends toward the hero when attacking and climbs back up when done,
      * ensuring the animation stays synced with the current phase.
@@ -30,6 +31,7 @@ const BatDiveBehavior = {
         }
         this.playDiveAnimation();
     },
+
     /**
      * Samples the hero hurtbox (or fallback world values) so the bat knows where to dive and
      * which altitude to return to afterwards.
@@ -45,6 +47,7 @@ const BatDiveBehavior = {
         const topAltitude = this.getTopAltitude();
         return { heroCenterX, heroBottom, heroCenterY, topAltitude };
     },
+
     /**
      * Helper for `getTopAltitude` extracted from the Bat class.
      * @this {Bat}
@@ -55,23 +58,47 @@ const BatDiveBehavior = {
         altitude = this.applyMaxAltitudeClamp(altitude);
         return altitude;
     },
+
+    /**
+     * Resolves the baseline loiter altitude using overrides or spawn Y.
+     *
+     * @returns {number}
+     * @this {Bat}
+     */
     resolveBaseLoiterAltitude() {
         if (typeof this.loiterAltitude === "number") return this.loiterAltitude;
         if (typeof this.spawnY === "number") return this.spawnY;
         return 100;
     },
+
+    /**
+     * Clamps the provided altitude so it never falls below the minimum bound.
+     *
+     * @param {number} value
+     * @returns {number}
+     * @this {Bat}
+     */
     applyMinAltitudeClamp(value) {
         if (typeof this.minAscendAltitude === "number") {
             return Math.max(value, this.minAscendAltitude);
         }
         return value;
     },
+
+    /**
+     * Clamps the provided altitude so it never exceeds the maximum bound.
+     *
+     * @param {number} value
+     * @returns {number}
+     * @this {Bat}
+     */
     applyMaxAltitudeClamp(value) {
         if (typeof this.maxAscendAltitude === "number") {
             return Math.min(value, this.maxAscendAltitude);
         }
         return value;
     },
+
     /**
      * Locks in a dive target using the latest hero metrics and begins accelerating toward it.
      *
@@ -82,6 +109,7 @@ const BatDiveBehavior = {
         this.ensureDiveTarget(metrics);
         this.diveTowardTarget();
     },
+
     /**
      * Keeps the wing-flap animation speed aligned with the current dive motion for visual feedback.
      * @this {Bat}
@@ -89,6 +117,7 @@ const BatDiveBehavior = {
     playDiveAnimation() {
         this.playAnimationWithSpeed(this.frames.WALK, 14);
     },
+
     /**
      * Helper for `getTravelSpeedMultiplier` extracted from the Bat class.
      * @this {Bat}
@@ -99,6 +128,7 @@ const BatDiveBehavior = {
         const progress = Math.min(this.travelDistance / distanceForMax, 1);
         return 1 + progress * (this.maxTravelSpeedMultiplier - 1);
     },
+
     /**
      * Helper for `registerTravel` extracted from the Bat class.
      * @this {Bat}
@@ -109,6 +139,7 @@ const BatDiveBehavior = {
             this.travelDistance += distance;
         }
     },
+
     /**
      * Computes a safe X/Y dive target centered on the hero while clamping the Y position against
      * the ground, then boosts horizontal speed so the bat fully commits to the dive.
@@ -133,6 +164,7 @@ const BatDiveBehavior = {
         this.currentDiveSpeed = Math.max(this.currentDiveSpeed, this.baseHorizontalSpeed * 2.2);
         this.otherDirection = (this.x + halfWidth) > this.diveTargetX;
     },
+
     /**
      * Helper for `diveTowardTarget` extracted from the Bat class.
      * @this {Bat}
@@ -151,6 +183,7 @@ const BatDiveBehavior = {
             this.flightPhase = "ascend";
         }
     },
+
     /**
      * Helper for `hasDiveTarget` extracted from the Bat class.
      * @this {Bat}
@@ -158,6 +191,7 @@ const BatDiveBehavior = {
     hasDiveTarget() {
         return this.diveTargetX !== null && this.diveTargetY !== null;
     },
+
     /**
      * Helper for `getHeroHurtbox` extracted from the Bat class.
      * @this {Bat}
@@ -165,6 +199,7 @@ const BatDiveBehavior = {
     getHeroHurtbox() {
         return typeof this.player?.getHurtbox === "function" ? this.player.getHurtbox() : null;
     },
+
     /**
      * Helper for `getCenterPosition` extracted from the Bat class.
      * @this {Bat}
@@ -175,6 +210,7 @@ const BatDiveBehavior = {
             centerY: this.y + this.height / 2,
         };
     },
+
     /**
      * Helper for `calculateDiveDelta` extracted from the Bat class.
      * @this {Bat}
@@ -185,6 +221,7 @@ const BatDiveBehavior = {
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY) || 1;
         return { deltaX, deltaY, distance };
     },
+
     /**
      * Helper for `calculateDiveStep` extracted from the Bat class.
      * @this {Bat}
@@ -198,6 +235,7 @@ const BatDiveBehavior = {
             speedCap,
         };
     },
+
     /**
      * Helper for `applyDiveStep` extracted from the Bat class.
      * @this {Bat}
@@ -207,6 +245,7 @@ const BatDiveBehavior = {
         this.y += stepY;
         this.registerTravel(stepX, stepY);
     },
+
     /**
      * Helper for `nextDiveSpeed` extracted from the Bat class.
      * @this {Bat}
@@ -214,6 +253,7 @@ const BatDiveBehavior = {
     nextDiveSpeed(speedCap) {
         return Math.min(this.currentDiveSpeed + this.diveAcceleration, speedCap);
     },
+
     /**
      * Helper for `reachedDiveTarget` extracted from the Bat class.
      * @this {Bat}
@@ -225,6 +265,7 @@ const BatDiveBehavior = {
         const touchedGround = centerY >= this.diveTargetY;
         return closeHorizontally && (reachedVertical || touchedGround);
     },
+
     /**
      * Helper for `resetDiveTarget` extracted from the Bat class.
      * @this {Bat}
@@ -234,6 +275,7 @@ const BatDiveBehavior = {
         this.diveTargetY = null;
         this.currentDiveSpeed = this.baseHorizontalSpeed * 2;
     },
+
     /**
      * Helper for `ascendToAltitude` extracted from the Bat class.
      * @this {Bat}
@@ -247,20 +289,45 @@ const BatDiveBehavior = {
         this.registerTravel(horizontalDelta, -verticalDelta);
         this.updateFlightPhaseAfterAscend(topAltitude);
     },
+
+    /**
+     * Calculates the vertical climb distance for the current ascend step.
+     *
+     * @param {number} speedMultiplier
+     * @param {number} topAltitude
+     * @returns {{targetY:number,verticalDelta:number}}
+     * @this {Bat}
+     */
     calculateAscendVerticalStep(speedMultiplier, topAltitude) {
         const climbSpeed = this.verticalClimbSpeed * speedMultiplier;
         const targetY = Math.max(this.y - climbSpeed, topAltitude);
         return { targetY, verticalDelta: this.y - targetY };
     },
+
+    /**
+     * Calculates the horizontal drift applied while climbing back up.
+     *
+     * @param {number} speedMultiplier
+     * @returns {number}
+     * @this {Bat}
+     */
     calculateAscendHorizontalStep(speedMultiplier) {
         const horizontalStep = this.baseHorizontalSpeed * speedMultiplier;
         return this.otherDirection ? -horizontalStep : horizontalStep;
     },
+
+    /**
+     * Switches the flight phase back to "descend" once the apex is reached.
+     *
+     * @param {number} topAltitude
+     * @this {Bat}
+     */
     updateFlightPhaseAfterAscend(topAltitude) {
         if (this.y <= topAltitude + 1) {
             this.flightPhase = "descend";
         }
     },
+
     /**
      * Helper for `startDeathFall` extracted from the Bat class.
      * @this {Bat}
@@ -273,6 +340,7 @@ const BatDiveBehavior = {
         this.applyDeathFallFrame(frames);
         this.deathFallInterval = this.createDeathFallInterval();
     },
+
     /**
      * Helper for `applyDeathFallFrame` extracted from the Bat class.
      * @this {Bat}
@@ -284,6 +352,7 @@ const BatDiveBehavior = {
             this.img = this.imageCache[fallFrame];
         }
     },
+
     /**
      * Helper for `createDeathFallInterval` extracted from the Bat class.
      * @this {Bat}
@@ -299,6 +368,7 @@ const BatDiveBehavior = {
             this.checkDeathFallLanding();
         }, stepMs);
     },
+
     /**
      * Helper for `shouldPauseDeathFall` extracted from the Bat class.
      * @this {Bat}
@@ -307,6 +377,7 @@ const BatDiveBehavior = {
         const world = this.player?.world || this.world;
         return Boolean(world && world.isPaused);
     },
+
     /**
      * Helper for `updateDeathFallSpeed` extracted from the Bat class.
      * @this {Bat}
@@ -314,6 +385,7 @@ const BatDiveBehavior = {
     updateDeathFallSpeed(current) {
         return Math.min(current + 0.45, 12);
     },
+
     /**
      * Helper for `applyDeathFallMovement` extracted from the Bat class.
      * @this {Bat}
@@ -326,6 +398,7 @@ const BatDiveBehavior = {
             this.x += horizontalDrift;
         }
     },
+
     /**
      * Helper for `checkDeathFallLanding` extracted from the Bat class.
      * @this {Bat}
@@ -336,6 +409,7 @@ const BatDiveBehavior = {
         this.y = groundLevel;
         this.completeDeathFall();
     },
+
     /**
      * Helper for `completeDeathFall` extracted from the Bat class.
      * @this {Bat}
@@ -349,6 +423,7 @@ const BatDiveBehavior = {
         this.frameIndex = 0;
         this.lastFrameTime = 0;
     },
+
     /**
      * Helper for `holdDeathFallPose` extracted from the Bat class.
      * @this {Bat}
@@ -362,6 +437,7 @@ const BatDiveBehavior = {
             this.img = this.imageCache[fallFrame];
         }
     },
+
     /**
      * Helper for `getGroundLevel` extracted from the Bat class.
      * @this {Bat}
@@ -372,6 +448,7 @@ const BatDiveBehavior = {
         if (typeof worldGround === "number") return worldGround;
         return 340;
     },
+
     /**
      * Helper for `initializeState` extracted from the Bat class.
      * @this {Bat}
@@ -389,6 +466,7 @@ const BatDiveBehavior = {
         this.isDead = isDead;
         this.travelDistance = 0;
     },
+
     /**
      * Helper for `initializeAltitudePreferences` extracted from the Bat class.
      * @this {Bat}
@@ -398,21 +476,46 @@ const BatDiveBehavior = {
         this.maxAscendAltitude = this.resolveMaxAscendAltitude();
         this.loiterAltitude = this.resolveLoiterAltitude();
     },
+
+    /**
+     * @returns {number} Minimum altitude constraint for ascents.
+     * @this {Bat}
+     */
     resolveMinAscendAltitude() {
         return typeof this.minAscendAltitude === "number" ? this.minAscendAltitude : 0;
     },
+
+    /**
+     * @returns {number} Maximum altitude constraint, respecting the minimum.
+     * @this {Bat}
+     */
     resolveMaxAscendAltitude() {
         if (typeof this.maxAscendAltitude !== "number") {
             return Math.max(this.minAscendAltitude, 100);
         }
         return Math.max(this.maxAscendAltitude, this.minAscendAltitude);
     },
+
+    /**
+     * Computes the altitude bats prefer to idle at between dives.
+     *
+     * @returns {number}
+     * @this {Bat}
+     */
     resolveLoiterAltitude() {
         if (typeof this.loiterAltitude === "number") {
             return this.clampLoiterAltitude(this.loiterAltitude);
         }
         return this.generateRandomLoiterAltitude();
     },
+
+    /**
+     * Restricts the loiter altitude to the configured min/max range.
+     *
+     * @param {number} value
+     * @returns {number}
+     * @this {Bat}
+     */
     clampLoiterAltitude(value) {
         let result = value;
         if (typeof this.minAscendAltitude === "number" && result < this.minAscendAltitude) {
@@ -423,6 +526,13 @@ const BatDiveBehavior = {
         }
         return result;
     },
+
+    /**
+     * Generates a random loiter altitude within the allowed band.
+     *
+     * @returns {number}
+     * @this {Bat}
+     */
     generateRandomLoiterAltitude() {
         const min = this.minAscendAltitude ?? 0;
         const max = this.maxAscendAltitude ?? Math.max(min, 100);
@@ -430,6 +540,7 @@ const BatDiveBehavior = {
         const randomOffset = span > 0 ? Math.random() * span : 0;
         return min + randomOffset;
     },
+
     /**
      * Helper for `initializeSpawn` extracted from the Bat class.
      * @this {Bat}

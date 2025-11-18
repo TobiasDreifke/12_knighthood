@@ -5,7 +5,6 @@
  */
 function createLevel02() {
     const tile = 720;
-
     const enemies = [];
 
     const goblinPositions = [
@@ -34,9 +33,7 @@ function createLevel02() {
     });
 
     const pickables = [];
-
     const overlays = [];
-
     const HolyTooltip = new TooltipText({
         x: tile * 0.25,
         y: 250,
@@ -60,9 +57,6 @@ function createLevel02() {
         text: () => `To Cast a Holy press ${KeyboardMapping.getDisplayKey("THROWHOLY", "throwholy")}`,
     });
     overlays.push(ThrowHolyTooltip);
-
-    
-
 
     const level = new Level(
         enemies,

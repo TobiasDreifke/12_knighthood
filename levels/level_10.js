@@ -5,7 +5,6 @@
  */
 function createLevel10() {
     const tile = 720;
-
     const enemies = [];
 
     const batPositions = [
