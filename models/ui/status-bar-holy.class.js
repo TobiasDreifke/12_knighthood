@@ -26,21 +26,13 @@ class StatusbarHoly extends DrawableObject {
      */
     constructor() {
         super();
-
-
         this.x = 120;
         this.y = 70;
         this.width = 71;
         this.height = 53;
-
-
         this.loadImages(this.IMAGES);
         this.setAmmoCount(0);
-        // this.isHurt();
-        // this.collect();
-
     }
-
 
     /**
      * Clamps the target fill percentage and updates the active sprite.

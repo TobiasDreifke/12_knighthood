@@ -700,7 +700,6 @@ class AudioHub {
             const payload = JSON.stringify({ volume: this.masterVolume, isMuted: this.isMuted });
             window.localStorage.setItem(this.STORAGE_KEY, payload);
         } catch {
-            // Swallow storage errors silently
         }
     }
 

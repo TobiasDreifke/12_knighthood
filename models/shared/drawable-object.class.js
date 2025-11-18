@@ -20,7 +20,6 @@ class DrawableObject {
     hitboxOffsetTop = 0;
     hitboxOffsetBottom = 0;
 
-
     img;
     imageCache = {};
     currentImage = 0;
@@ -37,7 +36,6 @@ class DrawableObject {
         this.img = new Image();
         this.img.src = path
     }
-
 
     /**
      * Loads a batch of frames and caches them by file path.
@@ -59,7 +57,7 @@ class DrawableObject {
      */
     drawRectangle(ctx) {
         if (!DrawableObject.debugVisualsEnabled) return;
-        if (!this.debugColor) return;  // skip if no color set
+        if (!this.debugColor) return; 
 
         ctx.beginPath();
         ctx.lineWidth = "5";
@@ -67,7 +65,6 @@ class DrawableObject {
         ctx.rect(this.x, this.y, this.width, this.height);
         ctx.stroke();
     }
-
 
     /**
      * Renders the hurtbox outline for debugging if the object is collidable.
@@ -149,9 +146,4 @@ class DrawableObject {
 
         return { left, top, right, bottom };
     }
-
-
-
-
-
 }

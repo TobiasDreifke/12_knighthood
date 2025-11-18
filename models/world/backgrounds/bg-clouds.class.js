@@ -44,9 +44,9 @@ class Cloud extends MoveableObject {
      * Starts a timer that animates horizontal/vertical drift.
      */
     startFloating() {
-        const verticalAmplitude = 1 + Math.random() * 10; // 6-16 px drift
+        const verticalAmplitude = 1 + Math.random() * 10;  
         const verticalSpeed = 5000 + Math.random() * 3000;
-        const horizontalAmplitude = 1 + Math.random() * 20; // 10-30 px drift
+        const horizontalAmplitude = 1 + Math.random() * 20; 
         const horizontalSpeed = 7000 + Math.random() * 4000;
 
         this.anchorX = this.x;

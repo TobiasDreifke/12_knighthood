@@ -85,7 +85,6 @@ function createLevel01() {
     );
 
     level.level_end_x = tile * 4;
-    // level.projectileBarrierX = level.level_end_x - tile * 0.1;
     return level;
 }
 

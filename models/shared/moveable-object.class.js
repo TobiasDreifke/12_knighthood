@@ -3,21 +3,15 @@
  * and reusable hit/damage handling used across the hero and enemy classes.
  */
 class MoveableObject extends DrawableObject {
-
 	health = 100;
-
 	speed = 0.15;
 	slideSpeed = this.speed + 10;
-
 	groundY = 300;
 	speedY = 0;
 	acceleration = 2.5;
-
 	otherDirection = false;
 	lastHit = 0;
-
 	damageOnCollision = 10;
-
 
 	/**
 	 * Axis-aligned hurtbox collision check between this object and another.
@@ -28,8 +22,8 @@ class MoveableObject extends DrawableObject {
 	isColliding(mo) {
 		if (this.isDead || mo.isDead) return false;
 
-		const a = this.getHurtbox(); // this object's hurtbox
-		const b = mo.getHurtbox();   // other object's hurtbox
+		const a = this.getHurtbox(); 
+		const b = mo.getHurtbox();   
 
 		return a.right > b.left &&
 			a.bottom > b.top &&
@@ -46,15 +40,14 @@ class MoveableObject extends DrawableObject {
 	isHitting(mo) {
 		if (this.isDead || mo.isDead) return false;
 
-		const a = this.getHitbox();  // this object's hitbox
-		const b = mo.getHurtbox();   // enemy’s hurtbox
+		const a = this.getHitbox();  
+		const b = mo.getHurtbox();   
 
 		return a.right > b.left &&
 			a.bottom > b.top &&
 			a.left < b.right &&
 			a.top < b.bottom;
 	}
-
 
 	/**
 	 * Plays an animation array at the requested FPS, optionally looping.
@@ -174,7 +167,7 @@ class MoveableObject extends DrawableObject {
 		this.img = this.imageCache[path];
 		this.currentImage++;
 
-		if (this.onAnimationFrame) { // for SoundSynching
+		if (this.onAnimationFrame) { 
 			this.onAnimationFrame(img, i);
 		}
 	}
@@ -406,10 +399,6 @@ class MoveableObject extends DrawableObject {
 		const frameList = frames ?? fallback;
 		this.holdPose(frameList, index);
 	}
-
-	// isDead() {
-	// 	return this.health === 0;
-	// }
 
 	/**
 	 * Notifies the owning world's stats tracker of this object's death.

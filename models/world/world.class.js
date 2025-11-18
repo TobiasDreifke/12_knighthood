@@ -87,8 +87,8 @@ class World {
 		this.isRunning = true;
 		this.gameStats?.markGameStart();
 		AudioHub.playGameplayMusic();
-		this.draw();  // start rendering loop
-		this.run();   // start intervals (collision checking, throwing, etc.)
+		this.draw();  
+		this.run();   
 	}
 
 	/**

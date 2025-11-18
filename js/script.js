@@ -191,7 +191,7 @@ window.addEventListener("keydown", (event) => {
     if (!actions.length) return;
 
     if (actions.includes("JUMP")) {
-        event.preventDefault(); // important to stop scrolling sideways
+        event.preventDefault();
     }
 
     setKeyboardActionsState(actions, true);
