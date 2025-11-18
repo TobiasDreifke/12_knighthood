@@ -62,6 +62,10 @@
     <script src="./models/world/enemy-activation.js"></script>
     <script src="./models/world/interval-manager.js"></script>
     <script src="./models/world/game-stats.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
+    <script src="./js/firebase-config.js"></script>
+    <script src="./js/scoreboard.js"></script>
     <script src="./ui/game-state-ui.js"></script>
     <script src="./models/world/world.class.js"></script>
 
@@ -162,6 +166,8 @@
                     <div class="pause_actions">
                         <button id="start-button" class="toggle_button">Start Game</button>
                         <button id="start-legal-button" class="toggle_button">Legal Notice</button>
+                        <button id="start-scoreboard-button" class="toggle_button" type="button"
+                            data-open-scoreboard>Scoreboard</button>
                     </div>
                     <div class="gif_wrapper">
                         <img class="start_gif_hero" src="./01_assets/9_intro_outro_screens/RUN_LOOP.gif">
@@ -199,14 +205,41 @@
                                 <li><span>Mushrooms</span><span data-stat="kills-mushrooms">0</span></li>
                                 <li><span>Bosses</span><span data-stat="kills-bosses">0</span></li>
                             </ul>
-                        </section>
-                        <section class="win_stats__group">
                             <h3>Collected</h3>
                             <ul class="win_stats__list">
                                 <li><span>Holy Casts</span><span data-stat="collect-holy">0</span></li>
                                 <li><span>Dark Casts</span><span data-stat="collect-dark">0</span></li>
                             </ul>
                         </section>
+                        <!-- <section class="win_stats__group"> -->
+
+                        <!-- </section> -->
+                        <section class="win_stats__group">
+                            <!-- <section class="score_submit" aria-labelledby="score-submit-heading">
+                                <h3 id="score-submit-heading" class="score_submit__heading">Final Score</h3>
+                                <p class="score_submit__value">
+                                    <span id="final-score-value">0</span>
+                                </p>
+                            </section> -->
+
+                            <div class="score_submit__actions">
+                                <button id="restart-button" class="toggle_button" type="button">Play Again</button>
+                                <form id="score-submit-form" class="score_submit__form" autocomplete="off">
+                                    <label class="score_submit__label" for="player-name">Knight Name <span
+                                            id="final-score-value">0</span></label>
+                                    <div class="score_submit__controls">
+                                        <input id="player-name" name="player-name" type="text" maxlength="16" required
+                                            placeholder="Lady Ada" autocomplete="off">
+                                        <button class="toggle_button" type="submit">Submit Score</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <p id="score-submit-status" class="score_submit__status" role="status" aria-live="polite">
+                            </p>
+
+                        </section>
+
+
                         <section class="win_stats__group">
                             <h3>Combat</h3>
                             <ul class="win_stats__list">
@@ -216,17 +249,19 @@
                                 <li><span>Damage Dealt</span><span data-stat="damage-dealt">0</span></li>
                                 <li><span>Damage Taken</span><span data-stat="damage-taken">0</span></li>
                             </ul>
-                        </section>
-                        <section class="win_stats__group">
                             <h3>Mobility</h3>
                             <ul class="win_stats__list">
                                 <li><span>Slides Used</span><span data-stat="slides-used">0</span></li>
                                 <li><span>Jumps</span><span data-stat="jumps">0</span></li>
                             </ul>
                         </section>
+
+                        <!-- <section class="win_stats__group"> -->
+
+                        <!-- </section> -->
                     </div>
                 </div>
-                <button id="restart-button">Play Again</button>
+
             </div>
 
             <div id="gameover-screen" style="display: none; opacity: 0;">
@@ -276,6 +311,19 @@
 
 
     </main>
+    <div id="scoreboard-modal" class="scoreboard_modal" aria-hidden="true">
+        <div class="scoreboard_modal__dialog" role="dialog" aria-modal="true" aria-labelledby="scoreboard-modal-title">
+            <header class="scoreboard_modal__header">
+                <h3 id="scoreboard-modal-title">Global Scoreboard</h3>
+                <button type="button" class="scoreboard_modal__close" data-close-scoreboard aria-label="Close">
+                    &times;
+                </button>
+            </header>
+            <div class="scoreboard_modal__body">
+                <ol id="leaderboard-list" class="leaderboard__list"></ol>
+            </div>
+        </div>
+    </div>
     <footer></footer>
 
     <!-- MODAL LEGAL NOTICE -->

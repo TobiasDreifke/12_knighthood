@@ -37,6 +37,7 @@ class GameStateUI {
 		world.isWinSequenceActive = false;
 		world.isRunning = false;
 		this.renderStats(world, "end-screen");
+		window.Scoreboard?.handleRunFinished?.(world, { outcome: "win" });
 		this.reveal("end-screen");
 		if (typeof AudioHub !== "undefined" && typeof AudioHub.playStartScreenMusic === "function") {
 			AudioHub.playStartScreenMusic();
@@ -53,6 +54,7 @@ class GameStateUI {
 		if (!world) return;
 		world.isRunning = false;
 		this.renderStats(world, "gameover-screen");
+		window.Scoreboard?.handleRunFinished?.(world, { outcome: "lose" });
 		this.reveal("gameover-screen");
 		if (typeof AudioHub !== "undefined" && typeof AudioHub.playStartScreenMusic === "function") {
 			AudioHub.playStartScreenMusic();
@@ -66,6 +68,7 @@ class GameStateUI {
 		this.clearWinTimeout();
 		this.hide("end-screen");
 		this.hide("gameover-screen");
+		window.Scoreboard?.handleScreensHidden?.();
 	}
 
 	/**

@@ -1,3 +1,4 @@
 # Ignore archived assets
 00_unused_assets/
+js/firebase-config.js
 

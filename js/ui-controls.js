@@ -24,7 +24,9 @@ function setupRestartButtons() {
     restartIds.forEach(id => {
         const button = document.getElementById(id);
         if (!button) return;
-        button.addEventListener("click", () => restartGame());
+        button.addEventListener("click", () => {
+            restartGame({ autoStart: false, showStartScreen: true });
+        });
     });
 }
 
