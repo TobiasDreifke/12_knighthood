@@ -3,6 +3,24 @@
 
 	const LEADERBOARD_COLLECTION = "scores";
 	const MAX_LEADERBOARD_ENTRIES = 10;
+	const DEFAULT_BANNED_NAME_SUBSTRINGS = [
+		"anal",
+		"ass",
+		"bastard",
+		"bitch",
+		"cock",
+		"cunt",
+		"dick",
+		"fuck",
+		"hoe",
+		"penis",
+		"piss",
+		"prick",
+		"pussy",
+		"shit",
+		"slut",
+		"twat",
+	];
 
 	const SCORE_WEIGHTS = {
 		kills: {
@@ -296,6 +314,11 @@
 				this.nameInput?.focus();
 				return;
 			}
+			if (this.containsBannedWord(name)) {
+				this.status("Please choose a more heroic name.");
+				this.nameInput?.focus();
+				return;
+			}
 
 			this.state.submitting = true;
 			this.syncFormAvailability();
@@ -387,6 +410,15 @@
 			if (this.statusEl) {
 				this.statusEl.textContent = message || "";
 			}
+		}
+
+		containsBannedWord(name) {
+			if (!name) return false;
+			const normalized = name.toLowerCase();
+			const bannedTerms = Array.isArray(window.PROFANITY_LIST)
+				? window.PROFANITY_LIST
+				: DEFAULT_BANNED_NAME_SUBSTRINGS;
+			return bannedTerms.some(term => normalized.includes(term));
 		}
 	}
 
