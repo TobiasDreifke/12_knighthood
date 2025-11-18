@@ -9,9 +9,21 @@ const coarsePointerQuery = window.matchMedia
     ? window.matchMedia("(pointer: coarse)")
     : {
         matches: false,
+        /**
+         * No-op placeholder so older browsers safely ignore addEventListener calls.
+         */
         addEventListener() {},
+        /**
+         * No-op placeholder paired with addEventListener when no media query API exists.
+         */
         removeEventListener() {},
+        /**
+         * Legacy alias used by Safari/Chrome prior to EventTarget APIs; also a no-op.
+         */
         addListener() {},
+        /**
+         * No-op for removing legacy listeners when matchMedia lacks support.
+         */
         removeListener() {},
     };
 

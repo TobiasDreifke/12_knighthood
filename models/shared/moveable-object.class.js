@@ -124,36 +124,51 @@ class MoveableObject extends DrawableObject {
 		this.img = this.imageCache[path];
 		this.frameIndex++;
 	}
-
-
-
-
+	/**
+	 * Moves the actor to the right and flips sprite orientation accordingly.
+	 */
 	moveRight() {
 		this.x += this.speed;
 		this.otherDirection = false;
 	}
 
+	/**
+	 * Slides to the right using the slide speed (used for ducking).
+	 */
 	slideRight() {
 		this.x += this.slideSpeed;
 		this.otherDirection = false;
 	}
 
+	/**
+	 * Moves the actor to the left and flips sprite orientation.
+	 */
 	moveLeft() {
 		this.x -= this.speed;
 		this.otherDirection = true;
 	};
 
+	/**
+	 * Slides to the left using the slide speed.
+	 */
 	slideLeft() {
 		this.x -= this.slideSpeed;
 		this.otherDirection = true;
 	}
 
+	/**
+	 * Placeholder that keeps crouch compatibility with other subclasses.
+	 */
 	crouch() {
 		this.x += 0;
 	}
 
+	/**
+	 * Steps through an animation frame set and notifies hook listeners.
+	 *
+	 * @param {string[]} img
+	 */
 	playAnimation(img) {
-
 		let i = this.currentImage % img.length;
 		let path = img[i];
 		this.img = this.imageCache[path];
@@ -174,6 +189,9 @@ class MoveableObject extends DrawableObject {
 		return null;
 	}
 
+	/**
+	 * Starts a loop that applies gravity unless the world is paused.
+	 */
 	applyGravity() {
 		setInterval(() => {
 			const world = this.getWorld();
@@ -186,11 +204,17 @@ class MoveableObject extends DrawableObject {
 		}, 1000 / 25);
 	}
 
+	/**
+	 * @returns {boolean} True if the object is currently airborne.
+	 */
 	isAboveGround() {
 		if (this instanceof ThrowHoly || this instanceof ThrowDark) return true;
 		return this.y < this.groundY;
 	}
 
+	/**
+	 * Initiates an upward velocity for jump-capable actors.
+	 */
 	jump() {
 		this.speedY = 30;
 	}
@@ -285,6 +309,11 @@ class MoveableObject extends DrawableObject {
 		this.hurtTimeout = setTimeout(() => onHurtEnd?.(), duration);
 	}
 
+	/**
+	 * Shortcut that applies the default hit configuration for the object.
+	 *
+	 * @param {number} [amount=this.damageOnCollision]
+	 */
 	hit(amount = this.damageOnCollision) {
 		this.handleHit(amount);
 	}
@@ -382,6 +411,9 @@ class MoveableObject extends DrawableObject {
 	// 	return this.health === 0;
 	// }
 
+	/**
+	 * Notifies the owning world's stats tracker of this object's death.
+	 */
 	notifyStatsOfDeath() {
 		const world = this.getWorld();
 		const stats = world?.gameStats;

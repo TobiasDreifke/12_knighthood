@@ -21,6 +21,11 @@ class WorldInitializer {
 		this.ensureProjectileBarrier(world);
 	}
 
+	/**
+	 * Ensures hero and status bars have a world reference and updated ammo counts.
+	 *
+	 * @param {World} world
+	 */
 	linkCoreEntities(world) {
 		const { heroCharacter, StatusbarDark, StatusbarHoly, statusBarHealth } = world;
 		if (heroCharacter) heroCharacter.world = world;
@@ -34,6 +39,11 @@ class WorldInitializer {
 		}
 	}
 
+	/**
+	 * Attaches the world reference to level collections that need it later.
+	 *
+	 * @param {World} world
+	 */
 	attachCollections(world) {
 		const level = world.level;
 		if (!level) return;
@@ -44,17 +54,32 @@ class WorldInitializer {
 		this.entityUtils.attachWorldReference(world.overlayObjects, world);
 	}
 
+	/**
+	 * Calls `prepareEnemy` for each level enemy so they inherit world hooks.
+	 *
+	 * @param {World} world
+	 */
 	prepareEnemies(world) {
 		const enemies = world.level?.enemies;
 		if (!Array.isArray(enemies)) return;
 		enemies.forEach(enemy => this.entityUtils.prepareEnemy(enemy, world));
 	}
 
+	/**
+	 * Resets spawn coordinates for throwables/pickables.
+	 *
+	 * @param {Object[]} items
+	 */
 	prepareSpawnables(items) {
 		if (!Array.isArray(items)) return;
 		items.forEach(item => this.entityUtils.resetSpawnCoordinates(item));
 	}
 
+	/**
+	 * Ensures the level has a projectile barrier coordinate to despawn shots.
+	 *
+	 * @param {World} world
+	 */
 	ensureProjectileBarrier(world) {
 		const level = world.level;
 		if (!level) return;
@@ -63,6 +88,10 @@ class WorldInitializer {
 		level.projectileBarrierX = levelEnd;
 	}
 
+	/**
+	 * @param {World} world
+	 * @returns {number} Default barrier derived from the assembler's tile width.
+	 */
 	defaultBarrier(world) {
 		const tileWidth = world?.levelAssembler?.tileWidth ?? 720;
 		return tileWidth * 4;

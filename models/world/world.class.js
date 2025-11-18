@@ -66,6 +66,12 @@ class World {
 		this.setWorld();
 	}
 
+	/**
+	 * Builds the requested level using the configured builders/data tables.
+	 *
+	 * @param {number} index
+	 * @returns {Level}
+	 */
 	resolveLevel(index) {
 		const builders = typeof GAME_LEVEL_BUILDERS !== "undefined" ? GAME_LEVEL_BUILDERS : null;
 		const levels = typeof GAME_LEVELS !== "undefined" ? GAME_LEVELS : null;
@@ -84,10 +90,17 @@ class World {
 		this.draw();  // start rendering loop
 		this.run();   // start intervals (collision checking, throwing, etc.)
 	}
+
+	/**
+	 * Invokes the world initializer so hero, UI, and systems receive references.
+	 */
 	setWorld() {
 		this.worldInitializer.initialize(this);
 	}
 
+	/**
+	 * Starts the recurring intervals that drive collisions and projectile cooldowns.
+	 */
 	run() {
 		this.intervalManager.start(() => {
 			if (this.isPaused) return;
@@ -101,10 +114,18 @@ class World {
 		}, 10);
 	}
 
+	/**
+	 * Stops every interval managed by the world.
+	 */
 	stopAllIntervals() {
 		this.intervalManager.stopAll();
 	}
 
+	/**
+	 * Stops each enemy's timers/intervals, optionally skipping some via predicate.
+	 *
+	 * @param {(enemy:any) => boolean|null} [excludePredicate=null]
+	 */
 	stopAllEnemyActivity(excludePredicate = null) {
 		if (!this.level || !Array.isArray(this.level.enemies)) return;
 		this.level.enemies.forEach(enemy => {
@@ -141,6 +162,9 @@ class World {
 		this.isRunning = false;
 	}
 
+	/**
+	 * Prevents further keyboard input and clears any pressed keys.
+	 */
 	lockInput() {
 		this.inputLocked = true;
 		if (this.keyboard) {
@@ -152,6 +176,9 @@ class World {
 		}
 	}
 
+	/**
+	 * Allows keyboard input again after a pause or modal interaction.
+	 */
 	unlockInput() {
 		this.inputLocked = false;
 	}
@@ -172,6 +199,11 @@ class World {
 		return true;
 	}
 
+	/**
+	 * Resumes gameplay after a pause if the world is in a resumable state.
+	 *
+	 * @returns {boolean}
+	 */
 	resumeGame() {
 		if (!this.isPaused) return false;
 		this.isPaused = false;
@@ -182,6 +214,9 @@ class World {
 		return true;
 	}
 
+	/**
+	 * Syncs dark/holy ammo counters to the HUD.
+	 */
 	updateAmmoBars() {
 		if (this.StatusbarDark?.setAmmoCount) {
 			this.StatusbarDark.setAmmoCount(this.darkAmmo.length);
@@ -191,34 +226,60 @@ class World {
 		}
 	}
 
+	/**
+	 * Attempts to spawn a holy projectile if cooldown/ammo allow it.
+	 */
 	throwHoly() {
 		this.throwController.tryHoly(this);
 	}
 
+	/**
+	 * Attempts to spawn a dark projectile if cooldown/ammo allow it.
+	 */
 	throwDark() {
 		this.throwController.tryDark(this);
 	}
 
+	/**
+	 * @returns {boolean} True if a dark projectile can currently be thrown.
+	 */
 	canThrowDark() {
 		return this.throwController.canThrowDark(this);
 	}
 
+	/**
+	 * @returns {boolean} True if a holy projectile can currently be thrown.
+	 */
 	canThrowHoly() {
 		return this.throwController.canThrowHoly(this);
 	}
 
+	/**
+	 * Runs the collision system once for the current world state.
+	 */
 	checkCollisions() {
 		this.collisionSystem.update(this);
 	}
 
-
+	/**
+	 * Delegates rendering to the render loop while keeping reference to this world.
+	 */
 	draw() {
 		this.renderLoop.render(this);
 	}
+
+	/**
+	 * Runs the enemy activation system to wake/hibernate enemies as needed.
+	 */
 	updateEnemyActivation() {
 		this.enemyActivationSystem.update(this);
 	}
 
+	/**
+	 * Locks controls, stops enemies, and schedules the win screen animation flow.
+	 *
+	 * @param {object|null} finalEnemy
+	 */
 	startWinSequence(finalEnemy = null) {
 		if (this.winSequenceStarted) return;
 		this.winSequenceStarted = true;
@@ -236,6 +297,9 @@ class World {
 		this.gameStateUI.scheduleWinScreen(this, celebrationDuration);
 	}
 
+	/**
+	 * Initiates the lose state, freezing input and waiting for death animations.
+	 */
 	startGameOverSequence() {
 		if (this.gameOverSequenceStarted) return;
 		this.gameOverSequenceStarted = true;
@@ -249,6 +313,9 @@ class World {
 		setTimeout(() => this.finishGameOverSequence(), loseDelay);
 	}
 
+	/**
+	 * Cleans up after the lose delay and shows the game over overlay.
+	 */
 	finishGameOverSequence() {
 		this.stopAllIntervals();
 		this.stopAllEnemyActivity();
@@ -257,6 +324,11 @@ class World {
 		this.gameStateUI.showGameOverScreen(this);
 	}
 
+	/**
+	 * Plays the bespoke death sound for the last defeated boss, if defined.
+	 *
+	 * @param {object|null} enemy
+	 */
 	playFinalEnemyDeathSound(enemy) {
 		if (!enemy) return;
 		const soundMap = {

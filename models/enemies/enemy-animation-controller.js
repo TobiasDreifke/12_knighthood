@@ -105,6 +105,12 @@
 			this.runAfterFrameHook(enemy);
 		}
 
+		/**
+		 * Resolves which world instance should gate pause/dormant decisions.
+		 *
+		 * @param {Enemy} enemy
+		 * @returns {World|null}
+		 */
 		resolveWorld(enemy) {
 			const resolver = this.config.resolveWorld;
 			if (typeof resolver === "function") {
@@ -113,10 +119,19 @@
 			return enemy.player?.world || enemy.world;
 		}
 
+		/**
+		 * @param {World|null} world
+		 * @returns {boolean} True when the world is paused and frames should halt.
+		 */
 		shouldSkipFrame(world) {
 			return world?.isPaused;
 		}
 
+		/**
+		 * Runs the optional `onBeforeFrame` hook defined in the config.
+		 *
+		 * @param {Enemy} enemy
+		 */
 		runBeforeFrameHook(enemy) {
 			const hook = this.config.onBeforeFrame;
 			if (typeof hook === "function") {
@@ -124,6 +139,12 @@
 			}
 		}
 
+		/**
+		 * Executes the dormant handler when the condition returns true.
+		 *
+		 * @param {Enemy} enemy
+		 * @returns {boolean} True if the dormant handler handled the frame.
+		 */
 		handleDormantState(enemy) {
 			const dormant = this.config.dormant;
 			if (!dormant?.condition) return false;
@@ -132,6 +153,12 @@
 			return true;
 		}
 
+		/**
+		 * Runs configured animation states until one handles the frame.
+		 *
+		 * @param {Enemy} enemy
+		 * @returns {boolean} True if a state consumed the frame.
+		 */
 		runStateMachine(enemy) {
 			for (const state of this.states) {
 				if (!state) continue;
@@ -147,12 +174,23 @@
 			return false;
 		}
 
+		/**
+		 * Invokes the `onActive` hook and returns whether it halted the frame.
+		 *
+		 * @param {Enemy} enemy
+		 * @returns {boolean}
+		 */
 		onActiveHaltsFrame(enemy) {
 			const hook = this.config.onActive;
 			if (typeof hook !== "function") return false;
 			return hook(enemy, this) === false;
 		}
 
+		/**
+		 * Runs the `onAfterFrame` hook if defined.
+		 *
+		 * @param {Enemy} enemy
+		 */
 		runAfterFrameHook(enemy) {
 			const hook = this.config.onAfterFrame;
 			if (typeof hook === "function") {

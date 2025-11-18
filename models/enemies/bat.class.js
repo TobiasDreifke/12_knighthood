@@ -96,30 +96,50 @@ class Bat extends MoveableObject {
         this.setupAnimationController();
     }
 
+    /**
+     * Preloads every animation frame referenced by the bat frame catalog.
+     */
     loadAllImages() {
         Object.values(this.frames).forEach(group => this.loadImages(group));
     }
 
+    /**
+     * Creates and starts the enemy animation controller bound to this bat.
+     */
     setupAnimationController() {
         const controller = new EnemyAnimationController(this, createBatAnimationConfig(this));
         controller.start();
         this.animationController = controller;
     }
 
+    /**
+     * Lazily initializes the animation controller if it was stopped or missing.
+     */
     ensureAnimationController() {
         if (this.animationController) return;
         this.setupAnimationController();
     }
 
+    /**
+     * Rotates the bat toward the tracked player when within the flip threshold.
+     */
 	updateFacingDirection() {
         this.updateFacingTowardPlayer({ player: this.player, flipThreshold: 10 });
     }
 
+	/**
+	 * Applies incoming damage and delegates to the shared hit handling flow.
+	 *
+	 * @param {number} [amount=this.damageOnCollision]
+	 */
 	hit(amount = this.damageOnCollision) {
 		const handled = this.handleHit(amount, this.buildHitResponseOptions());
 		if (!handled) return;
 	}
 
+	/**
+	 * @returns {object} Options consumed by MoveableObject.handleHit.
+	 */
 	buildHitResponseOptions() {
 		const hurtFrames = this.frames.HURT?.length ?? 0;
 		return {
@@ -133,20 +153,32 @@ class Bat extends MoveableObject {
 		};
 	}
 
+	/**
+	 * Called when the bat dies; clears timeouts and triggers the fall animation.
+	 */
 	handleHitDeath() {
 		this.clearHurtTimeout();
 		this.startDeathFall();
 	}
 
+	/**
+	 * Marks the bat as hurt and clears timers before the hurt animation begins.
+	 */
 	handleHitStart() {
 		this.clearHurtTimeout();
 		this.isHurt = true;
 	}
 
+	/**
+	 * Resets the hurt flag once the hurt animation completes.
+	 */
 	handleHitEnd() {
 		this.isHurt = false;
 	}
 
+    /**
+     * Locks the sprite to the idle pose while dormant.
+     */
     holdDormantPose() {
         const idleFrame = this.frames.WALK?.[0];
         if (this.imageCache && this.imageCache[idleFrame]) {
@@ -154,17 +186,32 @@ class Bat extends MoveableObject {
         }
     }
 
+    /**
+     * Marks the bat as active so AI/animation logic can run.
+     */
     activate() {
         this.isDormant = false;
         this.activationTriggered = true;
     }
 
+    /**
+     * Syncs sound effects with the active animation frame.
+     *
+     * @param {HTMLImageElement[]} images
+     * @param {number} frameIndex
+     */
     onAnimationFrame(images, frameIndex) {
         const animationName = this.getAnimationName(images);
         if (!animationName) return;
         AudioHub.syncSound(`BAT_${animationName}`, frameIndex);
     }
 
+    /**
+     * Attempts to resolve the animation key for the provided frame array.
+     *
+     * @param {HTMLImageElement[]} images
+     * @returns {string|null}
+     */
     getAnimationName(images) {
         const catalog = this.frames || {};
         for (const [key, frames] of Object.entries(catalog)) {
@@ -175,6 +222,9 @@ class Bat extends MoveableObject {
         return null;
     }
 
+    /**
+     * Cancels any pending timeout used to leave the hurt animation.
+     */
     clearHurtTimeout() {
         if (this.hurtTimeout) {
             clearTimeout(this.hurtTimeout);
@@ -182,6 +232,9 @@ class Bat extends MoveableObject {
         }
     }
 
+	/**
+	 * Stops animation/interval timers and detaches runtime references.
+	 */
 	stopAllActivity() {
         this.animationController?.stop();
         if (this.deathFallInterval) {

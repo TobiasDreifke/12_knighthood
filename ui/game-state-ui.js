@@ -59,18 +59,29 @@ class GameStateUI {
 		}
 	}
 
+	/**
+	 * Hides all game state overlays and clears pending win timers.
+	 */
 	hideScreens() {
 		this.clearWinTimeout();
 		this.hide("end-screen");
 		this.hide("gameover-screen");
 	}
 
+	/**
+	 * Cancels the scheduled win screen timeout if one exists.
+	 */
 	clearWinTimeout() {
 		if (!this.pendingWinTimeout) return;
 		clearTimeout(this.pendingWinTimeout);
 		this.pendingWinTimeout = null;
 	}
 
+	/**
+	 * Fades in a screen by id using simple opacity animation.
+	 *
+	 * @param {string} elementId
+	 */
 	reveal(elementId) {
 		const el = this.getElement(elementId);
 		if (!el) return;
@@ -81,6 +92,11 @@ class GameStateUI {
 		}, 50);
 	}
 
+	/**
+	 * Hides a screen immediately by id.
+	 *
+	 * @param {string} elementId
+	 */
 	hide(elementId) {
 		const el = this.getElement(elementId);
 		if (!el) return;
@@ -88,6 +104,12 @@ class GameStateUI {
 		el.style.opacity = 0;
 	}
 
+	/**
+	 * Looks up an element within the injected document reference.
+	 *
+	 * @param {string} elementId
+	 * @returns {HTMLElement|null}
+	 */
 	getElement(elementId) {
 		if (!this.doc || typeof this.doc.getElementById !== "function") {
 			return null;
@@ -95,6 +117,12 @@ class GameStateUI {
 		return this.doc.getElementById(elementId);
 	}
 
+	/**
+	 * Writes formatted statistics to the scoreboard UI.
+	 *
+	 * @param {World} world
+	 * @param {string} rootId
+	 */
 	renderStats(world, rootId) {
 		if (!rootId) return;
 		const container = this.getElement(rootId);
@@ -121,12 +149,25 @@ class GameStateUI {
 		Object.entries(assignments).forEach(([key, value]) => this.assignStat(container, key, value));
 	}
 
+	/**
+	 * Updates a `[data-stat]` element within the container.
+	 *
+	 * @param {HTMLElement} container
+	 * @param {string} key
+	 * @param {string|number} value
+	 */
 	assignStat(container, key, value) {
 		const target = container.querySelector(`[data-stat="${key}"]`);
 		if (!target) return;
 		target.textContent = value;
 	}
 
+	/**
+	 * Formats milliseconds as `hh:mm:ss,cc`.
+	 *
+	 * @param {number} durationMs
+	 * @returns {string}
+	 */
 	formatDuration(durationMs) {
 		if (!Number.isFinite(durationMs) || durationMs <= 0) {
 			return "00:00:00,00";

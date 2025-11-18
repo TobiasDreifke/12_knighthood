@@ -76,11 +76,20 @@ class ThrowHoly extends MoveableObject {
         }
     }
 
+    /**
+     * Plays the idle animation loop while the projectile waits to be picked up.
+     */
     startIdleAnimation() {
         if (this.isThrown || this.isAnimating) return;
         this.startLoopAnimation(this.IMAGES_IDLE, 6);
     }
 
+    /**
+     * Starts a repeating animation for the provided frame list.
+     *
+     * @param {string[]} images
+     * @param {number} fps
+     */
     startLoopAnimation(images, fps) {
         this.stopAnimation();
         this.isAnimating = true;
@@ -93,6 +102,9 @@ class ThrowHoly extends MoveableObject {
         }, 1000 / fps);
     }
 
+    /**
+     * Cancels any running animation interval and resets flags.
+     */
     stopAnimation() {
         if (this.animationInterval) {
             clearInterval(this.animationInterval);
@@ -133,6 +145,9 @@ class ThrowHoly extends MoveableObject {
         }, 25);
     }
 
+    /**
+     * Updates projectile position, handles arc easing, and resolves impacts.
+     */
     advanceProjectile() {
         this.x += this.speedX;
         this.travelDistance += Math.abs(this.speedX);
@@ -165,6 +180,9 @@ class ThrowHoly extends MoveableObject {
         }
     }
 
+    /**
+     * @returns {number} Y coordinate where the projectile should eventually land.
+     */
     computeGroundTarget() {
         const explicitGround = typeof this.groundY === "number" ? this.groundY : null;
         const fallback = this.startY + 160;
@@ -174,18 +192,33 @@ class ThrowHoly extends MoveableObject {
         return fallback;
     }
 
+    /**
+     * Clamps the straight-flying phase ratio to sensible bounds.
+     *
+     * @param {number} value
+     * @returns {number}
+     */
     normalizeStraightRatio(value) {
         const numeric = Number(value);
         if (!Number.isFinite(numeric)) return 0.35;
         return Math.min(Math.max(numeric, 0), 0.9);
     }
 
+    /**
+     * Normalizes the maximum travel distance for the projectile.
+     *
+     * @param {number} value
+     * @returns {number}
+     */
     normalizeMaxDistance(value) {
         const numeric = Number(value);
         if (!Number.isFinite(numeric) || numeric <= 0) return 720;
         return numeric;
     }
 
+    /**
+     * Stops the projectile's movement loop and horizontal speed.
+     */
     stopMotion() {
         if (this.throwInterval) {
             clearInterval(this.throwInterval);
@@ -208,6 +241,9 @@ class ThrowHoly extends MoveableObject {
         return true;
     }
 
+    /**
+     * Plays the impact explosion animation and schedules removal.
+     */
     triggerImpact() {
         if (this.isImpacting) return;
         this.isImpacting = true;

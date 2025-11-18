@@ -249,6 +249,13 @@ function setupImpressumModal() {
     state.hide(false);
 }
 
+/**
+ * Builds paired show/hide helpers for the legal modal while preserving focus.
+ *
+ * @param {HTMLElement} modal
+ * @param {HTMLButtonElement} openButton
+ * @returns {{show:() => void, hide:(returnFocus?:boolean) => void}}
+ */
 function createModalState(modal, openButton) {
     const show = () => toggleModalVisibility(modal, { visible: true });
     const hide = (returnFocus = true) => {
@@ -260,16 +267,35 @@ function createModalState(modal, openButton) {
     return { show, hide };
 }
 
+/**
+ * Applies CSS and aria-hidden toggles to show or hide the modal.
+ *
+ * @param {HTMLElement} modal
+ * @param {{visible:boolean}} param1
+ */
 function toggleModalVisibility(modal, { visible }) {
     modal.classList.toggle("visible", visible);
     modal.setAttribute("aria-hidden", String(!visible));
 }
 
+/**
+ * Hooks the open/close buttons so they show or hide the modal state.
+ *
+ * @param {HTMLButtonElement} openButton
+ * @param {HTMLButtonElement} closeButton
+ * @param {{show:() => void, hide:(returnFocus?:boolean) => void}} modalState
+ */
 function bindLegalModalButtons(openButton, closeButton, modalState) {
     openButton.addEventListener("click", () => modalState.show());
     closeButton.addEventListener("click", () => modalState.hide());
 }
 
+/**
+ * Enables backdrop/Escape dismissal for the legal modal.
+ *
+ * @param {HTMLElement} modal
+ * @param {{hide:(returnFocus?:boolean) => void}} modalState
+ */
 function bindLegalModalDismissHandlers(modal, modalState) {
     modal.addEventListener("click", event => {
         if (event.target === modal) {
@@ -287,118 +313,62 @@ function bindLegalModalDismissHandlers(modal, modalState) {
  * Wires pause menu controls so they resume or restart the game.
  */
 function setupPauseMenu() {
-
     const pauseScreen = document.getElementById("pause-screen");
-
     if (!pauseScreen) return;
 
-
-
     const continueButton = document.getElementById("pause-continue-button");
-
     const retryButton = document.getElementById("pause-retry-button");
 
-
-
     continueButton?.addEventListener("click", () => {
-
         if (!world) return;
-
         const resumed = world.resumeGame();
-
         if (resumed) {
-
             hidePauseOverlay();
-
         }
-
     });
-
-
 
     retryButton?.addEventListener("click", () => {
-
         restartGame({ autoStart: false, showStartScreen: true });
-
     });
-
 }
 
-
-
 /**
-
  * Pauses or resumes the world depending on its current state.
-
  */
-
 function togglePause() {
-
     if (!world) return;
-
     if (world.isPaused) {
-
         const resumed = world.resumeGame();
-
         if (resumed) {
-
             hidePauseOverlay();
-
         }
-
         return;
-
     }
 
     const paused = world.pauseGame();
-
     if (paused) {
-
         showPauseOverlay();
-
     }
-
 }
 
-
-
 /**
-
  * Shows the pause overlay and ensures keyboard focus is managed.
-
  */
-
 function showPauseOverlay() {
-
     const overlay = document.getElementById("pause-screen");
-
     if (!overlay) return;
-
     overlay.classList.add("visible");
-
     overlay.setAttribute("aria-hidden", "false");
-
     overlay.focus();
-
 }
 
-
-
 /**
-
  * Hides the pause overlay.
-
  */
-
 function hidePauseOverlay() {
-
     const overlay = document.getElementById("pause-screen");
-
     if (!overlay) return;
-
     overlay.classList.remove("visible");
-
     overlay.setAttribute("aria-hidden", "true");
-
 }
 

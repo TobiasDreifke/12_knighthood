@@ -50,14 +50,30 @@ class ThrowController {
 		return true;
 	}
 
+	/**
+	 * @returns {boolean} True when holy ammo exists and cooldown expired.
+	 */
 	canThrowHoly(world) {
 		return this.hasAmmo(world?.holyAmmo) && this.isOffCooldown(world?.lastHolyThrow, world?.holyCooldownMs);
 	}
 
+	/**
+	 * @returns {boolean} True when dark ammo exists and cooldown expired.
+	 */
 	canThrowDark(world) {
 		return this.hasAmmo(world?.darkAmmo) && this.isOffCooldown(world?.lastDarkThrow, world?.darkCooldownMs);
 	}
 
+	/**
+	 * Validates that the world/input/cooldown allow a throw attempt.
+	 *
+	 * @param {World} world
+	 * @param {string} key
+	 * @param {any[]} ammo
+	 * @param {number} lastThrow
+	 * @param {number} cooldown
+	 * @returns {boolean}
+	 */
 	shouldThrow(world, key, ammo, lastThrow, cooldown) {
 		if (!world || world.isPaused) return false;
 		if (!this.isKeyPressed(world.keyboard, key)) return false;
@@ -65,25 +81,47 @@ class ThrowController {
 		return this.isOffCooldown(lastThrow, cooldown);
 	}
 
+	/**
+	 * @returns {boolean} Whether the given keyboard action is currently held.
+	 */
 	isKeyPressed(keyboard, key) {
 		if (!keyboard) return false;
 		return !!keyboard[key];
 	}
 
+	/**
+	 * @returns {boolean} True when the ammo array contains at least one projectile.
+	 */
 	hasAmmo(ammo) {
 		return Array.isArray(ammo) && ammo.length > 0;
 	}
 
+	/**
+	 * @returns {boolean} Whether enough time passed since the last throw.
+	 */
 	isOffCooldown(lastThrow, cooldown) {
 		const elapsed = Date.now() - (lastThrow || 0);
 		return elapsed >= (cooldown || 0);
 	}
 
+	/**
+	 * Pops a projectile instance from the ammo array, if one exists.
+	 *
+	 * @param {any[]} ammo
+	 * @returns {object|null}
+	 */
 	consumeProjectile(ammo) {
 		if (!this.hasAmmo(ammo)) return null;
 		return ammo.pop();
 	}
 
+	/**
+	 * Configures, launches, and tracks a projectile within the world.
+	 *
+	 * @param {object} projectile
+	 * @param {World} world
+	 * @param {object} config
+	 */
 	launchProjectile(projectile, world, config) {
 		const hero = world?.heroCharacter;
 		if (!hero || !projectile) return;
@@ -93,6 +131,13 @@ class ThrowController {
 		this.finalizeThrow(world, projectile, config, hero);
 	}
 
+	/**
+	 * Positions and tags the projectile based on the hero's current state.
+	 *
+	 * @param {object} projectile
+	 * @param {Hero} hero
+	 * @param {boolean} facingLeft
+	 */
 	configureProjectile(projectile, hero, facingLeft) {
 		projectile.world = hero.world;
 		projectile.x = hero.x + (facingLeft ? -50 : 75);
@@ -101,6 +146,12 @@ class ThrowController {
 		projectile.groundY = this.resolveGroundTarget(hero);
 	}
 
+	/**
+	 * Computes the Y target for projectile arcs based on hero ground state.
+	 *
+	 * @param {Hero} hero
+	 * @returns {number}
+	 */
 	resolveGroundTarget(hero) {
 		if (typeof hero?.groundY === "number") {
 			return Math.max(hero.groundY, hero.y + 120);
@@ -108,6 +159,13 @@ class ThrowController {
 		return hero.y + 150;
 	}
 
+	/**
+	 * Invokes the projectile's throw method with calculated parameters.
+	 *
+	 * @param {object} projectile
+	 * @param {boolean} facingLeft
+	 * @param {{throwMethod:string,horizontalPower:number,straightRatio:number,maxDistance:number}} config
+	 */
 	executeThrow(projectile, facingLeft, config) {
 		const method = projectile?.[config.throwMethod];
 		if (typeof method !== "function") return;
@@ -119,6 +177,14 @@ class ThrowController {
 		method.call(projectile, facingLeft, params);
 	}
 
+	/**
+	 * Adds the projectile to the world, updates stats, and triggers hero animations.
+	 *
+	 * @param {World} world
+	 * @param {object} projectile
+	 * @param {object} config
+	 * @param {Hero} hero
+	 */
 	finalizeThrow(world, projectile, config, hero) {
 		const collection = world?.[config.targetArray];
 		if (Array.isArray(collection)) collection.push(projectile);
@@ -130,6 +196,12 @@ class ThrowController {
 		this.triggerCast(hero, config.animationKey);
 	}
 
+	/**
+	 * Plays the hero's casting animation for the specified spell.
+	 *
+	 * @param {Hero} hero
+	 * @param {string} animationKey
+	 */
 	triggerCast(hero, animationKey) {
 		if (!hero || typeof hero.triggerCastAnimation !== "function") return;
 		hero.triggerCastAnimation(animationKey);

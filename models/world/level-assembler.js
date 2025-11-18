@@ -31,6 +31,10 @@ class LevelAssembler {
 		return this.createLevel(ctx);
 	}
 
+	/**
+	 * @returns {{enemies:any[],throwables:any[],pickables:any[],clouds:any[],backgrounds:any[],overlays:any[],checkpoints:number[],offset:number}}
+	 * Creates an empty aggregation context for builder segments.
+	 */
 	createContext() {
 		return {
 			enemies: [],
@@ -95,6 +99,13 @@ class LevelAssembler {
 		}
 	}
 
+	/**
+	 * Adds throwable items to the context while applying the current offset.
+	 *
+	 * @param {Object[]} throwables
+	 * @param {number} offset
+	 * @param {ReturnType<LevelAssembler["createContext"]>} ctx
+	 */
 	mergeThrowables(throwables, offset, ctx) {
 		if (!Array.isArray(throwables)) return;
 		throwables.forEach(item => {
@@ -104,6 +115,13 @@ class LevelAssembler {
 		});
 	}
 
+	/**
+	 * Adds pickable items to the context with offset adjustments.
+	 *
+	 * @param {Object[]} pickables
+	 * @param {number} offset
+	 * @param {ReturnType<LevelAssembler["createContext"]>} ctx
+	 */
 	mergePickables(pickables, offset, ctx) {
 		if (!Array.isArray(pickables)) return;
 		pickables.forEach(item => {
@@ -113,6 +131,12 @@ class LevelAssembler {
 		});
 	}
 
+	/**
+	 * Shifts spawnable positions by the provided offset and ensures spawn values exist.
+	 *
+	 * @param {Object} item
+	 * @param {number} offset
+	 */
 	applySpawnableOffsets(item, offset) {
 		if (typeof item.x === "number") {
 			item.x += offset;
@@ -127,6 +151,13 @@ class LevelAssembler {
 		}
 	}
 
+	/**
+	 * Adds background clouds with updated anchor positions.
+	 *
+	 * @param {Object[]} clouds
+	 * @param {number} offset
+	 * @param {ReturnType<LevelAssembler["createContext"]>} ctx
+	 */
 	mergeClouds(clouds, offset, ctx) {
 		if (!Array.isArray(clouds)) return;
 		clouds.forEach(cloud => {
@@ -141,6 +172,13 @@ class LevelAssembler {
 		});
 	}
 
+	/**
+	 * Adds parallax background objects to the context.
+	 *
+	 * @param {Object[]} objects
+	 * @param {number} offset
+	 * @param {ReturnType<LevelAssembler["createContext"]>} ctx
+	 */
 	mergeBackgrounds(objects, offset, ctx) {
 		if (!Array.isArray(objects)) return;
 		objects.forEach(obj => {
@@ -152,6 +190,13 @@ class LevelAssembler {
 		});
 	}
 
+	/**
+	 * Adds overlay UI objects to the context.
+	 *
+	 * @param {Object[]} overlays
+	 * @param {number} offset
+	 * @param {ReturnType<LevelAssembler["createContext"]>} ctx
+	 */
 	mergeOverlays(overlays, offset, ctx) {
 		if (!Array.isArray(overlays)) return;
 		overlays.forEach(overlay => {
@@ -163,6 +208,12 @@ class LevelAssembler {
 		});
 	}
 
+	/**
+	 * Converts the aggregated context into a Level instance with fallbacks.
+	 *
+	 * @param {ReturnType<LevelAssembler["createContext"]>} ctx
+	 * @returns {Level}
+	 */
 	createLevel(ctx) {
 		const clouds = ctx.clouds.length ? ctx.clouds : generateClouds(120);
 		const backgrounds = ctx.backgrounds.length ? ctx.backgrounds : createBackgroundObjects();
@@ -173,6 +224,10 @@ class LevelAssembler {
 		return level;
 	}
 
+	/**
+	 * @param {Object} segment
+	 * @returns {number} Length contribution of a builder segment.
+	 */
 	resolveSegmentLength(segment) {
 		if (typeof segment?.level_end_x === "number") {
 			return segment.level_end_x;

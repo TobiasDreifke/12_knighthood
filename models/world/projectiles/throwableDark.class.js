@@ -81,6 +81,12 @@ class ThrowDark extends MoveableObject {
         this.startLoopAnimation(this.IMAGES_IDLE, 6);
     }
 
+    /**
+     * Starts a repeating animation for the provided frames.
+     *
+     * @param {string[]} images
+     * @param {number} fps
+     */
     startLoopAnimation(images, fps) {
         this.stopAnimation();
         this.isAnimating = true;
@@ -93,6 +99,9 @@ class ThrowDark extends MoveableObject {
         }, 1000 / fps);
     }
 
+    /**
+     * Cancels any animation interval and resets animation flags.
+     */
     stopAnimation() {
         if (this.animationInterval) {
             clearInterval(this.animationInterval);
@@ -168,6 +177,9 @@ class ThrowDark extends MoveableObject {
         }
     }
 
+    /**
+     * @returns {number} Target Y position the bottle should reach.
+     */
     computeGroundTarget() {
         const explicitGround = typeof this.groundY === "number" ? this.groundY : null;
         const fallback = this.startY + 160;
@@ -177,18 +189,33 @@ class ThrowDark extends MoveableObject {
         return fallback;
     }
 
+    /**
+     * Clamps the duration of the straight flight phase.
+     *
+     * @param {number} value
+     * @returns {number}
+     */
     normalizeStraightRatio(value) {
         const numeric = Number(value);
         if (!Number.isFinite(numeric)) return 0.35;
         return Math.min(Math.max(numeric, 0), 0.9);
     }
 
+    /**
+     * Normalizes how far the projectile can travel horizontally.
+     *
+     * @param {number} value
+     * @returns {number}
+     */
     normalizeMaxDistance(value) {
         const numeric = Number(value);
         if (!Number.isFinite(numeric) || numeric <= 0) return 720;
         return numeric;
     }
 
+    /**
+     * Stops the movement timer and horizontal velocity.
+     */
     stopMotion() {
         if (this.throwInterval) {
             clearInterval(this.throwInterval);
@@ -197,6 +224,9 @@ class ThrowDark extends MoveableObject {
         this.speedX = 0;
     }
 
+    /**
+     * Plays the dark impact explosion and schedules removal.
+     */
     triggerImpact() {
         if (this.isImpacting) return;
         this.isImpacting = true;

@@ -17,10 +17,19 @@ class RenderLoop {
 		this.frameHandle = requestAnimationFrame(() => this.render(world));
 	}
 
+	/**
+	 * @returns {boolean} Whether the render loop has the required state to draw.
+	 */
 	canRender(world) {
 		return world && world.isRunning !== false && world.ctx && world.canvas;
 	}
 
+	/**
+	 * Clears the canvas and applies the world's camera translation before drawing.
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {World} world
+	 */
 	prepareFrame(ctx, world) {
 		if (typeof world.updateEnemyActivation === "function") {
 			world.updateEnemyActivation();
@@ -48,11 +57,24 @@ class RenderLoop {
 		this.drawOverlayLayer(ctx, world.overlayObjects, world);
 	}
 
+	/**
+	 * Restores the canvas state after drawing the map and overlays the HUD.
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {World} world
+	 */
 	finishFrame(ctx, world) {
 		ctx.restore();
 		this.drawUi(ctx, world);
 	}
 
+	/**
+	 * Iterates over parallax/background sprites and renders them with world context.
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {DrawableObject[]} objects
+	 * @param {World} world
+	 */
 	drawBackgroundLayer(ctx, objects, world) {
 		if (!Array.isArray(objects)) return;
 		objects.forEach(obj => {
@@ -61,6 +83,13 @@ class RenderLoop {
 		});
 	}
 
+	/**
+	 * Draws a single background sprite applying its parallax offset.
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {DrawableObject} background
+	 * @param {World} world
+	 */
 	drawBackgroundObject(ctx, background, world) {
 		if (!background || !background.img) return;
 		const parallax = background.parallax ?? 1;
@@ -69,6 +98,13 @@ class RenderLoop {
 		ctx.drawImage(background.img, drawX, background.y, background.width, background.height);
 	}
 
+	/**
+	 * Draws overlay UI objects that sit on top of gameplay.
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {DrawableObject[]} overlays
+	 * @param {World} world
+	 */
 	drawOverlayLayer(ctx, overlays, world) {
 		if (!Array.isArray(overlays)) return;
 		overlays.forEach(overlay => {
@@ -78,17 +114,37 @@ class RenderLoop {
 		});
 	}
 
+	/**
+	 * Renders the world HUD elements (health/holy/dark bars).
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {World} world
+	 */
 	drawUi(ctx, world) {
 		this.addObject(ctx, world.statusBarHealth, world);
 		this.addObject(ctx, world.StatusbarHoly, world);
 		this.addObject(ctx, world.StatusbarDark, world);
 	}
 
+	/**
+	 * Draws each object in an array, skipping invalid entries.
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {DrawableObject[]} objects
+	 * @param {World} world
+	 */
 	addObjectsToMap(ctx, objects, world) {
 		if (!Array.isArray(objects)) return;
 		objects.forEach(obj => this.addObject(ctx, obj, world));
 	}
 
+	/**
+	 * Ensures an object has a world reference and renders it plus overlays.
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {DrawableObject} obj
+	 * @param {World} world
+	 */
 	addObject(ctx, obj, world) {
 		if (!obj) return;
 		this.attachWorldIfMissing(obj, world);
@@ -97,24 +153,49 @@ class RenderLoop {
 		this.drawObjectHud(ctx, obj);
 	}
 
+	/**
+	 * Assigns the world reference so objects can access global state while drawing.
+	 *
+	 * @param {DrawableObject} obj
+	 * @param {World} world
+	 */
 	attachWorldIfMissing(obj, world) {
 		if (!obj.world) {
 			obj.world = world;
 		}
 	}
 
+	/**
+	 * Renders optional debugging rectangles if the object exposes them.
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {DrawableObject} obj
+	 */
 	drawDebugShapes(ctx, obj) {
 		this.callIfFunction(obj, obj.drawRectangle, ctx);
 		this.callIfFunction(obj, obj.drawCollisionBox, ctx);
 		this.callIfFunction(obj, obj.drawHitbox, ctx);
 	}
 
+	/**
+	 * Safely invokes a method on a target if it exists.
+	 *
+	 * @param {object} target
+	 * @param {Function|undefined} fn
+	 * @param {CanvasRenderingContext2D} ctx
+	 */
 	callIfFunction(target, fn, ctx) {
 		if (typeof fn === "function") {
 			fn.call(target, ctx);
 		}
 	}
 
+	/**
+	 * Draws an object's sprite, handling facing/mirroring automatically.
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {DrawableObject} obj
+	 */
 	drawSprite(ctx, obj) {
 		if (!obj.img) return;
 		if (obj.otherDirection === true) {
@@ -128,6 +209,12 @@ class RenderLoop {
 		ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
 	}
 
+	/**
+	 * Renders a sprite mirrored on the X axis.
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {DrawableObject} obj
+	 */
 	drawMirrored(ctx, obj) {
 		ctx.save();
 		ctx.translate(obj.x + obj.width, 0);
@@ -136,18 +223,36 @@ class RenderLoop {
 		ctx.restore();
 	}
 
+	/**
+	 * Draws any HUD the object exposes (e.g., enemy health bars).
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {DrawableObject} obj
+	 */
 	drawObjectHud(ctx, obj) {
 		if (typeof obj.drawHud === "function") {
 			obj.drawHud(ctx);
 		}
 	}
 
+	/**
+	 * Draws a right-facing sprite using the object's coordinates.
+	 *
+	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {DrawableObject} obj
+	 */
 	drawFacing(ctx, obj) {
 		ctx.save();
 		ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
 		ctx.restore();
 	}
 
+	/**
+	 * Divides rendered clouds into front/behind layers for parallax depth.
+	 *
+	 * @param {DrawableObject[]} clouds
+	 * @returns {{behind:DrawableObject[],front:DrawableObject[]}}
+	 */
 	splitCloudLayers(clouds) {
 		const layers = { behind: [], front: [] };
 		if (!Array.isArray(clouds)) return layers;
